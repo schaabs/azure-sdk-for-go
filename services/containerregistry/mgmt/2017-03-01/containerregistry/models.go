@@ -194,22 +194,30 @@ func (future RegistriesCreateFuture) Result(client RegistriesClient) (r Registry
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return r, autorest.NewError("containerregistry.RegistriesCreateFuture", "Result", "asynchronous operation has not completed")
+		return r, azure.NewAsyncOpIncompleteError("containerregistry.RegistriesCreateFuture")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		r, err = client.CreateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", future.Response(), "Failure responding to request")
+		}
 		return
 	}
 	var resp *http.Response
 	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	r, err = client.CreateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", resp, "Failure responding to request")
+	}
 	return
 }
 

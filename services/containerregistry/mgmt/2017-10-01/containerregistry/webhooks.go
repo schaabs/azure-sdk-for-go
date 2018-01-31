@@ -31,13 +31,13 @@ type WebhooksClient struct {
 }
 
 // NewWebhooksClient creates an instance of the WebhooksClient client.
-func NewWebhooksClient(subscriptionID string) WebhooksClient {
-	return NewWebhooksClientWithBaseURI(DefaultBaseURI, subscriptionID)
+func NewWebhooksClient(subscriptionID string, subscriptionID1 string) WebhooksClient {
+	return NewWebhooksClientWithBaseURI(DefaultBaseURI, subscriptionID, subscriptionID1)
 }
 
 // NewWebhooksClientWithBaseURI creates an instance of the WebhooksClient client.
-func NewWebhooksClientWithBaseURI(baseURI string, subscriptionID string) WebhooksClient {
-	return WebhooksClient{NewWithBaseURI(baseURI, subscriptionID)}
+func NewWebhooksClientWithBaseURI(baseURI string, subscriptionID string, subscriptionID1 string) WebhooksClient {
+	return WebhooksClient{NewWithBaseURI(baseURI, subscriptionID, subscriptionID1)}
 }
 
 // Create creates a webhook for a container registry with the specified parameters.

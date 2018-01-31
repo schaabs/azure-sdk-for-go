@@ -31,13 +31,13 @@ type ReplicationsClient struct {
 }
 
 // NewReplicationsClient creates an instance of the ReplicationsClient client.
-func NewReplicationsClient(subscriptionID string) ReplicationsClient {
-	return NewReplicationsClientWithBaseURI(DefaultBaseURI, subscriptionID)
+func NewReplicationsClient(subscriptionID string, subscriptionID1 string) ReplicationsClient {
+	return NewReplicationsClientWithBaseURI(DefaultBaseURI, subscriptionID, subscriptionID1)
 }
 
 // NewReplicationsClientWithBaseURI creates an instance of the ReplicationsClient client.
-func NewReplicationsClientWithBaseURI(baseURI string, subscriptionID string) ReplicationsClient {
-	return ReplicationsClient{NewWithBaseURI(baseURI, subscriptionID)}
+func NewReplicationsClientWithBaseURI(baseURI string, subscriptionID string, subscriptionID1 string) ReplicationsClient {
+	return ReplicationsClient{NewWithBaseURI(baseURI, subscriptionID, subscriptionID1)}
 }
 
 // Create creates a replication for a container registry with the specified parameters.

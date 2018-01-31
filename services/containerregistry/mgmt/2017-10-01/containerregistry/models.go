@@ -26,6 +26,54 @@ import (
 	"net/http"
 )
 
+// BuildDefinitionStatus enumerates the values for build definition status.
+type BuildDefinitionStatus string
+
+const (
+	// Disabled ...
+	Disabled BuildDefinitionStatus = "Disabled"
+	// Enabled ...
+	Enabled BuildDefinitionStatus = "Enabled"
+)
+
+// BuildStatus enumerates the values for build status.
+type BuildStatus string
+
+const (
+	// Cancelled ...
+	Cancelled BuildStatus = "Cancelled"
+	// Failed ...
+	Failed BuildStatus = "Failed"
+	// Queued ...
+	Queued BuildStatus = "Queued"
+	// Running ...
+	Running BuildStatus = "Running"
+	// Started ...
+	Started BuildStatus = "Started"
+	// Succeeded ...
+	Succeeded BuildStatus = "Succeeded"
+)
+
+// BuildType enumerates the values for build type.
+type BuildType string
+
+const (
+	// AutoBuild ...
+	AutoBuild BuildType = "AutoBuild"
+	// QuickBuild ...
+	QuickBuild BuildType = "QuickBuild"
+)
+
+// OsTypes enumerates the values for os types.
+type OsTypes string
+
+const (
+	// Linux ...
+	Linux OsTypes = "Linux"
+	// Windows ...
+	Windows OsTypes = "Windows"
+)
+
 // PasswordName enumerates the values for password name.
 type PasswordName string
 
@@ -40,18 +88,18 @@ const (
 type ProvisioningState string
 
 const (
-	// Canceled ...
-	Canceled ProvisioningState = "Canceled"
-	// Creating ...
-	Creating ProvisioningState = "Creating"
-	// Deleting ...
-	Deleting ProvisioningState = "Deleting"
-	// Failed ...
-	Failed ProvisioningState = "Failed"
-	// Succeeded ...
-	Succeeded ProvisioningState = "Succeeded"
-	// Updating ...
-	Updating ProvisioningState = "Updating"
+	// ProvisioningStateCanceled ...
+	ProvisioningStateCanceled ProvisioningState = "Canceled"
+	// ProvisioningStateCreating ...
+	ProvisioningStateCreating ProvisioningState = "Creating"
+	// ProvisioningStateDeleting ...
+	ProvisioningStateDeleting ProvisioningState = "Deleting"
+	// ProvisioningStateFailed ...
+	ProvisioningStateFailed ProvisioningState = "Failed"
+	// ProvisioningStateSucceeded ...
+	ProvisioningStateSucceeded ProvisioningState = "Succeeded"
+	// ProvisioningStateUpdating ...
+	ProvisioningStateUpdating ProvisioningState = "Updating"
 )
 
 // RegistryUsageUnit enumerates the values for registry usage unit.
@@ -92,6 +140,86 @@ const (
 	SkuTierStandard SkuTier = "Standard"
 )
 
+// SourceControlTypes enumerates the values for source control types.
+type SourceControlTypes string
+
+const (
+	// Github ...
+	Github SourceControlTypes = "Github"
+	// VisualStudioTeamService ...
+	VisualStudioTeamService SourceControlTypes = "VisualStudioTeamService"
+)
+
+// TokenType enumerates the values for token type.
+type TokenType string
+
+const (
+	// OAuth ...
+	OAuth TokenType = "OAuth"
+	// PAT ...
+	PAT TokenType = "PAT"
+)
+
+// Type enumerates the values for type.
+type Type string
+
+const (
+	// TypeBuildStepCreateParameters ...
+	TypeBuildStepCreateParameters Type = "BuildStepCreateParameters"
+	// TypeDocker ...
+	TypeDocker Type = "Docker"
+)
+
+// TypeBasicBuildStep enumerates the values for type basic build step.
+type TypeBasicBuildStep string
+
+const (
+	// TypeBasicBuildStepTypeBuildStep ...
+	TypeBasicBuildStepTypeBuildStep TypeBasicBuildStep = "BuildStep"
+	// TypeBasicBuildStepTypeDocker ...
+	TypeBasicBuildStepTypeDocker TypeBasicBuildStep = "Docker"
+)
+
+// TypeBasicBuildStepUpdateParameters enumerates the values for type basic build step update parameters.
+type TypeBasicBuildStepUpdateParameters string
+
+const (
+	// TypeBasicBuildStepUpdateParametersTypeBuildStepUpdateParameters ...
+	TypeBasicBuildStepUpdateParametersTypeBuildStepUpdateParameters TypeBasicBuildStepUpdateParameters = "BuildStepUpdateParameters"
+	// TypeBasicBuildStepUpdateParametersTypeDocker ...
+	TypeBasicBuildStepUpdateParametersTypeDocker TypeBasicBuildStepUpdateParameters = "Docker"
+)
+
+// TypeBasicBuildTrigger enumerates the values for type basic build trigger.
+type TypeBasicBuildTrigger string
+
+const (
+	// TypeBuildTrigger ...
+	TypeBuildTrigger TypeBasicBuildTrigger = "BuildTrigger"
+	// TypeImageTrigger ...
+	TypeImageTrigger TypeBasicBuildTrigger = "ImageTrigger"
+)
+
+// TypeBasicBuildTriggerParameters enumerates the values for type basic build trigger parameters.
+type TypeBasicBuildTriggerParameters string
+
+const (
+	// TypeBasicBuildTriggerParametersTypeBuildTriggerParameters ...
+	TypeBasicBuildTriggerParametersTypeBuildTriggerParameters TypeBasicBuildTriggerParameters = "BuildTriggerParameters"
+	// TypeBasicBuildTriggerParametersTypeImageTrigger ...
+	TypeBasicBuildTriggerParametersTypeImageTrigger TypeBasicBuildTriggerParameters = "ImageTrigger"
+)
+
+// TypeBasicQueueBuildParameters enumerates the values for type basic queue build parameters.
+type TypeBasicQueueBuildParameters string
+
+const (
+	// TypeBasicQueueBuildParametersTypeDocker ...
+	TypeBasicQueueBuildParametersTypeDocker TypeBasicQueueBuildParameters = "Docker"
+	// TypeBasicQueueBuildParametersTypeQueueBuildParameters ...
+	TypeBasicQueueBuildParametersTypeQueueBuildParameters TypeBasicQueueBuildParameters = "QueueBuildParameters"
+)
+
 // WebhookAction enumerates the values for webhook action.
 type WebhookAction string
 
@@ -106,10 +234,10 @@ const (
 type WebhookStatus string
 
 const (
-	// Disabled ...
-	Disabled WebhookStatus = "disabled"
-	// Enabled ...
-	Enabled WebhookStatus = "enabled"
+	// WebhookStatusDisabled ...
+	WebhookStatusDisabled WebhookStatus = "disabled"
+	// WebhookStatusEnabled ...
+	WebhookStatusEnabled WebhookStatus = "enabled"
 )
 
 // Actor the agent that initiated the event. For most situations, this could be from the authorization context of the
@@ -119,6 +247,1652 @@ type Actor struct {
 	Name *string `json:"name,omitempty"`
 }
 
+// Build the properties for a build.
+type Build struct {
+	autorest.Response `json:"-"`
+	// BuildID - The unique identifier for the build.
+	BuildID *string `json:"buildId,omitempty"`
+	// Status - The current status of the build. Possible values include: 'Queued', 'Started', 'Running', 'Succeeded', 'Failed', 'Cancelled'
+	Status BuildStatus `json:"status,omitempty"`
+	// LastUpdatedTime - The last updated time for the build.
+	LastUpdatedTime *date.Time `json:"lastUpdatedTime,omitempty"`
+	// BuildType - The type of build. Possible values include: 'AutoBuild', 'QuickBuild'
+	BuildType BuildType `json:"buildType,omitempty"`
+	// CreateTime - The time the build was created.
+	CreateTime *date.Time `json:"createTime,omitempty"`
+	// StartTime - The time the build started.
+	StartTime *date.Time `json:"startTime,omitempty"`
+	// FinishTime - The time the build finished.
+	FinishTime *date.Time `json:"finishTime,omitempty"`
+	// OutputImages - The list of all images that were generated from the build.
+	OutputImages *[]ImageDescriptor `json:"outputImages,omitempty"`
+	// BuildDefinition - All the properties of the build definition with which the build was started.
+	BuildDefinition *string `json:"buildDefinition,omitempty"`
+	// Trigger - The trigger that caused the build.
+	Trigger *string `json:"trigger,omitempty"`
+	// IsArchiveEnabled - The value that indicates whether archiving is enabled or not.
+	IsArchiveEnabled *bool `json:"isArchiveEnabled,omitempty"`
+	// Platform - The platform properties against which the build will happen.
+	Platform *PlatformProperties `json:"platform,omitempty"`
+}
+
+// BuildArgument properties of a build argument.
+type BuildArgument struct {
+	// Type - The type of the argument.
+	Type *string `json:"type,omitempty"`
+	// Name - The name of the argument.
+	Name *string `json:"name,omitempty"`
+	// Value - The value of the argument.
+	Value *string `json:"value,omitempty"`
+	// IsSecret - Flag to indicate whether the argument represents a secret and want to be removed from build logs.
+	IsSecret *bool `json:"isSecret,omitempty"`
+}
+
+// BuildBase the shallow information about build.
+type BuildBase struct {
+	// BuildID - The unique identifier for the build.
+	BuildID *string `json:"buildId,omitempty"`
+	// Status - The current status of the build. Possible values include: 'Queued', 'Started', 'Running', 'Succeeded', 'Failed', 'Cancelled'
+	Status BuildStatus `json:"status,omitempty"`
+	// LastUpdatedTime - The last updated time for the build.
+	LastUpdatedTime *date.Time `json:"lastUpdatedTime,omitempty"`
+}
+
+// BuildDefinition the Build defintion that has the resource and all build items. The build definition will have all
+// information to schedule a build against it.
+type BuildDefinition struct {
+	autorest.Response `json:"-"`
+	// ID - The resource ID.
+	ID *string `json:"id,omitempty"`
+	// Name - The name of the resource.
+	Name *string `json:"name,omitempty"`
+	// Type - The type of the resource.
+	Type *string `json:"type,omitempty"`
+	// Location - The location of the resource. This cannot be changed after the resource is created.
+	Location *string `json:"location,omitempty"`
+	// Tags - The tags of the resource.
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// BuildDefinitionProperties - The properties of a build definition.
+	*BuildDefinitionProperties `json:"properties,omitempty"`
+}
+
+// UnmarshalJSON is the custom unmarshaler for BuildDefinition struct.
+func (bd *BuildDefinition) UnmarshalJSON(body []byte) error {
+	var m map[string]*json.RawMessage
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return err
+	}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties BuildDefinitionProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
+		}
+		bd.BuildDefinitionProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		bd.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		bd.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		bd.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		bd.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		bd.Tags = &tags
+	}
+
+	return nil
+}
+
+// BuildDefinitionCreateParameters the parameters for creating a build definition.
+type BuildDefinitionCreateParameters struct {
+	// BuildDefinitionPropertiesCreateParameters - The properties for creating a build definition.
+	*BuildDefinitionPropertiesCreateParameters `json:"properties,omitempty"`
+	// Location - The region of the resource.
+	Location *string `json:"location,omitempty"`
+	// Tags - The ARM resource tags.
+	Tags *map[string]*string `json:"tags,omitempty"`
+}
+
+// UnmarshalJSON is the custom unmarshaler for BuildDefinitionCreateParameters struct.
+func (bdcp *BuildDefinitionCreateParameters) UnmarshalJSON(body []byte) error {
+	var m map[string]*json.RawMessage
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return err
+	}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties BuildDefinitionPropertiesCreateParameters
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
+		}
+		bdcp.BuildDefinitionPropertiesCreateParameters = &properties
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		bdcp.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		bdcp.Tags = &tags
+	}
+
+	return nil
+}
+
+// BuildDefinitionFilter the filter that can be used for listing build definitions.
+type BuildDefinitionFilter struct {
+	// Alias - The alternative name for build definition.
+	Alias *string `json:"alias,omitempty"`
+}
+
+// BuildDefinitionListResult the collection of build definitions.
+type BuildDefinitionListResult struct {
+	autorest.Response `json:"-"`
+	// Value - The collection value.
+	Value *[]BuildDefinition `json:"value,omitempty"`
+	// NextLink - The full NextLink used for paging.
+	NextLink *string `json:"nextLink,omitempty"`
+}
+
+// BuildDefinitionListResultIterator provides access to a complete listing of BuildDefinition values.
+type BuildDefinitionListResultIterator struct {
+	i    int
+	page BuildDefinitionListResultPage
+}
+
+// Next advances to the next value.  If there was an error making
+// the request the iterator does not advance and the error is returned.
+func (iter *BuildDefinitionListResultIterator) Next() error {
+	iter.i++
+	if iter.i < len(iter.page.Values()) {
+		return nil
+	}
+	err := iter.page.Next()
+	if err != nil {
+		iter.i--
+		return err
+	}
+	iter.i = 0
+	return nil
+}
+
+// NotDone returns true if the enumeration should be started or is not yet complete.
+func (iter BuildDefinitionListResultIterator) NotDone() bool {
+	return iter.page.NotDone() && iter.i < len(iter.page.Values())
+}
+
+// Response returns the raw server response from the last page request.
+func (iter BuildDefinitionListResultIterator) Response() BuildDefinitionListResult {
+	return iter.page.Response()
+}
+
+// Value returns the current value or a zero-initialized value if the
+// iterator has advanced beyond the end of the collection.
+func (iter BuildDefinitionListResultIterator) Value() BuildDefinition {
+	if !iter.page.NotDone() {
+		return BuildDefinition{}
+	}
+	return iter.page.Values()[iter.i]
+}
+
+// IsEmpty returns true if the ListResult contains no values.
+func (bdlr BuildDefinitionListResult) IsEmpty() bool {
+	return bdlr.Value == nil || len(*bdlr.Value) == 0
+}
+
+// buildDefinitionListResultPreparer prepares a request to retrieve the next set of results.
+// It returns nil if no more results exist.
+func (bdlr BuildDefinitionListResult) buildDefinitionListResultPreparer() (*http.Request, error) {
+	if bdlr.NextLink == nil || len(to.String(bdlr.NextLink)) < 1 {
+		return nil, nil
+	}
+	return autorest.Prepare(&http.Request{},
+		autorest.AsJSON(),
+		autorest.AsGet(),
+		autorest.WithBaseURL(to.String(bdlr.NextLink)))
+}
+
+// BuildDefinitionListResultPage contains a page of BuildDefinition values.
+type BuildDefinitionListResultPage struct {
+	fn   func(BuildDefinitionListResult) (BuildDefinitionListResult, error)
+	bdlr BuildDefinitionListResult
+}
+
+// Next advances to the next page of values.  If there was an error making
+// the request the page does not advance and the error is returned.
+func (page *BuildDefinitionListResultPage) Next() error {
+	next, err := page.fn(page.bdlr)
+	if err != nil {
+		return err
+	}
+	page.bdlr = next
+	return nil
+}
+
+// NotDone returns true if the page enumeration should be started or is not yet complete.
+func (page BuildDefinitionListResultPage) NotDone() bool {
+	return !page.bdlr.IsEmpty()
+}
+
+// Response returns the raw server response from the last page request.
+func (page BuildDefinitionListResultPage) Response() BuildDefinitionListResult {
+	return page.bdlr
+}
+
+// Values returns the slice of values for the current page or nil if there are no values.
+func (page BuildDefinitionListResultPage) Values() []BuildDefinition {
+	if page.bdlr.IsEmpty() {
+		return nil
+	}
+	return *page.bdlr.Value
+}
+
+// BuildDefinitionProperties the properties of a build definition.
+type BuildDefinitionProperties struct {
+	// ProvisioningState - The provisioning state of the build definition. Possible values include: 'ProvisioningStateCreating', 'ProvisioningStateUpdating', 'ProvisioningStateDeleting', 'ProvisioningStateSucceeded', 'ProvisioningStateFailed', 'ProvisioningStateCanceled'
+	ProvisioningState ProvisioningState `json:"provisioningState,omitempty"`
+	// CreationDate - The creation date of build definition.
+	CreationDate *date.Time `json:"creationDate,omitempty"`
+	// Alias - The alternative updatable name for a build definition.
+	Alias *string `json:"alias,omitempty"`
+	// Status - The current status of build definition. Possible values include: 'Disabled', 'Enabled'
+	Status BuildDefinitionStatus `json:"status,omitempty"`
+	// SourceRepository - The properties that describes the source(code) for the build definition.
+	SourceRepository *SourceRepositoryProperties `json:"sourceRepository,omitempty"`
+	// Timeout - Build Time out in seconds.
+	Timeout *int32 `json:"timeout,omitempty"`
+	// IsBaseImageTriggersEnabled - The value of this property indicates whether auto triggers of the build items trigger a build against this definition.
+	IsBaseImageTriggersEnabled *bool `json:"isBaseImageTriggersEnabled,omitempty"`
+}
+
+// BuildDefinitionPropertiesCreateParameters the properties for creating a build definition.
+type BuildDefinitionPropertiesCreateParameters struct {
+	// SourceRepository - The properties that describes the source(code) for the build definition.
+	SourceRepository *SourceRepositoryCreateParameters `json:"sourceRepository,omitempty"`
+	// Steps - The list of build steps in a build definition.
+	Steps *[]BasicBuildStepCreateParameters `json:"steps,omitempty"`
+	// Triggers - A collection of custom triggers for this build definition.
+	Triggers *[]BasicBuildTriggerParameters `json:"triggers,omitempty"`
+	// Alias - The alternative updatable name for a build definition.
+	Alias *string `json:"alias,omitempty"`
+	// Status - The current status of build definition. Possible values include: 'Disabled', 'Enabled'
+	Status BuildDefinitionStatus `json:"status,omitempty"`
+	// Timeout - Build Time out in seconds.
+	Timeout *int32 `json:"timeout,omitempty"`
+	// IsBaseImageTriggersEnabled - The value of this property indicates whether auto triggers of the build items trigger a build against this definition.
+	IsBaseImageTriggersEnabled *bool `json:"isBaseImageTriggersEnabled,omitempty"`
+}
+
+// UnmarshalJSON is the custom unmarshaler for BuildDefinitionPropertiesCreateParameters struct.
+func (bdpcp *BuildDefinitionPropertiesCreateParameters) UnmarshalJSON(body []byte) error {
+	var m map[string]*json.RawMessage
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return err
+	}
+	var v *json.RawMessage
+
+	v = m["sourceRepository"]
+	if v != nil {
+		var sourceRepository SourceRepositoryCreateParameters
+		err = json.Unmarshal(*m["sourceRepository"], &sourceRepository)
+		if err != nil {
+			return err
+		}
+		bdpcp.SourceRepository = &sourceRepository
+	}
+
+	v = m["steps"]
+	if v != nil {
+		steps, err := unmarshalBasicBuildStepCreateParametersArray(*m["steps"])
+		if err != nil {
+			return err
+		}
+		bdpcp.Steps = &steps
+	}
+
+	v = m["triggers"]
+	if v != nil {
+		triggers, err := unmarshalBasicBuildTriggerParametersArray(*m["triggers"])
+		if err != nil {
+			return err
+		}
+		bdpcp.Triggers = &triggers
+	}
+
+	v = m["alias"]
+	if v != nil {
+		var alias string
+		err = json.Unmarshal(*m["alias"], &alias)
+		if err != nil {
+			return err
+		}
+		bdpcp.Alias = &alias
+	}
+
+	v = m["status"]
+	if v != nil {
+		var status BuildDefinitionStatus
+		err = json.Unmarshal(*m["status"], &status)
+		if err != nil {
+			return err
+		}
+		bdpcp.Status = status
+	}
+
+	v = m["timeout"]
+	if v != nil {
+		var timeout int32
+		err = json.Unmarshal(*m["timeout"], &timeout)
+		if err != nil {
+			return err
+		}
+		bdpcp.Timeout = &timeout
+	}
+
+	v = m["isBaseImageTriggersEnabled"]
+	if v != nil {
+		var isBaseImageTriggersEnabled bool
+		err = json.Unmarshal(*m["isBaseImageTriggersEnabled"], &isBaseImageTriggersEnabled)
+		if err != nil {
+			return err
+		}
+		bdpcp.IsBaseImageTriggersEnabled = &isBaseImageTriggersEnabled
+	}
+
+	return nil
+}
+
+// BuildDefinitionPropertiesUpdateParameters the properties for updating a build definition.
+type BuildDefinitionPropertiesUpdateParameters struct {
+	// Alias - The alternative updatable name for a build definition.
+	Alias *string `json:"alias,omitempty"`
+	// Status - The current status of build definition. Possible values include: 'Disabled', 'Enabled'
+	Status BuildDefinitionStatus `json:"status,omitempty"`
+	// Timeout - Build Time out in seconds.
+	Timeout *int32 `json:"timeout,omitempty"`
+	// IsBaseImageTriggersEnabled - The value of this property indicates whether auto triggers of the build items trigger a build against this definition.
+	IsBaseImageTriggersEnabled *bool `json:"isBaseImageTriggersEnabled,omitempty"`
+	// SourceRepository - The properties that describes the source(code) for the build definition.
+	SourceRepository *SourceRepositoryUpdateParameters `json:"sourceRepository,omitempty"`
+}
+
+// BuildDefinitionsAddTriggerFuture an abstraction for monitoring and retrieving the results of a long-running
+// operation.
+type BuildDefinitionsAddTriggerFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future BuildDefinitionsAddTriggerFuture) Result(client BuildDefinitionsClient) (btm BuildTriggerModel, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsAddTriggerFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return btm, azure.NewAsyncOpIncompleteError("containerregistry.BuildDefinitionsAddTriggerFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		btm, err = client.AddTriggerResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsAddTriggerFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsAddTriggerFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	btm, err = client.AddTriggerResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsAddTriggerFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// BuildDefinitionsCreateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type BuildDefinitionsCreateFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future BuildDefinitionsCreateFuture) Result(client BuildDefinitionsClient) (bd BuildDefinition, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsCreateFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return bd, azure.NewAsyncOpIncompleteError("containerregistry.BuildDefinitionsCreateFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		bd, err = client.CreateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsCreateFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsCreateFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	bd, err = client.CreateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsCreateFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// BuildDefinitionsDeleteFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type BuildDefinitionsDeleteFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future BuildDefinitionsDeleteFuture) Result(client BuildDefinitionsClient) (ar autorest.Response, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsDeleteFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return ar, azure.NewAsyncOpIncompleteError("containerregistry.BuildDefinitionsDeleteFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		ar, err = client.DeleteResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsDeleteFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsDeleteFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	ar, err = client.DeleteResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsDeleteFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// BuildDefinitionsQueueBuildFuture an abstraction for monitoring and retrieving the results of a long-running
+// operation.
+type BuildDefinitionsQueueBuildFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future BuildDefinitionsQueueBuildFuture) Result(client BuildDefinitionsClient) (b Build, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsQueueBuildFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return b, azure.NewAsyncOpIncompleteError("containerregistry.BuildDefinitionsQueueBuildFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		b, err = client.QueueBuildResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsQueueBuildFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsQueueBuildFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	b, err = client.QueueBuildResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsQueueBuildFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// BuildDefinitionsUpdateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type BuildDefinitionsUpdateFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future BuildDefinitionsUpdateFuture) Result(client BuildDefinitionsClient) (bd BuildDefinition, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsUpdateFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return bd, azure.NewAsyncOpIncompleteError("containerregistry.BuildDefinitionsUpdateFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		bd, err = client.UpdateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsUpdateFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsUpdateFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	bd, err = client.UpdateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsUpdateFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// BuildDefinitionUpdateParameters the parameters for updating a build definition.
+type BuildDefinitionUpdateParameters struct {
+	// BuildDefinitionPropertiesUpdateParameters - The properties for updating a build definition.
+	*BuildDefinitionPropertiesUpdateParameters `json:"properties,omitempty"`
+	// Tags - The ARM resource tags.
+	Tags *map[string]*string `json:"tags,omitempty"`
+}
+
+// UnmarshalJSON is the custom unmarshaler for BuildDefinitionUpdateParameters struct.
+func (bdup *BuildDefinitionUpdateParameters) UnmarshalJSON(body []byte) error {
+	var m map[string]*json.RawMessage
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return err
+	}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties BuildDefinitionPropertiesUpdateParameters
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
+		}
+		bdup.BuildDefinitionPropertiesUpdateParameters = &properties
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		bdup.Tags = &tags
+	}
+
+	return nil
+}
+
+// BuildFilter properties that are enabled for Odata querying.
+type BuildFilter struct {
+	// BuildID - The unique identifier for the build.
+	BuildID *string `json:"buildId,omitempty"`
+	// BuildType - The type of build. Possible values include: 'AutoBuild', 'QuickBuild'
+	BuildType BuildType `json:"buildType,omitempty"`
+	// Status - The current status of the build. Possible values include: 'Queued', 'Started', 'Running', 'Succeeded', 'Failed', 'Cancelled'
+	Status BuildStatus `json:"status,omitempty"`
+	// CreateTime - The create time for a build.
+	CreateTime *date.Time `json:"createTime,omitempty"`
+	// FinishTime - The time the build finished.
+	FinishTime *date.Time `json:"finishTime,omitempty"`
+	// OutputImageNames - The list of all images that were generated from the build.
+	OutputImageNames *[]string `json:"outputImageNames,omitempty"`
+	// IsArchiveEnabled - The value that indicates whether archiving is enabled or not.
+	IsArchiveEnabled *bool `json:"isArchiveEnabled,omitempty"`
+}
+
+// BuildListResult collection of builds.
+type BuildListResult struct {
+	autorest.Response `json:"-"`
+	// Value - The collection value.
+	Value *[]BuildBase `json:"value,omitempty"`
+	// NextLink - The full NextLink used for paging.
+	NextLink *string `json:"nextLink,omitempty"`
+}
+
+// BuildListResultIterator provides access to a complete listing of BuildBase values.
+type BuildListResultIterator struct {
+	i    int
+	page BuildListResultPage
+}
+
+// Next advances to the next value.  If there was an error making
+// the request the iterator does not advance and the error is returned.
+func (iter *BuildListResultIterator) Next() error {
+	iter.i++
+	if iter.i < len(iter.page.Values()) {
+		return nil
+	}
+	err := iter.page.Next()
+	if err != nil {
+		iter.i--
+		return err
+	}
+	iter.i = 0
+	return nil
+}
+
+// NotDone returns true if the enumeration should be started or is not yet complete.
+func (iter BuildListResultIterator) NotDone() bool {
+	return iter.page.NotDone() && iter.i < len(iter.page.Values())
+}
+
+// Response returns the raw server response from the last page request.
+func (iter BuildListResultIterator) Response() BuildListResult {
+	return iter.page.Response()
+}
+
+// Value returns the current value or a zero-initialized value if the
+// iterator has advanced beyond the end of the collection.
+func (iter BuildListResultIterator) Value() BuildBase {
+	if !iter.page.NotDone() {
+		return BuildBase{}
+	}
+	return iter.page.Values()[iter.i]
+}
+
+// IsEmpty returns true if the ListResult contains no values.
+func (blr BuildListResult) IsEmpty() bool {
+	return blr.Value == nil || len(*blr.Value) == 0
+}
+
+// buildListResultPreparer prepares a request to retrieve the next set of results.
+// It returns nil if no more results exist.
+func (blr BuildListResult) buildListResultPreparer() (*http.Request, error) {
+	if blr.NextLink == nil || len(to.String(blr.NextLink)) < 1 {
+		return nil, nil
+	}
+	return autorest.Prepare(&http.Request{},
+		autorest.AsJSON(),
+		autorest.AsGet(),
+		autorest.WithBaseURL(to.String(blr.NextLink)))
+}
+
+// BuildListResultPage contains a page of BuildBase values.
+type BuildListResultPage struct {
+	fn  func(BuildListResult) (BuildListResult, error)
+	blr BuildListResult
+}
+
+// Next advances to the next page of values.  If there was an error making
+// the request the page does not advance and the error is returned.
+func (page *BuildListResultPage) Next() error {
+	next, err := page.fn(page.blr)
+	if err != nil {
+		return err
+	}
+	page.blr = next
+	return nil
+}
+
+// NotDone returns true if the page enumeration should be started or is not yet complete.
+func (page BuildListResultPage) NotDone() bool {
+	return !page.blr.IsEmpty()
+}
+
+// Response returns the raw server response from the last page request.
+func (page BuildListResultPage) Response() BuildListResult {
+	return page.blr
+}
+
+// Values returns the slice of values for the current page or nil if there are no values.
+func (page BuildListResultPage) Values() []BuildBase {
+	if page.blr.IsEmpty() {
+		return nil
+	}
+	return *page.blr.Value
+}
+
+// BuildLogParameters the parameters for requesting build logs.
+type BuildLogParameters struct {
+	// LogType - The type of build log.
+	LogType *string `json:"logType,omitempty"`
+}
+
+// BuildLogResult the result of get build logs.
+type BuildLogResult struct {
+	autorest.Response `json:"-"`
+	// LogType - The type of build log.
+	LogType *string `json:"logType,omitempty"`
+	// LogLink - The link to the build log.
+	LogLink *string `json:"logLink,omitempty"`
+}
+
+// BuildsCancelFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type BuildsCancelFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future BuildsCancelFuture) Result(client BuildsClient) (ar autorest.Response, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildsCancelFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return ar, azure.NewAsyncOpIncompleteError("containerregistry.BuildsCancelFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		ar, err = client.CancelResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.BuildsCancelFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildsCancelFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	ar, err = client.CancelResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildsCancelFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// BuildsQueueFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type BuildsQueueFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future BuildsQueueFuture) Result(client BuildsClient) (b Build, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildsQueueFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return b, azure.NewAsyncOpIncompleteError("containerregistry.BuildsQueueFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		b, err = client.QueueResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.BuildsQueueFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildsQueueFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	b, err = client.QueueResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildsQueueFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// BasicBuildStep base properties for any  build step.
+type BasicBuildStep interface {
+	AsDockerBuildStep() (*DockerBuildStep, bool)
+	AsBuildStep() (*BuildStep, bool)
+}
+
+// BuildStep base properties for any  build step.
+type BuildStep struct {
+	autorest.Response `json:"-"`
+	// Name - The unique name of the step.
+	Name *string `json:"name,omitempty"`
+	// Type - Possible values include: 'TypeBasicBuildStepTypeBuildStep', 'TypeBasicBuildStepTypeDocker'
+	Type TypeBasicBuildStep `json:"type,omitempty"`
+}
+
+func unmarshalBasicBuildStep(body []byte) (BasicBuildStep, error) {
+	var m map[string]interface{}
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return nil, err
+	}
+
+	switch m["type"] {
+	case string(TypeBasicBuildStepTypeDocker):
+		var dbs DockerBuildStep
+		err := json.Unmarshal(body, &dbs)
+		return dbs, err
+	default:
+		var bs BuildStep
+		err := json.Unmarshal(body, &bs)
+		return bs, err
+	}
+}
+func unmarshalBasicBuildStepArray(body []byte) ([]BasicBuildStep, error) {
+	var rawMessages []*json.RawMessage
+	err := json.Unmarshal(body, &rawMessages)
+	if err != nil {
+		return nil, err
+	}
+
+	bsArray := make([]BasicBuildStep, len(rawMessages))
+
+	for index, rawMessage := range rawMessages {
+		bs, err := unmarshalBasicBuildStep(*rawMessage)
+		if err != nil {
+			return nil, err
+		}
+		bsArray[index] = bs
+	}
+	return bsArray, nil
+}
+
+// MarshalJSON is the custom marshaler for BuildStep.
+func (bs BuildStep) MarshalJSON() ([]byte, error) {
+	bs.Type = TypeBasicBuildStepTypeBuildStep
+	type Alias BuildStep
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(bs),
+	})
+}
+
+// AsDockerBuildStep is the BasicBuildStep implementation for BuildStep.
+func (bs BuildStep) AsDockerBuildStep() (*DockerBuildStep, bool) {
+	return nil, false
+}
+
+// AsBuildStep is the BasicBuildStep implementation for BuildStep.
+func (bs BuildStep) AsBuildStep() (*BuildStep, bool) {
+	return &bs, true
+}
+
+// AsBasicBuildStep is the BasicBuildStep implementation for BuildStep.
+func (bs BuildStep) AsBasicBuildStep() (BasicBuildStep, bool) {
+	return &bs, true
+}
+
+// BasicBuildStepCreateParameters the base properties for creating any build step.
+type BasicBuildStepCreateParameters interface {
+	AsDockerBuildStepCreateParameters() (*DockerBuildStepCreateParameters, bool)
+	AsBuildStepCreateParameters() (*BuildStepCreateParameters, bool)
+}
+
+// BuildStepCreateParameters the base properties for creating any build step.
+type BuildStepCreateParameters struct {
+	// Name - The unique name of the step.
+	Name *string `json:"name,omitempty"`
+	// Type - Possible values include: 'TypeBuildStepCreateParameters', 'TypeDocker'
+	Type Type `json:"type,omitempty"`
+}
+
+func unmarshalBasicBuildStepCreateParameters(body []byte) (BasicBuildStepCreateParameters, error) {
+	var m map[string]interface{}
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return nil, err
+	}
+
+	switch m["type"] {
+	case string(TypeDocker):
+		var dbscp DockerBuildStepCreateParameters
+		err := json.Unmarshal(body, &dbscp)
+		return dbscp, err
+	default:
+		var bscp BuildStepCreateParameters
+		err := json.Unmarshal(body, &bscp)
+		return bscp, err
+	}
+}
+func unmarshalBasicBuildStepCreateParametersArray(body []byte) ([]BasicBuildStepCreateParameters, error) {
+	var rawMessages []*json.RawMessage
+	err := json.Unmarshal(body, &rawMessages)
+	if err != nil {
+		return nil, err
+	}
+
+	bscpArray := make([]BasicBuildStepCreateParameters, len(rawMessages))
+
+	for index, rawMessage := range rawMessages {
+		bscp, err := unmarshalBasicBuildStepCreateParameters(*rawMessage)
+		if err != nil {
+			return nil, err
+		}
+		bscpArray[index] = bscp
+	}
+	return bscpArray, nil
+}
+
+// MarshalJSON is the custom marshaler for BuildStepCreateParameters.
+func (bscp BuildStepCreateParameters) MarshalJSON() ([]byte, error) {
+	bscp.Type = TypeBuildStepCreateParameters
+	type Alias BuildStepCreateParameters
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(bscp),
+	})
+}
+
+// AsDockerBuildStepCreateParameters is the BasicBuildStepCreateParameters implementation for BuildStepCreateParameters.
+func (bscp BuildStepCreateParameters) AsDockerBuildStepCreateParameters() (*DockerBuildStepCreateParameters, bool) {
+	return nil, false
+}
+
+// AsBuildStepCreateParameters is the BasicBuildStepCreateParameters implementation for BuildStepCreateParameters.
+func (bscp BuildStepCreateParameters) AsBuildStepCreateParameters() (*BuildStepCreateParameters, bool) {
+	return &bscp, true
+}
+
+// AsBasicBuildStepCreateParameters is the BasicBuildStepCreateParameters implementation for BuildStepCreateParameters.
+func (bscp BuildStepCreateParameters) AsBasicBuildStepCreateParameters() (BasicBuildStepCreateParameters, bool) {
+	return &bscp, true
+}
+
+// BuildStepList the collection of build items.
+type BuildStepList struct {
+	autorest.Response `json:"-"`
+	// Value - The collection value.
+	Value *[]BasicBuildStep `json:"value,omitempty"`
+	// NextLink - The full NextLink used for paging.
+	NextLink *string `json:"nextLink,omitempty"`
+}
+
+// UnmarshalJSON is the custom unmarshaler for BuildStepList struct.
+func (bsl *BuildStepList) UnmarshalJSON(body []byte) error {
+	var m map[string]*json.RawMessage
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return err
+	}
+	var v *json.RawMessage
+
+	v = m["value"]
+	if v != nil {
+		value, err := unmarshalBasicBuildStepArray(*m["value"])
+		if err != nil {
+			return err
+		}
+		bsl.Value = &value
+	}
+
+	v = m["nextLink"]
+	if v != nil {
+		var nextLink string
+		err = json.Unmarshal(*m["nextLink"], &nextLink)
+		if err != nil {
+			return err
+		}
+		bsl.NextLink = &nextLink
+	}
+
+	return nil
+}
+
+// BuildStepListIterator provides access to a complete listing of BuildStep values.
+type BuildStepListIterator struct {
+	i    int
+	page BuildStepListPage
+}
+
+// Next advances to the next value.  If there was an error making
+// the request the iterator does not advance and the error is returned.
+func (iter *BuildStepListIterator) Next() error {
+	iter.i++
+	if iter.i < len(iter.page.Values()) {
+		return nil
+	}
+	err := iter.page.Next()
+	if err != nil {
+		iter.i--
+		return err
+	}
+	iter.i = 0
+	return nil
+}
+
+// NotDone returns true if the enumeration should be started or is not yet complete.
+func (iter BuildStepListIterator) NotDone() bool {
+	return iter.page.NotDone() && iter.i < len(iter.page.Values())
+}
+
+// Response returns the raw server response from the last page request.
+func (iter BuildStepListIterator) Response() BuildStepList {
+	return iter.page.Response()
+}
+
+// Value returns the current value or a zero-initialized value if the
+// iterator has advanced beyond the end of the collection.
+func (iter BuildStepListIterator) Value() BuildStep {
+	if !iter.page.NotDone() {
+		return BuildStep{}
+	}
+	return iter.page.Values()[iter.i]
+}
+
+// IsEmpty returns true if the ListResult contains no values.
+func (bsl BuildStepList) IsEmpty() bool {
+	return bsl.Value == nil || len(*bsl.Value) == 0
+}
+
+// buildStepListPreparer prepares a request to retrieve the next set of results.
+// It returns nil if no more results exist.
+func (bsl BuildStepList) buildStepListPreparer() (*http.Request, error) {
+	if bsl.NextLink == nil || len(to.String(bsl.NextLink)) < 1 {
+		return nil, nil
+	}
+	return autorest.Prepare(&http.Request{},
+		autorest.AsJSON(),
+		autorest.AsGet(),
+		autorest.WithBaseURL(to.String(bsl.NextLink)))
+}
+
+// BuildStepListPage contains a page of BuildStep values.
+type BuildStepListPage struct {
+	fn  func(BuildStepList) (BuildStepList, error)
+	bsl BuildStepList
+}
+
+// Next advances to the next page of values.  If there was an error making
+// the request the page does not advance and the error is returned.
+func (page *BuildStepListPage) Next() error {
+	next, err := page.fn(page.bsl)
+	if err != nil {
+		return err
+	}
+	page.bsl = next
+	return nil
+}
+
+// NotDone returns true if the page enumeration should be started or is not yet complete.
+func (page BuildStepListPage) NotDone() bool {
+	return !page.bsl.IsEmpty()
+}
+
+// Response returns the raw server response from the last page request.
+func (page BuildStepListPage) Response() BuildStepList {
+	return page.bsl
+}
+
+// Values returns the slice of values for the current page or nil if there are no values.
+func (page BuildStepListPage) Values() []BuildStep {
+	if page.bsl.IsEmpty() {
+		return nil
+	}
+	return *page.bsl.Value
+}
+
+// BuildStepModel ...
+type BuildStepModel struct {
+	autorest.Response `json:"-"`
+	Value             BasicBuildStep `json:"value,omitempty"`
+}
+
+// UnmarshalJSON is the custom unmarshaler for BuildStepModel struct.
+func (bsm *BuildStepModel) UnmarshalJSON(body []byte) error {
+	bs, err := unmarshalBasicBuildStep(body)
+	if err != nil {
+		return err
+	}
+	bsm.Value = bs
+
+	return nil
+}
+
+// BasicBuildStepUpdateParameters the base properties for updating any build step.
+type BasicBuildStepUpdateParameters interface {
+	AsDockerBuildStepUpdateParameters() (*DockerBuildStepUpdateParameters, bool)
+	AsBuildStepUpdateParameters() (*BuildStepUpdateParameters, bool)
+}
+
+// BuildStepUpdateParameters the base properties for updating any build step.
+type BuildStepUpdateParameters struct {
+	// Type - Possible values include: 'TypeBasicBuildStepUpdateParametersTypeBuildStepUpdateParameters', 'TypeBasicBuildStepUpdateParametersTypeDocker'
+	Type TypeBasicBuildStepUpdateParameters `json:"type,omitempty"`
+}
+
+func unmarshalBasicBuildStepUpdateParameters(body []byte) (BasicBuildStepUpdateParameters, error) {
+	var m map[string]interface{}
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return nil, err
+	}
+
+	switch m["type"] {
+	case string(TypeBasicBuildStepUpdateParametersTypeDocker):
+		var dbsup DockerBuildStepUpdateParameters
+		err := json.Unmarshal(body, &dbsup)
+		return dbsup, err
+	default:
+		var bsup BuildStepUpdateParameters
+		err := json.Unmarshal(body, &bsup)
+		return bsup, err
+	}
+}
+func unmarshalBasicBuildStepUpdateParametersArray(body []byte) ([]BasicBuildStepUpdateParameters, error) {
+	var rawMessages []*json.RawMessage
+	err := json.Unmarshal(body, &rawMessages)
+	if err != nil {
+		return nil, err
+	}
+
+	bsupArray := make([]BasicBuildStepUpdateParameters, len(rawMessages))
+
+	for index, rawMessage := range rawMessages {
+		bsup, err := unmarshalBasicBuildStepUpdateParameters(*rawMessage)
+		if err != nil {
+			return nil, err
+		}
+		bsupArray[index] = bsup
+	}
+	return bsupArray, nil
+}
+
+// MarshalJSON is the custom marshaler for BuildStepUpdateParameters.
+func (bsup BuildStepUpdateParameters) MarshalJSON() ([]byte, error) {
+	bsup.Type = TypeBasicBuildStepUpdateParametersTypeBuildStepUpdateParameters
+	type Alias BuildStepUpdateParameters
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(bsup),
+	})
+}
+
+// AsDockerBuildStepUpdateParameters is the BasicBuildStepUpdateParameters implementation for BuildStepUpdateParameters.
+func (bsup BuildStepUpdateParameters) AsDockerBuildStepUpdateParameters() (*DockerBuildStepUpdateParameters, bool) {
+	return nil, false
+}
+
+// AsBuildStepUpdateParameters is the BasicBuildStepUpdateParameters implementation for BuildStepUpdateParameters.
+func (bsup BuildStepUpdateParameters) AsBuildStepUpdateParameters() (*BuildStepUpdateParameters, bool) {
+	return &bsup, true
+}
+
+// AsBasicBuildStepUpdateParameters is the BasicBuildStepUpdateParameters implementation for BuildStepUpdateParameters.
+func (bsup BuildStepUpdateParameters) AsBasicBuildStepUpdateParameters() (BasicBuildStepUpdateParameters, bool) {
+	return &bsup, true
+}
+
+// BuildsUpdateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type BuildsUpdateFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future BuildsUpdateFuture) Result(client BuildsClient) (b Build, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildsUpdateFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return b, azure.NewAsyncOpIncompleteError("containerregistry.BuildsUpdateFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		b, err = client.UpdateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.BuildsUpdateFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildsUpdateFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	b, err = client.UpdateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildsUpdateFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// BasicBuildTrigger base properties for any build trigger.
+type BasicBuildTrigger interface {
+	AsImageTrigger() (*ImageTrigger, bool)
+	AsBuildTrigger() (*BuildTrigger, bool)
+}
+
+// BuildTrigger base properties for any build trigger.
+type BuildTrigger struct {
+	autorest.Response `json:"-"`
+	// Type - Possible values include: 'TypeBuildTrigger', 'TypeImageTrigger'
+	Type TypeBasicBuildTrigger `json:"type,omitempty"`
+}
+
+func unmarshalBasicBuildTrigger(body []byte) (BasicBuildTrigger, error) {
+	var m map[string]interface{}
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return nil, err
+	}
+
+	switch m["type"] {
+	case string(TypeImageTrigger):
+		var it ImageTrigger
+		err := json.Unmarshal(body, &it)
+		return it, err
+	default:
+		var bt BuildTrigger
+		err := json.Unmarshal(body, &bt)
+		return bt, err
+	}
+}
+func unmarshalBasicBuildTriggerArray(body []byte) ([]BasicBuildTrigger, error) {
+	var rawMessages []*json.RawMessage
+	err := json.Unmarshal(body, &rawMessages)
+	if err != nil {
+		return nil, err
+	}
+
+	btArray := make([]BasicBuildTrigger, len(rawMessages))
+
+	for index, rawMessage := range rawMessages {
+		bt, err := unmarshalBasicBuildTrigger(*rawMessage)
+		if err != nil {
+			return nil, err
+		}
+		btArray[index] = bt
+	}
+	return btArray, nil
+}
+
+// MarshalJSON is the custom marshaler for BuildTrigger.
+func (bt BuildTrigger) MarshalJSON() ([]byte, error) {
+	bt.Type = TypeBuildTrigger
+	type Alias BuildTrigger
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(bt),
+	})
+}
+
+// AsImageTrigger is the BasicBuildTrigger implementation for BuildTrigger.
+func (bt BuildTrigger) AsImageTrigger() (*ImageTrigger, bool) {
+	return nil, false
+}
+
+// AsBuildTrigger is the BasicBuildTrigger implementation for BuildTrigger.
+func (bt BuildTrigger) AsBuildTrigger() (*BuildTrigger, bool) {
+	return &bt, true
+}
+
+// AsBasicBuildTrigger is the BasicBuildTrigger implementation for BuildTrigger.
+func (bt BuildTrigger) AsBasicBuildTrigger() (BasicBuildTrigger, bool) {
+	return &bt, true
+}
+
+// BuildTriggerList the collection of build triggers.
+type BuildTriggerList struct {
+	autorest.Response `json:"-"`
+	// Value - The collection value.
+	Value *[]BasicBuildTrigger `json:"value,omitempty"`
+	// NextLink - The full NextLink used for paging.
+	NextLink *string `json:"nextLink,omitempty"`
+}
+
+// UnmarshalJSON is the custom unmarshaler for BuildTriggerList struct.
+func (btl *BuildTriggerList) UnmarshalJSON(body []byte) error {
+	var m map[string]*json.RawMessage
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return err
+	}
+	var v *json.RawMessage
+
+	v = m["value"]
+	if v != nil {
+		value, err := unmarshalBasicBuildTriggerArray(*m["value"])
+		if err != nil {
+			return err
+		}
+		btl.Value = &value
+	}
+
+	v = m["nextLink"]
+	if v != nil {
+		var nextLink string
+		err = json.Unmarshal(*m["nextLink"], &nextLink)
+		if err != nil {
+			return err
+		}
+		btl.NextLink = &nextLink
+	}
+
+	return nil
+}
+
+// BuildTriggerListIterator provides access to a complete listing of BuildTrigger values.
+type BuildTriggerListIterator struct {
+	i    int
+	page BuildTriggerListPage
+}
+
+// Next advances to the next value.  If there was an error making
+// the request the iterator does not advance and the error is returned.
+func (iter *BuildTriggerListIterator) Next() error {
+	iter.i++
+	if iter.i < len(iter.page.Values()) {
+		return nil
+	}
+	err := iter.page.Next()
+	if err != nil {
+		iter.i--
+		return err
+	}
+	iter.i = 0
+	return nil
+}
+
+// NotDone returns true if the enumeration should be started or is not yet complete.
+func (iter BuildTriggerListIterator) NotDone() bool {
+	return iter.page.NotDone() && iter.i < len(iter.page.Values())
+}
+
+// Response returns the raw server response from the last page request.
+func (iter BuildTriggerListIterator) Response() BuildTriggerList {
+	return iter.page.Response()
+}
+
+// Value returns the current value or a zero-initialized value if the
+// iterator has advanced beyond the end of the collection.
+func (iter BuildTriggerListIterator) Value() BuildTrigger {
+	if !iter.page.NotDone() {
+		return BuildTrigger{}
+	}
+	return iter.page.Values()[iter.i]
+}
+
+// IsEmpty returns true if the ListResult contains no values.
+func (btl BuildTriggerList) IsEmpty() bool {
+	return btl.Value == nil || len(*btl.Value) == 0
+}
+
+// buildTriggerListPreparer prepares a request to retrieve the next set of results.
+// It returns nil if no more results exist.
+func (btl BuildTriggerList) buildTriggerListPreparer() (*http.Request, error) {
+	if btl.NextLink == nil || len(to.String(btl.NextLink)) < 1 {
+		return nil, nil
+	}
+	return autorest.Prepare(&http.Request{},
+		autorest.AsJSON(),
+		autorest.AsGet(),
+		autorest.WithBaseURL(to.String(btl.NextLink)))
+}
+
+// BuildTriggerListPage contains a page of BuildTrigger values.
+type BuildTriggerListPage struct {
+	fn  func(BuildTriggerList) (BuildTriggerList, error)
+	btl BuildTriggerList
+}
+
+// Next advances to the next page of values.  If there was an error making
+// the request the page does not advance and the error is returned.
+func (page *BuildTriggerListPage) Next() error {
+	next, err := page.fn(page.btl)
+	if err != nil {
+		return err
+	}
+	page.btl = next
+	return nil
+}
+
+// NotDone returns true if the page enumeration should be started or is not yet complete.
+func (page BuildTriggerListPage) NotDone() bool {
+	return !page.btl.IsEmpty()
+}
+
+// Response returns the raw server response from the last page request.
+func (page BuildTriggerListPage) Response() BuildTriggerList {
+	return page.btl
+}
+
+// Values returns the slice of values for the current page or nil if there are no values.
+func (page BuildTriggerListPage) Values() []BuildTrigger {
+	if page.btl.IsEmpty() {
+		return nil
+	}
+	return *page.btl.Value
+}
+
+// BuildTriggerModel ...
+type BuildTriggerModel struct {
+	autorest.Response `json:"-"`
+	Value             BasicBuildTrigger `json:"value,omitempty"`
+}
+
+// UnmarshalJSON is the custom unmarshaler for BuildTriggerModel struct.
+func (btm *BuildTriggerModel) UnmarshalJSON(body []byte) error {
+	bt, err := unmarshalBasicBuildTrigger(body)
+	if err != nil {
+		return err
+	}
+	btm.Value = bt
+
+	return nil
+}
+
+// BasicBuildTriggerParameters properties for adding any build trigger.
+type BasicBuildTriggerParameters interface {
+	AsImageTriggerParameters() (*ImageTriggerParameters, bool)
+	AsBuildTriggerParameters() (*BuildTriggerParameters, bool)
+}
+
+// BuildTriggerParameters properties for adding any build trigger.
+type BuildTriggerParameters struct {
+	// Type - Possible values include: 'TypeBasicBuildTriggerParametersTypeBuildTriggerParameters', 'TypeBasicBuildTriggerParametersTypeImageTrigger'
+	Type TypeBasicBuildTriggerParameters `json:"type,omitempty"`
+}
+
+func unmarshalBasicBuildTriggerParameters(body []byte) (BasicBuildTriggerParameters, error) {
+	var m map[string]interface{}
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return nil, err
+	}
+
+	switch m["type"] {
+	case string(TypeBasicBuildTriggerParametersTypeImageTrigger):
+		var itp ImageTriggerParameters
+		err := json.Unmarshal(body, &itp)
+		return itp, err
+	default:
+		var btp BuildTriggerParameters
+		err := json.Unmarshal(body, &btp)
+		return btp, err
+	}
+}
+func unmarshalBasicBuildTriggerParametersArray(body []byte) ([]BasicBuildTriggerParameters, error) {
+	var rawMessages []*json.RawMessage
+	err := json.Unmarshal(body, &rawMessages)
+	if err != nil {
+		return nil, err
+	}
+
+	btpArray := make([]BasicBuildTriggerParameters, len(rawMessages))
+
+	for index, rawMessage := range rawMessages {
+		btp, err := unmarshalBasicBuildTriggerParameters(*rawMessage)
+		if err != nil {
+			return nil, err
+		}
+		btpArray[index] = btp
+	}
+	return btpArray, nil
+}
+
+// MarshalJSON is the custom marshaler for BuildTriggerParameters.
+func (btp BuildTriggerParameters) MarshalJSON() ([]byte, error) {
+	btp.Type = TypeBasicBuildTriggerParametersTypeBuildTriggerParameters
+	type Alias BuildTriggerParameters
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(btp),
+	})
+}
+
+// AsImageTriggerParameters is the BasicBuildTriggerParameters implementation for BuildTriggerParameters.
+func (btp BuildTriggerParameters) AsImageTriggerParameters() (*ImageTriggerParameters, bool) {
+	return nil, false
+}
+
+// AsBuildTriggerParameters is the BasicBuildTriggerParameters implementation for BuildTriggerParameters.
+func (btp BuildTriggerParameters) AsBuildTriggerParameters() (*BuildTriggerParameters, bool) {
+	return &btp, true
+}
+
+// AsBasicBuildTriggerParameters is the BasicBuildTriggerParameters implementation for BuildTriggerParameters.
+func (btp BuildTriggerParameters) AsBasicBuildTriggerParameters() (BasicBuildTriggerParameters, bool) {
+	return &btp, true
+}
+
+// BuildTriggersDeleteFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type BuildTriggersDeleteFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future BuildTriggersDeleteFuture) Result(client BuildTriggersClient) (ar autorest.Response, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildTriggersDeleteFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return ar, azure.NewAsyncOpIncompleteError("containerregistry.BuildTriggersDeleteFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		ar, err = client.DeleteResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.BuildTriggersDeleteFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildTriggersDeleteFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	ar, err = client.DeleteResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.BuildTriggersDeleteFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// BuildUpdateParameters the set of build properties that can be updated.
+type BuildUpdateParameters struct {
+	// IsArchiveEnabled - The value that indicates whether archiving is enabled or not.
+	IsArchiveEnabled *bool `json:"isArchiveEnabled,omitempty"`
+}
+
 // CallbackConfig the configuration of service URI and custom headers for the webhook.
 type CallbackConfig struct {
 	autorest.Response `json:"-"`
@@ -126,6 +1900,178 @@ type CallbackConfig struct {
 	ServiceURI *string `json:"serviceUri,omitempty"`
 	// CustomHeaders - Custom headers that will be added to the webhook notifications.
 	CustomHeaders *map[string]*string `json:"customHeaders,omitempty"`
+}
+
+// DockerBuildParameters build parameters for a docker build.
+type DockerBuildParameters struct {
+	// Type - Possible values include: 'TypeBasicQueueBuildParametersTypeQueueBuildParameters', 'TypeBasicQueueBuildParametersTypeDocker'
+	Type TypeBasicQueueBuildParameters `json:"type,omitempty"`
+	// DockerFilePath - The Docker file path relative to the source control root.
+	DockerFilePath *string `json:"dockerFilePath,omitempty"`
+	// ContextPath - The relative context path for a docker build in the source.
+	ContextPath *string `json:"contextPath,omitempty"`
+}
+
+// MarshalJSON is the custom marshaler for DockerBuildParameters.
+func (dbp DockerBuildParameters) MarshalJSON() ([]byte, error) {
+	dbp.Type = TypeBasicQueueBuildParametersTypeDocker
+	type Alias DockerBuildParameters
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(dbp),
+	})
+}
+
+// AsDockerBuildParameters is the BasicQueueBuildParameters implementation for DockerBuildParameters.
+func (dbp DockerBuildParameters) AsDockerBuildParameters() (*DockerBuildParameters, bool) {
+	return &dbp, true
+}
+
+// AsQueueBuildParameters is the BasicQueueBuildParameters implementation for DockerBuildParameters.
+func (dbp DockerBuildParameters) AsQueueBuildParameters() (*QueueBuildParameters, bool) {
+	return nil, false
+}
+
+// AsBasicQueueBuildParameters is the BasicQueueBuildParameters implementation for DockerBuildParameters.
+func (dbp DockerBuildParameters) AsBasicQueueBuildParameters() (BasicQueueBuildParameters, bool) {
+	return &dbp, true
+}
+
+// DockerBuildStep the Docker build step.
+type DockerBuildStep struct {
+	// Name - The unique name of the step.
+	Name *string `json:"name,omitempty"`
+	// Type - Possible values include: 'TypeBasicBuildStepTypeBuildStep', 'TypeBasicBuildStepTypeDocker'
+	Type TypeBasicBuildStep `json:"type,omitempty"`
+	// Branch - The repository branch name.
+	Branch *string `json:"branch,omitempty"`
+	// ImageName - The full qualified name of the image including the repository and tag.
+	ImageName *string `json:"imageName,omitempty"`
+	// IsPushEnabled - The value of this property indicate whether the image built should be pushed to the registry or not.
+	IsPushEnabled *bool `json:"isPushEnabled,omitempty"`
+	// DockerFilePath - The Docker file path relative to the source control root.
+	DockerFilePath *string `json:"dockerFilePath,omitempty"`
+	// ContextPath - The relative context path for a docker build in the source.
+	ContextPath *string `json:"contextPath,omitempty"`
+	// BuildArguments - The custom arguments for building this build step.
+	BuildArguments *[]BuildArgument `json:"buildArguments,omitempty"`
+	// BaseImageDependencies - The collection of base image dependencies that got generated by the latest build against this build item.
+	BaseImageDependencies *[]ImageDescriptor `json:"baseImageDependencies,omitempty"`
+}
+
+// MarshalJSON is the custom marshaler for DockerBuildStep.
+func (dbs DockerBuildStep) MarshalJSON() ([]byte, error) {
+	dbs.Type = TypeBasicBuildStepTypeDocker
+	type Alias DockerBuildStep
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(dbs),
+	})
+}
+
+// AsDockerBuildStep is the BasicBuildStep implementation for DockerBuildStep.
+func (dbs DockerBuildStep) AsDockerBuildStep() (*DockerBuildStep, bool) {
+	return &dbs, true
+}
+
+// AsBuildStep is the BasicBuildStep implementation for DockerBuildStep.
+func (dbs DockerBuildStep) AsBuildStep() (*BuildStep, bool) {
+	return nil, false
+}
+
+// AsBasicBuildStep is the BasicBuildStep implementation for DockerBuildStep.
+func (dbs DockerBuildStep) AsBasicBuildStep() (BasicBuildStep, bool) {
+	return &dbs, true
+}
+
+// DockerBuildStepCreateParameters the properties for creating Docker build step.
+type DockerBuildStepCreateParameters struct {
+	// Name - The unique name of the step.
+	Name *string `json:"name,omitempty"`
+	// Type - Possible values include: 'TypeBuildStepCreateParameters', 'TypeDocker'
+	Type Type `json:"type,omitempty"`
+	// Branch - The repository branch name.
+	Branch *string `json:"branch,omitempty"`
+	// ImageName - The full qualified name of the image including the repository and tag.
+	ImageName *string `json:"imageName,omitempty"`
+	// IsPushEnabled - The value of this property indicate whether the image built should be pushed to the registry or not.
+	IsPushEnabled *bool `json:"isPushEnabled,omitempty"`
+	// DockerFilePath - The Docker file path relative to the source control root.
+	DockerFilePath *string `json:"dockerFilePath,omitempty"`
+	// ContextPath - The relative context path for a docker build in the source.
+	ContextPath *string `json:"contextPath,omitempty"`
+	// BuildArguments - The custom arguments for building this build step.
+	BuildArguments *[]BuildArgument `json:"buildArguments,omitempty"`
+}
+
+// MarshalJSON is the custom marshaler for DockerBuildStepCreateParameters.
+func (dbscp DockerBuildStepCreateParameters) MarshalJSON() ([]byte, error) {
+	dbscp.Type = TypeDocker
+	type Alias DockerBuildStepCreateParameters
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(dbscp),
+	})
+}
+
+// AsDockerBuildStepCreateParameters is the BasicBuildStepCreateParameters implementation for DockerBuildStepCreateParameters.
+func (dbscp DockerBuildStepCreateParameters) AsDockerBuildStepCreateParameters() (*DockerBuildStepCreateParameters, bool) {
+	return &dbscp, true
+}
+
+// AsBuildStepCreateParameters is the BasicBuildStepCreateParameters implementation for DockerBuildStepCreateParameters.
+func (dbscp DockerBuildStepCreateParameters) AsBuildStepCreateParameters() (*BuildStepCreateParameters, bool) {
+	return nil, false
+}
+
+// AsBasicBuildStepCreateParameters is the BasicBuildStepCreateParameters implementation for DockerBuildStepCreateParameters.
+func (dbscp DockerBuildStepCreateParameters) AsBasicBuildStepCreateParameters() (BasicBuildStepCreateParameters, bool) {
+	return &dbscp, true
+}
+
+// DockerBuildStepUpdateParameters the properties for updating a docker build step.
+type DockerBuildStepUpdateParameters struct {
+	// Type - Possible values include: 'TypeBasicBuildStepUpdateParametersTypeBuildStepUpdateParameters', 'TypeBasicBuildStepUpdateParametersTypeDocker'
+	Type TypeBasicBuildStepUpdateParameters `json:"type,omitempty"`
+	// ImageName - The full qualified name of the image including the repository and tag.
+	ImageName *string `json:"imageName,omitempty"`
+	// IsPushEnabled - The value of this property indicate whether the image built should be pushed to the registry or not.
+	IsPushEnabled *bool `json:"isPushEnabled,omitempty"`
+	// DockerFilePath - The Docker file path relative to the source control root.
+	DockerFilePath *string `json:"dockerFilePath,omitempty"`
+	// ContextPath - The relative context path for a docker build in the source.
+	ContextPath *string `json:"contextPath,omitempty"`
+	// BuildArguments - The custom arguments for building this build step.
+	BuildArguments *[]BuildArgument `json:"buildArguments,omitempty"`
+}
+
+// MarshalJSON is the custom marshaler for DockerBuildStepUpdateParameters.
+func (dbsup DockerBuildStepUpdateParameters) MarshalJSON() ([]byte, error) {
+	dbsup.Type = TypeBasicBuildStepUpdateParametersTypeDocker
+	type Alias DockerBuildStepUpdateParameters
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(dbsup),
+	})
+}
+
+// AsDockerBuildStepUpdateParameters is the BasicBuildStepUpdateParameters implementation for DockerBuildStepUpdateParameters.
+func (dbsup DockerBuildStepUpdateParameters) AsDockerBuildStepUpdateParameters() (*DockerBuildStepUpdateParameters, bool) {
+	return &dbsup, true
+}
+
+// AsBuildStepUpdateParameters is the BasicBuildStepUpdateParameters implementation for DockerBuildStepUpdateParameters.
+func (dbsup DockerBuildStepUpdateParameters) AsBuildStepUpdateParameters() (*BuildStepUpdateParameters, bool) {
+	return nil, false
+}
+
+// AsBasicBuildStepUpdateParameters is the BasicBuildStepUpdateParameters implementation for DockerBuildStepUpdateParameters.
+func (dbsup DockerBuildStepUpdateParameters) AsBasicBuildStepUpdateParameters() (BasicBuildStepUpdateParameters, bool) {
+	return &dbsup, true
 }
 
 // Event the event for a webhook.
@@ -293,6 +2239,90 @@ type EventResponseMessage struct {
 	Version *string `json:"version,omitempty"`
 }
 
+// ImageDescriptor properties for a registry image.
+type ImageDescriptor struct {
+	// ImageName - Name of the repository or image.
+	ImageName *string `json:"imageName,omitempty"`
+	// Tag - The tag name.
+	Tag *string `json:"tag,omitempty"`
+	// Digest - The image digest.
+	Digest *string `json:"digest,omitempty"`
+}
+
+// ImageTrigger a build trigger based on Image updates.
+type ImageTrigger struct {
+	// Type - Possible values include: 'TypeBuildTrigger', 'TypeImageTrigger'
+	Type TypeBasicBuildTrigger `json:"type,omitempty"`
+	// ID - The unique identifier of a trigger.
+	ID *string `json:"id,omitempty"`
+	// ImageName - Name of the repository or image.
+	ImageName *string `json:"imageName,omitempty"`
+	// Tag - The tag name.
+	Tag *string `json:"tag,omitempty"`
+}
+
+// MarshalJSON is the custom marshaler for ImageTrigger.
+func (it ImageTrigger) MarshalJSON() ([]byte, error) {
+	it.Type = TypeImageTrigger
+	type Alias ImageTrigger
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(it),
+	})
+}
+
+// AsImageTrigger is the BasicBuildTrigger implementation for ImageTrigger.
+func (it ImageTrigger) AsImageTrigger() (*ImageTrigger, bool) {
+	return &it, true
+}
+
+// AsBuildTrigger is the BasicBuildTrigger implementation for ImageTrigger.
+func (it ImageTrigger) AsBuildTrigger() (*BuildTrigger, bool) {
+	return nil, false
+}
+
+// AsBasicBuildTrigger is the BasicBuildTrigger implementation for ImageTrigger.
+func (it ImageTrigger) AsBasicBuildTrigger() (BasicBuildTrigger, bool) {
+	return &it, true
+}
+
+// ImageTriggerParameters the parameters that identify a image trigger.
+type ImageTriggerParameters struct {
+	// Type - Possible values include: 'TypeBasicBuildTriggerParametersTypeBuildTriggerParameters', 'TypeBasicBuildTriggerParametersTypeImageTrigger'
+	Type TypeBasicBuildTriggerParameters `json:"type,omitempty"`
+	// ImageName - Name of the repository or image.
+	ImageName *string `json:"imageName,omitempty"`
+	// Tag - The tag name.
+	Tag *string `json:"tag,omitempty"`
+}
+
+// MarshalJSON is the custom marshaler for ImageTriggerParameters.
+func (itp ImageTriggerParameters) MarshalJSON() ([]byte, error) {
+	itp.Type = TypeBasicBuildTriggerParametersTypeImageTrigger
+	type Alias ImageTriggerParameters
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(itp),
+	})
+}
+
+// AsImageTriggerParameters is the BasicBuildTriggerParameters implementation for ImageTriggerParameters.
+func (itp ImageTriggerParameters) AsImageTriggerParameters() (*ImageTriggerParameters, bool) {
+	return &itp, true
+}
+
+// AsBuildTriggerParameters is the BasicBuildTriggerParameters implementation for ImageTriggerParameters.
+func (itp ImageTriggerParameters) AsBuildTriggerParameters() (*BuildTriggerParameters, bool) {
+	return nil, false
+}
+
+// AsBasicBuildTriggerParameters is the BasicBuildTriggerParameters implementation for ImageTriggerParameters.
+func (itp ImageTriggerParameters) AsBasicBuildTriggerParameters() (BasicBuildTriggerParameters, bool) {
+	return &itp, true
+}
+
 // OperationDefinition the definition of a container registry operation.
 type OperationDefinition struct {
 	// Name - Operation name: {provider}/{resource}/{operation}.
@@ -415,6 +2445,188 @@ func (page OperationListResultPage) Values() []OperationDefinition {
 	return *page.olr.Value
 }
 
+// PlatformProperties the platform properties against which the build has to happen.
+type PlatformProperties struct {
+	// OsType - The operating system type required for the build. Possible values include: 'Windows', 'Linux'
+	OsType OsTypes `json:"osType,omitempty"`
+	// CPU - The CPU configuration in terms of number of cores required for the build.
+	CPU *int32 `json:"cpu,omitempty"`
+}
+
+// BasicQueueBuildParameters the properties of a quick build.
+type BasicQueueBuildParameters interface {
+	AsDockerBuildParameters() (*DockerBuildParameters, bool)
+	AsQueueBuildParameters() (*QueueBuildParameters, bool)
+}
+
+// QueueBuildParameters the properties of a quick build.
+type QueueBuildParameters struct {
+	// Type - Possible values include: 'TypeBasicQueueBuildParametersTypeQueueBuildParameters', 'TypeBasicQueueBuildParametersTypeDocker'
+	Type TypeBasicQueueBuildParameters `json:"type,omitempty"`
+}
+
+func unmarshalBasicQueueBuildParameters(body []byte) (BasicQueueBuildParameters, error) {
+	var m map[string]interface{}
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return nil, err
+	}
+
+	switch m["type"] {
+	case string(TypeBasicQueueBuildParametersTypeDocker):
+		var dbp DockerBuildParameters
+		err := json.Unmarshal(body, &dbp)
+		return dbp, err
+	default:
+		var qbp QueueBuildParameters
+		err := json.Unmarshal(body, &qbp)
+		return qbp, err
+	}
+}
+func unmarshalBasicQueueBuildParametersArray(body []byte) ([]BasicQueueBuildParameters, error) {
+	var rawMessages []*json.RawMessage
+	err := json.Unmarshal(body, &rawMessages)
+	if err != nil {
+		return nil, err
+	}
+
+	qbpArray := make([]BasicQueueBuildParameters, len(rawMessages))
+
+	for index, rawMessage := range rawMessages {
+		qbp, err := unmarshalBasicQueueBuildParameters(*rawMessage)
+		if err != nil {
+			return nil, err
+		}
+		qbpArray[index] = qbp
+	}
+	return qbpArray, nil
+}
+
+// MarshalJSON is the custom marshaler for QueueBuildParameters.
+func (qbp QueueBuildParameters) MarshalJSON() ([]byte, error) {
+	qbp.Type = TypeBasicQueueBuildParametersTypeQueueBuildParameters
+	type Alias QueueBuildParameters
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(qbp),
+	})
+}
+
+// AsDockerBuildParameters is the BasicQueueBuildParameters implementation for QueueBuildParameters.
+func (qbp QueueBuildParameters) AsDockerBuildParameters() (*DockerBuildParameters, bool) {
+	return nil, false
+}
+
+// AsQueueBuildParameters is the BasicQueueBuildParameters implementation for QueueBuildParameters.
+func (qbp QueueBuildParameters) AsQueueBuildParameters() (*QueueBuildParameters, bool) {
+	return &qbp, true
+}
+
+// AsBasicQueueBuildParameters is the BasicQueueBuildParameters implementation for QueueBuildParameters.
+func (qbp QueueBuildParameters) AsBasicQueueBuildParameters() (BasicQueueBuildParameters, bool) {
+	return &qbp, true
+}
+
+// QueueBuildRequest the queue build request parameters.
+type QueueBuildRequest struct {
+	// ImageName - The fully qualified image name with the tag that the build tags it.
+	ImageName *string `json:"imageName,omitempty"`
+	// SourceLocation - The URL to the source that needs to be built. For Docker build, it can be an URL to a tar or github repoistory as supported by Docker.
+	SourceLocation *string `json:"sourceLocation,omitempty"`
+	// BuildArguments - The collection of build arguments to be used.
+	BuildArguments *[]BuildArgument `json:"buildArguments,omitempty"`
+	// IsPushEnabled - The value of this property indicate whether the image built should be pushed to the registry or not.
+	IsPushEnabled *bool `json:"isPushEnabled,omitempty"`
+	// Timeout - Build Time out in seconds.
+	Timeout *int32 `json:"timeout,omitempty"`
+	// Platform - The platform properties against which the build will happen.
+	Platform *PlatformProperties `json:"platform,omitempty"`
+	// BuildParameters - The build parameters depending on the type of the build.
+	BuildParameters BasicQueueBuildParameters `json:"buildParameters,omitempty"`
+}
+
+// UnmarshalJSON is the custom unmarshaler for QueueBuildRequest struct.
+func (qbr *QueueBuildRequest) UnmarshalJSON(body []byte) error {
+	var m map[string]*json.RawMessage
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return err
+	}
+	var v *json.RawMessage
+
+	v = m["imageName"]
+	if v != nil {
+		var imageName string
+		err = json.Unmarshal(*m["imageName"], &imageName)
+		if err != nil {
+			return err
+		}
+		qbr.ImageName = &imageName
+	}
+
+	v = m["sourceLocation"]
+	if v != nil {
+		var sourceLocation string
+		err = json.Unmarshal(*m["sourceLocation"], &sourceLocation)
+		if err != nil {
+			return err
+		}
+		qbr.SourceLocation = &sourceLocation
+	}
+
+	v = m["buildArguments"]
+	if v != nil {
+		var buildArguments []BuildArgument
+		err = json.Unmarshal(*m["buildArguments"], &buildArguments)
+		if err != nil {
+			return err
+		}
+		qbr.BuildArguments = &buildArguments
+	}
+
+	v = m["isPushEnabled"]
+	if v != nil {
+		var isPushEnabled bool
+		err = json.Unmarshal(*m["isPushEnabled"], &isPushEnabled)
+		if err != nil {
+			return err
+		}
+		qbr.IsPushEnabled = &isPushEnabled
+	}
+
+	v = m["timeout"]
+	if v != nil {
+		var timeout int32
+		err = json.Unmarshal(*m["timeout"], &timeout)
+		if err != nil {
+			return err
+		}
+		qbr.Timeout = &timeout
+	}
+
+	v = m["platform"]
+	if v != nil {
+		var platform PlatformProperties
+		err = json.Unmarshal(*m["platform"], &platform)
+		if err != nil {
+			return err
+		}
+		qbr.Platform = &platform
+	}
+
+	v = m["buildParameters"]
+	if v != nil {
+		buildParameters, err := unmarshalBasicQueueBuildParameters(*m["buildParameters"])
+		if err != nil {
+			return err
+		}
+		qbr.BuildParameters = buildParameters
+	}
+
+	return nil
+}
+
 // RegenerateCredentialParameters the parameters used to regenerate the login credential.
 type RegenerateCredentialParameters struct {
 	// Name - Specifies name of the password which should be regenerated -- password or password2. Possible values include: 'Password', 'Password2'
@@ -433,22 +2645,30 @@ func (future RegistriesCreateFuture) Result(client RegistriesClient) (r Registry
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return r, autorest.NewError("containerregistry.RegistriesCreateFuture", "Result", "asynchronous operation has not completed")
+		return r, azure.NewAsyncOpIncompleteError("containerregistry.RegistriesCreateFuture")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		r, err = client.CreateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", future.Response(), "Failure responding to request")
+		}
 		return
 	}
 	var resp *http.Response
 	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	r, err = client.CreateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", resp, "Failure responding to request")
+	}
 	return
 }
 
@@ -464,22 +2684,30 @@ func (future RegistriesDeleteFuture) Result(client RegistriesClient) (ar autores
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, autorest.NewError("containerregistry.RegistriesDeleteFuture", "Result", "asynchronous operation has not completed")
+		return ar, azure.NewAsyncOpIncompleteError("containerregistry.RegistriesDeleteFuture")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.DeleteResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.RegistriesDeleteFuture", "Result", future.Response(), "Failure responding to request")
+		}
 		return
 	}
 	var resp *http.Response
 	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesDeleteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.DeleteResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesDeleteFuture", "Result", resp, "Failure responding to request")
+	}
 	return
 }
 
@@ -495,22 +2723,30 @@ func (future RegistriesUpdateFuture) Result(client RegistriesClient) (r Registry
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return r, autorest.NewError("containerregistry.RegistriesUpdateFuture", "Result", "asynchronous operation has not completed")
+		return r, azure.NewAsyncOpIncompleteError("containerregistry.RegistriesUpdateFuture")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		r, err = client.UpdateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.RegistriesUpdateFuture", "Result", future.Response(), "Failure responding to request")
+		}
 		return
 	}
 	var resp *http.Response
 	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesUpdateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	r, err = client.UpdateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesUpdateFuture", "Result", resp, "Failure responding to request")
+	}
 	return
 }
 
@@ -759,7 +2995,7 @@ type RegistryProperties struct {
 	LoginServer *string `json:"loginServer,omitempty"`
 	// CreationDate - The creation date of the container registry in ISO8601 format.
 	CreationDate *date.Time `json:"creationDate,omitempty"`
-	// ProvisioningState - The provisioning state of the container registry at the time the operation was called. Possible values include: 'Creating', 'Updating', 'Deleting', 'Succeeded', 'Failed', 'Canceled'
+	// ProvisioningState - The provisioning state of the container registry at the time the operation was called. Possible values include: 'ProvisioningStateCreating', 'ProvisioningStateUpdating', 'ProvisioningStateDeleting', 'ProvisioningStateSucceeded', 'ProvisioningStateFailed', 'ProvisioningStateCanceled'
 	ProvisioningState ProvisioningState `json:"provisioningState,omitempty"`
 	// Status - The status of the container registry at the time the operation was called.
 	Status *Status `json:"status,omitempty"`
@@ -1041,7 +3277,7 @@ func (page ReplicationListResultPage) Values() []Replication {
 
 // ReplicationProperties the properties of a replication.
 type ReplicationProperties struct {
-	// ProvisioningState - The provisioning state of the replication at the time the operation was called. Possible values include: 'Creating', 'Updating', 'Deleting', 'Succeeded', 'Failed', 'Canceled'
+	// ProvisioningState - The provisioning state of the replication at the time the operation was called. Possible values include: 'ProvisioningStateCreating', 'ProvisioningStateUpdating', 'ProvisioningStateDeleting', 'ProvisioningStateSucceeded', 'ProvisioningStateFailed', 'ProvisioningStateCanceled'
 	ProvisioningState ProvisioningState `json:"provisioningState,omitempty"`
 	// Status - The status of the replication at the time the operation was called.
 	Status *Status `json:"status,omitempty"`
@@ -1059,22 +3295,30 @@ func (future ReplicationsCreateFuture) Result(client ReplicationsClient) (r Repl
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsCreateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return r, autorest.NewError("containerregistry.ReplicationsCreateFuture", "Result", "asynchronous operation has not completed")
+		return r, azure.NewAsyncOpIncompleteError("containerregistry.ReplicationsCreateFuture")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		r, err = client.CreateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsCreateFuture", "Result", future.Response(), "Failure responding to request")
+		}
 		return
 	}
 	var resp *http.Response
 	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsCreateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	r, err = client.CreateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsCreateFuture", "Result", resp, "Failure responding to request")
+	}
 	return
 }
 
@@ -1090,22 +3334,30 @@ func (future ReplicationsDeleteFuture) Result(client ReplicationsClient) (ar aut
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, autorest.NewError("containerregistry.ReplicationsDeleteFuture", "Result", "asynchronous operation has not completed")
+		return ar, azure.NewAsyncOpIncompleteError("containerregistry.ReplicationsDeleteFuture")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.DeleteResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsDeleteFuture", "Result", future.Response(), "Failure responding to request")
+		}
 		return
 	}
 	var resp *http.Response
 	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsDeleteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.DeleteResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsDeleteFuture", "Result", resp, "Failure responding to request")
+	}
 	return
 }
 
@@ -1121,22 +3373,30 @@ func (future ReplicationsUpdateFuture) Result(client ReplicationsClient) (r Repl
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return r, autorest.NewError("containerregistry.ReplicationsUpdateFuture", "Result", "asynchronous operation has not completed")
+		return r, azure.NewAsyncOpIncompleteError("containerregistry.ReplicationsUpdateFuture")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		r, err = client.UpdateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsUpdateFuture", "Result", future.Response(), "Failure responding to request")
+		}
 		return
 	}
 	var resp *http.Response
 	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsUpdateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	r, err = client.UpdateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsUpdateFuture", "Result", resp, "Failure responding to request")
+	}
 	return
 }
 
@@ -1189,6 +3449,50 @@ type Source struct {
 	Addr *string `json:"addr,omitempty"`
 	// InstanceID - The running instance of an application. Changes after each restart.
 	InstanceID *string `json:"instanceID,omitempty"`
+}
+
+// SourceControlAuthInfo the authorization properties for accessing the source code repository.
+type SourceControlAuthInfo struct {
+	// TokenType - The type of Auth token. Possible values include: 'PAT', 'OAuth'
+	TokenType TokenType `json:"tokenType,omitempty"`
+	// Token - The Access token used to access the source control provider.
+	Token *string `json:"token,omitempty"`
+	// RefreshToken - The refresh token used to refresh the access token.
+	RefreshToken *string `json:"refreshToken,omitempty"`
+	// Scope - The scope of the access token.
+	Scope *string `json:"scope,omitempty"`
+	// ExpiresIn - Time in seconds that the token remains valid
+	ExpiresIn *int32 `json:"expiresIn,omitempty"`
+}
+
+// SourceRepositoryCreateParameters the properties for creating the source code repository configuration.
+type SourceRepositoryCreateParameters struct {
+	// SourceControlType - The type of source control service. Possible values include: 'Github', 'VisualStudioTeamService'
+	SourceControlType SourceControlTypes `json:"sourceControlType,omitempty"`
+	// RepositoryURL - The type of source control service.
+	RepositoryURL *string `json:"repositoryUrl,omitempty"`
+	// SourceControlAuthProperties - The authorization properties for accessing the source code repository.
+	SourceControlAuthProperties *SourceControlAuthInfo `json:"sourceControlAuthProperties,omitempty"`
+	// IsCommitTriggerEnabled - The value of this property indicates whether the source control commit trigger is enabled or not.
+	IsCommitTriggerEnabled *bool `json:"isCommitTriggerEnabled,omitempty"`
+}
+
+// SourceRepositoryProperties the properties of the source code repository.
+type SourceRepositoryProperties struct {
+	// SourceControlType - The type of source control service. Possible values include: 'Github', 'VisualStudioTeamService'
+	SourceControlType SourceControlTypes `json:"sourceControlType,omitempty"`
+	// RepositoryURL - The full URL to the source code respository
+	RepositoryURL *string `json:"repositoryUrl,omitempty"`
+	// IsCommitTriggerEnabled - The value of this property indicates whether the source control commit trigger is enabled or not.
+	IsCommitTriggerEnabled *bool `json:"isCommitTriggerEnabled,omitempty"`
+}
+
+// SourceRepositoryUpdateParameters the properties for updating the source code repository configuration.
+type SourceRepositoryUpdateParameters struct {
+	// SourceControlAuthProperties - The authorization properties for accessing the source code repository.
+	SourceControlAuthProperties *SourceControlAuthInfo `json:"sourceControlAuthProperties,omitempty"`
+	// IsCommitTriggerEnabled - The value of this property indicates whether the source control commit trigger is enabled or not.
+	IsCommitTriggerEnabled *bool `json:"isCommitTriggerEnabled,omitempty"`
 }
 
 // Status the status of an Azure resource at the time the operation was called.
@@ -1471,13 +3775,13 @@ func (page WebhookListResultPage) Values() []Webhook {
 
 // WebhookProperties the properties of a webhook.
 type WebhookProperties struct {
-	// Status - The status of the webhook at the time the operation was called. Possible values include: 'Enabled', 'Disabled'
+	// Status - The status of the webhook at the time the operation was called. Possible values include: 'WebhookStatusEnabled', 'WebhookStatusDisabled'
 	Status WebhookStatus `json:"status,omitempty"`
 	// Scope - The scope of repositories where the event can be triggered. For example, 'foo:*' means events for all tags under repository 'foo'. 'foo:bar' means events for 'foo:bar' only. 'foo' is equivalent to 'foo:latest'. Empty means all events.
 	Scope *string `json:"scope,omitempty"`
 	// Actions - The list of actions that trigger the webhook to post notifications.
 	Actions *[]WebhookAction `json:"actions,omitempty"`
-	// ProvisioningState - The provisioning state of the webhook at the time the operation was called. Possible values include: 'Creating', 'Updating', 'Deleting', 'Succeeded', 'Failed', 'Canceled'
+	// ProvisioningState - The provisioning state of the webhook at the time the operation was called. Possible values include: 'ProvisioningStateCreating', 'ProvisioningStateUpdating', 'ProvisioningStateDeleting', 'ProvisioningStateSucceeded', 'ProvisioningStateFailed', 'ProvisioningStateCanceled'
 	ProvisioningState ProvisioningState `json:"provisioningState,omitempty"`
 }
 
@@ -1487,7 +3791,7 @@ type WebhookPropertiesCreateParameters struct {
 	ServiceURI *string `json:"serviceUri,omitempty"`
 	// CustomHeaders - Custom headers that will be added to the webhook notifications.
 	CustomHeaders *map[string]*string `json:"customHeaders,omitempty"`
-	// Status - The status of the webhook at the time the operation was called. Possible values include: 'Enabled', 'Disabled'
+	// Status - The status of the webhook at the time the operation was called. Possible values include: 'WebhookStatusEnabled', 'WebhookStatusDisabled'
 	Status WebhookStatus `json:"status,omitempty"`
 	// Scope - The scope of repositories where the event can be triggered. For example, 'foo:*' means events for all tags under repository 'foo'. 'foo:bar' means events for 'foo:bar' only. 'foo' is equivalent to 'foo:latest'. Empty means all events.
 	Scope *string `json:"scope,omitempty"`
@@ -1501,7 +3805,7 @@ type WebhookPropertiesUpdateParameters struct {
 	ServiceURI *string `json:"serviceUri,omitempty"`
 	// CustomHeaders - Custom headers that will be added to the webhook notifications.
 	CustomHeaders *map[string]*string `json:"customHeaders,omitempty"`
-	// Status - The status of the webhook at the time the operation was called. Possible values include: 'Enabled', 'Disabled'
+	// Status - The status of the webhook at the time the operation was called. Possible values include: 'WebhookStatusEnabled', 'WebhookStatusDisabled'
 	Status WebhookStatus `json:"status,omitempty"`
 	// Scope - The scope of repositories where the event can be triggered. For example, 'foo:*' means events for all tags under repository 'foo'. 'foo:bar' means events for 'foo:bar' only. 'foo' is equivalent to 'foo:latest'. Empty means all events.
 	Scope *string `json:"scope,omitempty"`
@@ -1521,22 +3825,30 @@ func (future WebhooksCreateFuture) Result(client WebhooksClient) (w Webhook, err
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksCreateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return w, autorest.NewError("containerregistry.WebhooksCreateFuture", "Result", "asynchronous operation has not completed")
+		return w, azure.NewAsyncOpIncompleteError("containerregistry.WebhooksCreateFuture")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		w, err = client.CreateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.WebhooksCreateFuture", "Result", future.Response(), "Failure responding to request")
+		}
 		return
 	}
 	var resp *http.Response
 	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksCreateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	w, err = client.CreateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksCreateFuture", "Result", resp, "Failure responding to request")
+	}
 	return
 }
 
@@ -1552,22 +3864,30 @@ func (future WebhooksDeleteFuture) Result(client WebhooksClient) (ar autorest.Re
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, autorest.NewError("containerregistry.WebhooksDeleteFuture", "Result", "asynchronous operation has not completed")
+		return ar, azure.NewAsyncOpIncompleteError("containerregistry.WebhooksDeleteFuture")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.DeleteResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.WebhooksDeleteFuture", "Result", future.Response(), "Failure responding to request")
+		}
 		return
 	}
 	var resp *http.Response
 	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksDeleteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.DeleteResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksDeleteFuture", "Result", resp, "Failure responding to request")
+	}
 	return
 }
 
@@ -1583,22 +3903,30 @@ func (future WebhooksUpdateFuture) Result(client WebhooksClient) (w Webhook, err
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return w, autorest.NewError("containerregistry.WebhooksUpdateFuture", "Result", "asynchronous operation has not completed")
+		return w, azure.NewAsyncOpIncompleteError("containerregistry.WebhooksUpdateFuture")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		w, err = client.UpdateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.WebhooksUpdateFuture", "Result", future.Response(), "Failure responding to request")
+		}
 		return
 	}
 	var resp *http.Response
 	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksUpdateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	w, err = client.UpdateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksUpdateFuture", "Result", resp, "Failure responding to request")
+	}
 	return
 }
 
