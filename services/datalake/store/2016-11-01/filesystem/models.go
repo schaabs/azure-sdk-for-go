@@ -113,7 +113,7 @@ type ACLStatus struct {
 type ACLStatusResult struct {
 	autorest.Response `json:"-"`
 	// ACLStatus - the AclStatus object for a given file or directory.
-	ACLStatus *ACLStatus `json:"AclStatus,omitempty"`
+	ACLStatus *ACLStatus `json:"aclStatus,omitempty"`
 }
 
 // AdlsAccessControlException a WebHDFS exception thrown indicating that access is denied due to insufficient
@@ -283,7 +283,7 @@ func (aboe AdlsBadOffsetException) AsBasicAdlsRemoteException() (BasicAdlsRemote
 // AdlsError data Lake Store filesystem error containing a specific WebHDFS exception.
 type AdlsError struct {
 	// RemoteException - the object representing the actual WebHDFS exception being returned.
-	RemoteException BasicAdlsRemoteException `json:"RemoteException,omitempty"`
+	RemoteException BasicAdlsRemoteException `json:"remoteException,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for AdlsError struct.
@@ -295,9 +295,9 @@ func (ae *AdlsError) UnmarshalJSON(body []byte) error {
 	}
 	var v *json.RawMessage
 
-	v = m["RemoteException"]
+	v = m["remoteException"]
 	if v != nil {
-		remoteException, err := unmarshalBasicAdlsRemoteException(*m["RemoteException"])
+		remoteException, err := unmarshalBasicAdlsRemoteException(*m["remoteException"])
 		if err != nil {
 			return err
 		}
@@ -1150,7 +1150,7 @@ type ContentSummary struct {
 type ContentSummaryResult struct {
 	autorest.Response `json:"-"`
 	// ContentSummary - the content summary for the specified path
-	ContentSummary *ContentSummary `json:"ContentSummary,omitempty"`
+	ContentSummary *ContentSummary `json:"contentSummary,omitempty"`
 }
 
 // FileOperationResult the result of the request or operation.
@@ -1163,14 +1163,14 @@ type FileOperationResult struct {
 // FileStatuses data Lake Store file status list information.
 type FileStatuses struct {
 	// FileStatus - the object containing the list of properties of the files.
-	FileStatus *[]FileStatusProperties `json:"FileStatus,omitempty"`
+	FileStatus *[]FileStatusProperties `json:"fileStatus,omitempty"`
 }
 
 // FileStatusesResult data Lake Store filesystem file status list information response.
 type FileStatusesResult struct {
 	autorest.Response `json:"-"`
 	// FileStatuses - the object representing the list of file statuses.
-	FileStatuses *FileStatuses `json:"FileStatuses,omitempty"`
+	FileStatuses *FileStatuses `json:"fileStatuses,omitempty"`
 }
 
 // FileStatusProperties data Lake Store file or directory information.
@@ -1203,7 +1203,7 @@ type FileStatusProperties struct {
 type FileStatusResult struct {
 	autorest.Response `json:"-"`
 	// FileStatus - the file status object associated with the specified path.
-	FileStatus *FileStatusProperties `json:"FileStatus,omitempty"`
+	FileStatus *FileStatusProperties `json:"fileStatus,omitempty"`
 }
 
 // ReadCloser ...
