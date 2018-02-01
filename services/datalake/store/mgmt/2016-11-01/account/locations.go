@@ -30,18 +30,18 @@ type LocationsClient struct {
 }
 
 // NewLocationsClient creates an instance of the LocationsClient client.
-func NewLocationsClient(subscriptionID string) LocationsClient {
-	return NewLocationsClientWithBaseURI(DefaultBaseURI, subscriptionID)
+func NewLocationsClient(subscriptionID string, resourceGroupName string, accountName string) LocationsClient {
+	return NewLocationsClientWithBaseURI(DefaultBaseURI, subscriptionID, resourceGroupName, accountName)
 }
 
 // NewLocationsClientWithBaseURI creates an instance of the LocationsClient client.
-func NewLocationsClientWithBaseURI(baseURI string, subscriptionID string) LocationsClient {
-	return LocationsClient{NewWithBaseURI(baseURI, subscriptionID)}
+func NewLocationsClientWithBaseURI(baseURI string, subscriptionID string, resourceGroupName string, accountName string) LocationsClient {
+	return LocationsClient{NewWithBaseURI(baseURI, subscriptionID, resourceGroupName, accountName)}
 }
 
-// GetCapability gets subscription-level properties and limits for Data Lake Store specified by Resource location.
+// GetCapability gets subscription-level properties and limits for Data Lake Store specified by resource location.
 //
-// location is the Resource location without whitespace.
+// location is the resource location without whitespace.
 func (client LocationsClient) GetCapability(ctx context.Context, location string) (result CapabilityInformation, err error) {
 	req, err := client.GetCapabilityPreparer(ctx, location)
 	if err != nil {

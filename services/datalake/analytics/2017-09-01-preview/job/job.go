@@ -79,7 +79,7 @@ func (client Client) BuildPreparer(ctx context.Context, accountName string, para
 		autorest.AsJSON(),
 		autorest.AsPost(),
 		autorest.WithCustomBaseURL("https://{accountName}.{adlaJobDnsSuffix}", urlParameters),
-		autorest.WithPath("/BuildJob"),
+		autorest.WithPath("/buildJob"),
 		autorest.WithJSON(parameters),
 		autorest.WithQueryParameters(queryParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
@@ -144,7 +144,7 @@ func (client Client) CancelPreparer(ctx context.Context, accountName string, job
 	preparer := autorest.CreatePreparer(
 		autorest.AsPost(),
 		autorest.WithCustomBaseURL("https://{accountName}.{adlaJobDnsSuffix}", urlParameters),
-		autorest.WithPathParameters("/Jobs/{jobIdentity}/CancelJob", pathParameters),
+		autorest.WithPathParameters("/jobs/{jobIdentity}/cancelJob", pathParameters),
 		autorest.WithQueryParameters(queryParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -235,7 +235,7 @@ func (client Client) CreatePreparer(ctx context.Context, accountName string, job
 		autorest.AsJSON(),
 		autorest.AsPut(),
 		autorest.WithCustomBaseURL("https://{accountName}.{adlaJobDnsSuffix}", urlParameters),
-		autorest.WithPathParameters("/Jobs/{jobIdentity}", pathParameters),
+		autorest.WithPathParameters("/jobs/{jobIdentity}", pathParameters),
 		autorest.WithJSON(parameters),
 		autorest.WithQueryParameters(queryParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
@@ -305,7 +305,7 @@ func (client Client) GetPreparer(ctx context.Context, accountName string, jobIde
 	preparer := autorest.CreatePreparer(
 		autorest.AsGet(),
 		autorest.WithCustomBaseURL("https://{accountName}.{adlaJobDnsSuffix}", urlParameters),
-		autorest.WithPathParameters("/Jobs/{jobIdentity}", pathParameters),
+		autorest.WithPathParameters("/jobs/{jobIdentity}", pathParameters),
 		autorest.WithQueryParameters(queryParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -375,7 +375,7 @@ func (client Client) GetDebugDataPathPreparer(ctx context.Context, accountName s
 	preparer := autorest.CreatePreparer(
 		autorest.AsGet(),
 		autorest.WithCustomBaseURL("https://{accountName}.{adlaJobDnsSuffix}", urlParameters),
-		autorest.WithPathParameters("/Jobs/{jobIdentity}/GetDebugDataPath", pathParameters),
+		autorest.WithPathParameters("/jobs/{jobIdentity}/getDebugDataPath", pathParameters),
 		autorest.WithQueryParameters(queryParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -445,7 +445,7 @@ func (client Client) GetStatisticsPreparer(ctx context.Context, accountName stri
 	preparer := autorest.CreatePreparer(
 		autorest.AsGet(),
 		autorest.WithCustomBaseURL("https://{accountName}.{adlaJobDnsSuffix}", urlParameters),
-		autorest.WithPathParameters("/Jobs/{jobIdentity}/GetStatistics", pathParameters),
+		autorest.WithPathParameters("/jobs/{jobIdentity}/getStatistics", pathParameters),
 		autorest.WithQueryParameters(queryParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -546,7 +546,7 @@ func (client Client) ListPreparer(ctx context.Context, accountName string, filte
 	preparer := autorest.CreatePreparer(
 		autorest.AsGet(),
 		autorest.WithCustomBaseURL("https://{accountName}.{adlaJobDnsSuffix}", urlParameters),
-		autorest.WithPath("/Jobs"),
+		autorest.WithPath("/jobs"),
 		autorest.WithQueryParameters(queryParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -638,7 +638,7 @@ func (client Client) UpdatePreparer(ctx context.Context, accountName string, job
 		autorest.AsJSON(),
 		autorest.AsPatch(),
 		autorest.WithCustomBaseURL("https://{accountName}.{adlaJobDnsSuffix}", urlParameters),
-		autorest.WithPathParameters("/Jobs/{jobIdentity}", pathParameters),
+		autorest.WithPathParameters("/jobs/{jobIdentity}", pathParameters),
 		autorest.WithQueryParameters(queryParameters))
 	if parameters != nil {
 		preparer = autorest.DecoratePreparer(preparer,
@@ -715,7 +715,7 @@ func (client Client) YieldPreparer(ctx context.Context, accountName string, jobI
 	preparer := autorest.CreatePreparer(
 		autorest.AsPost(),
 		autorest.WithCustomBaseURL("https://{accountName}.{adlaJobDnsSuffix}", urlParameters),
-		autorest.WithPathParameters("/Jobs/{jobIdentity}/YieldJob", pathParameters),
+		autorest.WithPathParameters("/jobs/{jobIdentity}/yieldJob", pathParameters),
 		autorest.WithQueryParameters(queryParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }

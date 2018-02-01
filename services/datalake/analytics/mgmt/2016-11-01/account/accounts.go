@@ -25,56 +25,56 @@ import (
 	"net/http"
 )
 
-// Client is the creates an Azure Data Lake Analytics account management client.
-type Client struct {
+// AccountsClient is the creates an Azure Data Lake Analytics account management client.
+type AccountsClient struct {
 	BaseClient
 }
 
-// NewClient creates an instance of the Client client.
-func NewClient(subscriptionID string) Client {
-	return NewClientWithBaseURI(DefaultBaseURI, subscriptionID)
+// NewAccountsClient creates an instance of the AccountsClient client.
+func NewAccountsClient(subscriptionID string, resourceGroupName string, accountName string) AccountsClient {
+	return NewAccountsClientWithBaseURI(DefaultBaseURI, subscriptionID, resourceGroupName, accountName)
 }
 
-// NewClientWithBaseURI creates an instance of the Client client.
-func NewClientWithBaseURI(baseURI string, subscriptionID string) Client {
-	return Client{NewWithBaseURI(baseURI, subscriptionID)}
+// NewAccountsClientWithBaseURI creates an instance of the AccountsClient client.
+func NewAccountsClientWithBaseURI(baseURI string, subscriptionID string, resourceGroupName string, accountName string) AccountsClient {
+	return AccountsClient{NewWithBaseURI(baseURI, subscriptionID, resourceGroupName, accountName)}
 }
 
 // CheckNameAvailability checks whether the specified account name is available or taken.
 //
-// location is the Resource location without whitespace. parameters is parameters supplied to check the Data Lake
+// location is the resource location without whitespace. parameters is parameters supplied to check the Data Lake
 // Analytics account name availability.
-func (client Client) CheckNameAvailability(ctx context.Context, location string, parameters CheckNameAvailabilityParameters) (result NameAvailabilityInformation, err error) {
+func (client AccountsClient) CheckNameAvailability(ctx context.Context, location string, parameters CheckNameAvailabilityParameters) (result NameAvailabilityInformation, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.Name", Name: validation.Null, Rule: true, Chain: nil},
 				{Target: "parameters.Type", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewErrorWithValidationError(err, "account.Client", "CheckNameAvailability")
+		return result, validation.NewErrorWithValidationError(err, "account.AccountsClient", "CheckNameAvailability")
 	}
 
 	req, err := client.CheckNameAvailabilityPreparer(ctx, location, parameters)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "CheckNameAvailability", nil, "Failure preparing request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "CheckNameAvailability", nil, "Failure preparing request")
 		return
 	}
 
 	resp, err := client.CheckNameAvailabilitySender(req)
 	if err != nil {
 		result.Response = autorest.Response{Response: resp}
-		err = autorest.NewErrorWithError(err, "account.Client", "CheckNameAvailability", resp, "Failure sending request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "CheckNameAvailability", resp, "Failure sending request")
 		return
 	}
 
 	result, err = client.CheckNameAvailabilityResponder(resp)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "CheckNameAvailability", resp, "Failure responding to request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "CheckNameAvailability", resp, "Failure responding to request")
 	}
 
 	return
 }
 
 // CheckNameAvailabilityPreparer prepares the CheckNameAvailability request.
-func (client Client) CheckNameAvailabilityPreparer(ctx context.Context, location string, parameters CheckNameAvailabilityParameters) (*http.Request, error) {
+func (client AccountsClient) CheckNameAvailabilityPreparer(ctx context.Context, location string, parameters CheckNameAvailabilityParameters) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
 		"location":       autorest.Encode("path", location),
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
@@ -97,14 +97,14 @@ func (client Client) CheckNameAvailabilityPreparer(ctx context.Context, location
 
 // CheckNameAvailabilitySender sends the CheckNameAvailability request. The method will close the
 // http.Response Body if it receives an error.
-func (client Client) CheckNameAvailabilitySender(req *http.Request) (*http.Response, error) {
+func (client AccountsClient) CheckNameAvailabilitySender(req *http.Request) (*http.Response, error) {
 	return autorest.SendWithSender(client, req,
 		azure.DoRetryWithRegistration(client.Client))
 }
 
 // CheckNameAvailabilityResponder handles the response to the CheckNameAvailability request. The method always
 // closes the http.Response Body.
-func (client Client) CheckNameAvailabilityResponder(resp *http.Response) (result NameAvailabilityInformation, err error) {
+func (client AccountsClient) CheckNameAvailabilityResponder(resp *http.Response) (result NameAvailabilityInformation, err error) {
 	err = autorest.Respond(
 		resp,
 		client.ByInspecting(),
@@ -116,42 +116,41 @@ func (client Client) CheckNameAvailabilityResponder(resp *http.Response) (result
 }
 
 // Create creates the specified Data Lake Analytics account. This supplies the user with computation services for Data
-// Lake Analytics workloads
+// Lake Analytics workloads.
 //
-// resourceGroupName is the name of the Azure resource group that contains the Data Lake Analytics account.the account
-// will be associated with. accountName is the name of the Data Lake Analytics account to create. parameters is
-// parameters supplied to the create Data Lake Analytics account operation.
-func (client Client) Create(ctx context.Context, resourceGroupName string, accountName string, parameters DataLakeAnalyticsAccount) (result AccountCreateFuture, err error) {
+// parameters is parameters supplied to create a new Data Lake Analytics account.
+func (client AccountsClient) Create(ctx context.Context, parameters CreateDataLakeAnalyticsAccountParameters) (result AccountsCreateFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
-			Constraints: []validation.Constraint{{Target: "parameters.DataLakeAnalyticsAccountProperties", Name: validation.Null, Rule: true,
-				Chain: []validation.Constraint{{Target: "parameters.DataLakeAnalyticsAccountProperties.DefaultDataLakeStoreAccount", Name: validation.Null, Rule: true, Chain: nil},
-					{Target: "parameters.DataLakeAnalyticsAccountProperties.MaxDegreeOfParallelism", Name: validation.Null, Rule: false,
-						Chain: []validation.Constraint{{Target: "parameters.DataLakeAnalyticsAccountProperties.MaxDegreeOfParallelism", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}},
-					{Target: "parameters.DataLakeAnalyticsAccountProperties.QueryStoreRetention", Name: validation.Null, Rule: false,
-						Chain: []validation.Constraint{{Target: "parameters.DataLakeAnalyticsAccountProperties.QueryStoreRetention", Name: validation.InclusiveMaximum, Rule: 180, Chain: nil},
-							{Target: "parameters.DataLakeAnalyticsAccountProperties.QueryStoreRetention", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
-						}},
-					{Target: "parameters.DataLakeAnalyticsAccountProperties.MaxJobCount", Name: validation.Null, Rule: false,
-						Chain: []validation.Constraint{{Target: "parameters.DataLakeAnalyticsAccountProperties.MaxJobCount", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}},
-					{Target: "parameters.DataLakeAnalyticsAccountProperties.DataLakeStoreAccounts", Name: validation.Null, Rule: true, Chain: nil},
-					{Target: "parameters.DataLakeAnalyticsAccountProperties.MaxDegreeOfParallelismPerJob", Name: validation.Null, Rule: false,
-						Chain: []validation.Constraint{{Target: "parameters.DataLakeAnalyticsAccountProperties.MaxDegreeOfParallelismPerJob", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}},
-					{Target: "parameters.DataLakeAnalyticsAccountProperties.MinPriorityPerJob", Name: validation.Null, Rule: false,
-						Chain: []validation.Constraint{{Target: "parameters.DataLakeAnalyticsAccountProperties.MinPriorityPerJob", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}},
-				}}}}}); err != nil {
-		return result, validation.NewErrorWithValidationError(err, "account.Client", "Create")
+			Constraints: []validation.Constraint{{Target: "parameters.Location", Name: validation.Null, Rule: true, Chain: nil},
+				{Target: "parameters.CreateDataLakeAnalyticsAccountProperties", Name: validation.Null, Rule: true,
+					Chain: []validation.Constraint{{Target: "parameters.CreateDataLakeAnalyticsAccountProperties.DefaultDataLakeStoreAccount", Name: validation.Null, Rule: true, Chain: nil},
+						{Target: "parameters.CreateDataLakeAnalyticsAccountProperties.DataLakeStoreAccounts", Name: validation.Null, Rule: true, Chain: nil},
+						{Target: "parameters.CreateDataLakeAnalyticsAccountProperties.MaxJobCount", Name: validation.Null, Rule: false,
+							Chain: []validation.Constraint{{Target: "parameters.CreateDataLakeAnalyticsAccountProperties.MaxJobCount", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}},
+						{Target: "parameters.CreateDataLakeAnalyticsAccountProperties.MaxDegreeOfParallelism", Name: validation.Null, Rule: false,
+							Chain: []validation.Constraint{{Target: "parameters.CreateDataLakeAnalyticsAccountProperties.MaxDegreeOfParallelism", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}},
+						{Target: "parameters.CreateDataLakeAnalyticsAccountProperties.MaxDegreeOfParallelismPerJob", Name: validation.Null, Rule: false,
+							Chain: []validation.Constraint{{Target: "parameters.CreateDataLakeAnalyticsAccountProperties.MaxDegreeOfParallelismPerJob", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}},
+						{Target: "parameters.CreateDataLakeAnalyticsAccountProperties.MinPriorityPerJob", Name: validation.Null, Rule: false,
+							Chain: []validation.Constraint{{Target: "parameters.CreateDataLakeAnalyticsAccountProperties.MinPriorityPerJob", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}},
+						{Target: "parameters.CreateDataLakeAnalyticsAccountProperties.QueryStoreRetention", Name: validation.Null, Rule: false,
+							Chain: []validation.Constraint{{Target: "parameters.CreateDataLakeAnalyticsAccountProperties.QueryStoreRetention", Name: validation.InclusiveMaximum, Rule: 180, Chain: nil},
+								{Target: "parameters.CreateDataLakeAnalyticsAccountProperties.QueryStoreRetention", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
+							}},
+					}}}}}); err != nil {
+		return result, validation.NewErrorWithValidationError(err, "account.AccountsClient", "Create")
 	}
 
-	req, err := client.CreatePreparer(ctx, resourceGroupName, accountName, parameters)
+	req, err := client.CreatePreparer(ctx, parameters)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "Create", nil, "Failure preparing request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "Create", nil, "Failure preparing request")
 		return
 	}
 
 	result, err = client.CreateSender(req)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "Create", result.Response(), "Failure sending request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "Create", result.Response(), "Failure sending request")
 		return
 	}
 
@@ -159,10 +158,10 @@ func (client Client) Create(ctx context.Context, resourceGroupName string, accou
 }
 
 // CreatePreparer prepares the Create request.
-func (client Client) CreatePreparer(ctx context.Context, resourceGroupName string, accountName string, parameters DataLakeAnalyticsAccount) (*http.Request, error) {
+func (client AccountsClient) CreatePreparer(ctx context.Context, parameters CreateDataLakeAnalyticsAccountParameters) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
-		"accountName":       autorest.Encode("path", accountName),
-		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"accountName":       autorest.Encode("path", client.AccountName),
+		"resourceGroupName": autorest.Encode("path", client.ResourceGroupName),
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
@@ -183,7 +182,7 @@ func (client Client) CreatePreparer(ctx context.Context, resourceGroupName strin
 
 // CreateSender sends the Create request. The method will close the
 // http.Response Body if it receives an error.
-func (client Client) CreateSender(req *http.Request) (future AccountCreateFuture, err error) {
+func (client AccountsClient) CreateSender(req *http.Request) (future AccountsCreateFuture, err error) {
 	sender := autorest.DecorateSender(client, azure.DoRetryWithRegistration(client.Client))
 	future.Future = azure.NewFuture(req)
 	future.req = req
@@ -198,7 +197,7 @@ func (client Client) CreateSender(req *http.Request) (future AccountCreateFuture
 
 // CreateResponder handles the response to the Create request. The method always
 // closes the http.Response Body.
-func (client Client) CreateResponder(resp *http.Response) (result DataLakeAnalyticsAccount, err error) {
+func (client AccountsClient) CreateResponder(resp *http.Response) (result DataLakeAnalyticsAccount, err error) {
 	err = autorest.Respond(
 		resp,
 		client.ByInspecting(),
@@ -210,19 +209,16 @@ func (client Client) CreateResponder(resp *http.Response) (result DataLakeAnalyt
 }
 
 // Delete begins the delete process for the Data Lake Analytics account object specified by the account name.
-//
-// resourceGroupName is the name of the Azure resource group that contains the Data Lake Analytics account. accountName
-// is the name of the Data Lake Analytics account to delete
-func (client Client) Delete(ctx context.Context, resourceGroupName string, accountName string) (result AccountDeleteFuture, err error) {
-	req, err := client.DeletePreparer(ctx, resourceGroupName, accountName)
+func (client AccountsClient) Delete(ctx context.Context) (result AccountsDeleteFuture, err error) {
+	req, err := client.DeletePreparer(ctx)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "Delete", nil, "Failure preparing request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "Delete", nil, "Failure preparing request")
 		return
 	}
 
 	result, err = client.DeleteSender(req)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "Delete", result.Response(), "Failure sending request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "Delete", result.Response(), "Failure sending request")
 		return
 	}
 
@@ -230,10 +226,10 @@ func (client Client) Delete(ctx context.Context, resourceGroupName string, accou
 }
 
 // DeletePreparer prepares the Delete request.
-func (client Client) DeletePreparer(ctx context.Context, resourceGroupName string, accountName string) (*http.Request, error) {
+func (client AccountsClient) DeletePreparer(ctx context.Context) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
-		"accountName":       autorest.Encode("path", accountName),
-		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"accountName":       autorest.Encode("path", client.AccountName),
+		"resourceGroupName": autorest.Encode("path", client.ResourceGroupName),
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
@@ -252,7 +248,7 @@ func (client Client) DeletePreparer(ctx context.Context, resourceGroupName strin
 
 // DeleteSender sends the Delete request. The method will close the
 // http.Response Body if it receives an error.
-func (client Client) DeleteSender(req *http.Request) (future AccountDeleteFuture, err error) {
+func (client AccountsClient) DeleteSender(req *http.Request) (future AccountsDeleteFuture, err error) {
 	sender := autorest.DecorateSender(client, azure.DoRetryWithRegistration(client.Client))
 	future.Future = azure.NewFuture(req)
 	future.req = req
@@ -267,7 +263,7 @@ func (client Client) DeleteSender(req *http.Request) (future AccountDeleteFuture
 
 // DeleteResponder handles the response to the Delete request. The method always
 // closes the http.Response Body.
-func (client Client) DeleteResponder(resp *http.Response) (result autorest.Response, err error) {
+func (client AccountsClient) DeleteResponder(resp *http.Response) (result autorest.Response, err error) {
 	err = autorest.Respond(
 		resp,
 		client.ByInspecting(),
@@ -278,36 +274,33 @@ func (client Client) DeleteResponder(resp *http.Response) (result autorest.Respo
 }
 
 // Get gets details of the specified Data Lake Analytics account.
-//
-// resourceGroupName is the name of the Azure resource group that contains the Data Lake Analytics account. accountName
-// is the name of the Data Lake Analytics account to retrieve.
-func (client Client) Get(ctx context.Context, resourceGroupName string, accountName string) (result DataLakeAnalyticsAccount, err error) {
-	req, err := client.GetPreparer(ctx, resourceGroupName, accountName)
+func (client AccountsClient) Get(ctx context.Context) (result DataLakeAnalyticsAccount, err error) {
+	req, err := client.GetPreparer(ctx)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "Get", nil, "Failure preparing request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "Get", nil, "Failure preparing request")
 		return
 	}
 
 	resp, err := client.GetSender(req)
 	if err != nil {
 		result.Response = autorest.Response{Response: resp}
-		err = autorest.NewErrorWithError(err, "account.Client", "Get", resp, "Failure sending request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "Get", resp, "Failure sending request")
 		return
 	}
 
 	result, err = client.GetResponder(resp)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "Get", resp, "Failure responding to request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "Get", resp, "Failure responding to request")
 	}
 
 	return
 }
 
 // GetPreparer prepares the Get request.
-func (client Client) GetPreparer(ctx context.Context, resourceGroupName string, accountName string) (*http.Request, error) {
+func (client AccountsClient) GetPreparer(ctx context.Context) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
-		"accountName":       autorest.Encode("path", accountName),
-		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"accountName":       autorest.Encode("path", client.AccountName),
+		"resourceGroupName": autorest.Encode("path", client.ResourceGroupName),
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
@@ -326,14 +319,14 @@ func (client Client) GetPreparer(ctx context.Context, resourceGroupName string, 
 
 // GetSender sends the Get request. The method will close the
 // http.Response Body if it receives an error.
-func (client Client) GetSender(req *http.Request) (*http.Response, error) {
+func (client AccountsClient) GetSender(req *http.Request) (*http.Response, error) {
 	return autorest.SendWithSender(client, req,
 		azure.DoRetryWithRegistration(client.Client))
 }
 
 // GetResponder handles the response to the Get request. The method always
 // closes the http.Response Body.
-func (client Client) GetResponder(resp *http.Response) (result DataLakeAnalyticsAccount, err error) {
+func (client AccountsClient) GetResponder(resp *http.Response) (result DataLakeAnalyticsAccount, err error) {
 	err = autorest.Respond(
 		resp,
 		client.ByInspecting(),
@@ -354,7 +347,7 @@ func (client Client) GetResponder(resp *http.Response) (result DataLakeAnalytics
 // order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value
 // of true or false to request a count of the matching resources included with the resources in the response, e.g.
 // Categories?$count=true. Optional.
-func (client Client) List(ctx context.Context, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result DataLakeAnalyticsAccountListResultPage, err error) {
+func (client AccountsClient) List(ctx context.Context, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result DataLakeAnalyticsAccountListResultPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
 			Constraints: []validation.Constraint{{Target: "top", Name: validation.Null, Rule: false,
@@ -362,33 +355,33 @@ func (client Client) List(ctx context.Context, filter string, top *int32, skip *
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewErrorWithValidationError(err, "account.Client", "List")
+		return result, validation.NewErrorWithValidationError(err, "account.AccountsClient", "List")
 	}
 
 	result.fn = client.listNextResults
 	req, err := client.ListPreparer(ctx, filter, top, skip, selectParameter, orderby, count)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "List", nil, "Failure preparing request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "List", nil, "Failure preparing request")
 		return
 	}
 
 	resp, err := client.ListSender(req)
 	if err != nil {
 		result.dlaalr.Response = autorest.Response{Response: resp}
-		err = autorest.NewErrorWithError(err, "account.Client", "List", resp, "Failure sending request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "List", resp, "Failure sending request")
 		return
 	}
 
 	result.dlaalr, err = client.ListResponder(resp)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "List", resp, "Failure responding to request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "List", resp, "Failure responding to request")
 	}
 
 	return
 }
 
 // ListPreparer prepares the List request.
-func (client Client) ListPreparer(ctx context.Context, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (*http.Request, error) {
+func (client AccountsClient) ListPreparer(ctx context.Context, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
@@ -426,14 +419,14 @@ func (client Client) ListPreparer(ctx context.Context, filter string, top *int32
 
 // ListSender sends the List request. The method will close the
 // http.Response Body if it receives an error.
-func (client Client) ListSender(req *http.Request) (*http.Response, error) {
+func (client AccountsClient) ListSender(req *http.Request) (*http.Response, error) {
 	return autorest.SendWithSender(client, req,
 		azure.DoRetryWithRegistration(client.Client))
 }
 
 // ListResponder handles the response to the List request. The method always
 // closes the http.Response Body.
-func (client Client) ListResponder(resp *http.Response) (result DataLakeAnalyticsAccountListResult, err error) {
+func (client AccountsClient) ListResponder(resp *http.Response) (result DataLakeAnalyticsAccountListResult, err error) {
 	err = autorest.Respond(
 		resp,
 		client.ByInspecting(),
@@ -445,10 +438,10 @@ func (client Client) ListResponder(resp *http.Response) (result DataLakeAnalytic
 }
 
 // listNextResults retrieves the next set of results, if any.
-func (client Client) listNextResults(lastResults DataLakeAnalyticsAccountListResult) (result DataLakeAnalyticsAccountListResult, err error) {
+func (client AccountsClient) listNextResults(lastResults DataLakeAnalyticsAccountListResult) (result DataLakeAnalyticsAccountListResult, err error) {
 	req, err := lastResults.dataLakeAnalyticsAccountListResultPreparer()
 	if err != nil {
-		return result, autorest.NewErrorWithError(err, "account.Client", "listNextResults", nil, "Failure preparing next results request")
+		return result, autorest.NewErrorWithError(err, "account.AccountsClient", "listNextResults", nil, "Failure preparing next results request")
 	}
 	if req == nil {
 		return
@@ -456,17 +449,17 @@ func (client Client) listNextResults(lastResults DataLakeAnalyticsAccountListRes
 	resp, err := client.ListSender(req)
 	if err != nil {
 		result.Response = autorest.Response{Response: resp}
-		return result, autorest.NewErrorWithError(err, "account.Client", "listNextResults", resp, "Failure sending next results request")
+		return result, autorest.NewErrorWithError(err, "account.AccountsClient", "listNextResults", resp, "Failure sending next results request")
 	}
 	result, err = client.ListResponder(resp)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "listNextResults", resp, "Failure responding to next results request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "listNextResults", resp, "Failure responding to next results request")
 	}
 	return
 }
 
 // ListComplete enumerates all values, automatically crossing page boundaries as required.
-func (client Client) ListComplete(ctx context.Context, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result DataLakeAnalyticsAccountListResultIterator, err error) {
+func (client AccountsClient) ListComplete(ctx context.Context, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result DataLakeAnalyticsAccountListResultIterator, err error) {
 	result.page, err = client.List(ctx, filter, top, skip, selectParameter, orderby, count)
 	return
 }
@@ -474,15 +467,14 @@ func (client Client) ListComplete(ctx context.Context, filter string, top *int32
 // ListByResourceGroup gets the first page of Data Lake Analytics accounts, if any, within a specific resource group.
 // This includes a link to the next page, if any.
 //
-// resourceGroupName is the name of the Azure resource group that contains the Data Lake Analytics account. filter is
-// oData filter. Optional. top is the number of items to return. Optional. skip is the number of items to skip over
-// before returning elements. Optional. selectParameter is oData Select statement. Limits the properties on each entry
-// to just those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One
-// or more comma-separated expressions with an optional "asc" (the default) or "desc" depending on the order you'd like
-// the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false
-// to request a count of the matching resources included with the resources in the response, e.g.
+// filter is oData filter. Optional. top is the number of items to return. Optional. skip is the number of items to
+// skip over before returning elements. Optional. selectParameter is oData Select statement. Limits the properties on
+// each entry to just those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy
+// clause. One or more comma-separated expressions with an optional "asc" (the default) or "desc" depending on the
+// order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value
+// of true or false to request a count of the matching resources included with the resources in the response, e.g.
 // Categories?$count=true. Optional.
-func (client Client) ListByResourceGroup(ctx context.Context, resourceGroupName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result DataLakeAnalyticsAccountListResultPage, err error) {
+func (client AccountsClient) ListByResourceGroup(ctx context.Context, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result DataLakeAnalyticsAccountListResultPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
 			Constraints: []validation.Constraint{{Target: "top", Name: validation.Null, Rule: false,
@@ -490,35 +482,35 @@ func (client Client) ListByResourceGroup(ctx context.Context, resourceGroupName 
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewErrorWithValidationError(err, "account.Client", "ListByResourceGroup")
+		return result, validation.NewErrorWithValidationError(err, "account.AccountsClient", "ListByResourceGroup")
 	}
 
 	result.fn = client.listByResourceGroupNextResults
-	req, err := client.ListByResourceGroupPreparer(ctx, resourceGroupName, filter, top, skip, selectParameter, orderby, count)
+	req, err := client.ListByResourceGroupPreparer(ctx, filter, top, skip, selectParameter, orderby, count)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "ListByResourceGroup", nil, "Failure preparing request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "ListByResourceGroup", nil, "Failure preparing request")
 		return
 	}
 
 	resp, err := client.ListByResourceGroupSender(req)
 	if err != nil {
 		result.dlaalr.Response = autorest.Response{Response: resp}
-		err = autorest.NewErrorWithError(err, "account.Client", "ListByResourceGroup", resp, "Failure sending request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "ListByResourceGroup", resp, "Failure sending request")
 		return
 	}
 
 	result.dlaalr, err = client.ListByResourceGroupResponder(resp)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "ListByResourceGroup", resp, "Failure responding to request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "ListByResourceGroup", resp, "Failure responding to request")
 	}
 
 	return
 }
 
 // ListByResourceGroupPreparer prepares the ListByResourceGroup request.
-func (client Client) ListByResourceGroupPreparer(ctx context.Context, resourceGroupName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (*http.Request, error) {
+func (client AccountsClient) ListByResourceGroupPreparer(ctx context.Context, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
-		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"resourceGroupName": autorest.Encode("path", client.ResourceGroupName),
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
@@ -555,14 +547,14 @@ func (client Client) ListByResourceGroupPreparer(ctx context.Context, resourceGr
 
 // ListByResourceGroupSender sends the ListByResourceGroup request. The method will close the
 // http.Response Body if it receives an error.
-func (client Client) ListByResourceGroupSender(req *http.Request) (*http.Response, error) {
+func (client AccountsClient) ListByResourceGroupSender(req *http.Request) (*http.Response, error) {
 	return autorest.SendWithSender(client, req,
 		azure.DoRetryWithRegistration(client.Client))
 }
 
 // ListByResourceGroupResponder handles the response to the ListByResourceGroup request. The method always
 // closes the http.Response Body.
-func (client Client) ListByResourceGroupResponder(resp *http.Response) (result DataLakeAnalyticsAccountListResult, err error) {
+func (client AccountsClient) ListByResourceGroupResponder(resp *http.Response) (result DataLakeAnalyticsAccountListResult, err error) {
 	err = autorest.Respond(
 		resp,
 		client.ByInspecting(),
@@ -574,10 +566,10 @@ func (client Client) ListByResourceGroupResponder(resp *http.Response) (result D
 }
 
 // listByResourceGroupNextResults retrieves the next set of results, if any.
-func (client Client) listByResourceGroupNextResults(lastResults DataLakeAnalyticsAccountListResult) (result DataLakeAnalyticsAccountListResult, err error) {
+func (client AccountsClient) listByResourceGroupNextResults(lastResults DataLakeAnalyticsAccountListResult) (result DataLakeAnalyticsAccountListResult, err error) {
 	req, err := lastResults.dataLakeAnalyticsAccountListResultPreparer()
 	if err != nil {
-		return result, autorest.NewErrorWithError(err, "account.Client", "listByResourceGroupNextResults", nil, "Failure preparing next results request")
+		return result, autorest.NewErrorWithError(err, "account.AccountsClient", "listByResourceGroupNextResults", nil, "Failure preparing next results request")
 	}
 	if req == nil {
 		return
@@ -585,37 +577,35 @@ func (client Client) listByResourceGroupNextResults(lastResults DataLakeAnalytic
 	resp, err := client.ListByResourceGroupSender(req)
 	if err != nil {
 		result.Response = autorest.Response{Response: resp}
-		return result, autorest.NewErrorWithError(err, "account.Client", "listByResourceGroupNextResults", resp, "Failure sending next results request")
+		return result, autorest.NewErrorWithError(err, "account.AccountsClient", "listByResourceGroupNextResults", resp, "Failure sending next results request")
 	}
 	result, err = client.ListByResourceGroupResponder(resp)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "listByResourceGroupNextResults", resp, "Failure responding to next results request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "listByResourceGroupNextResults", resp, "Failure responding to next results request")
 	}
 	return
 }
 
 // ListByResourceGroupComplete enumerates all values, automatically crossing page boundaries as required.
-func (client Client) ListByResourceGroupComplete(ctx context.Context, resourceGroupName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result DataLakeAnalyticsAccountListResultIterator, err error) {
-	result.page, err = client.ListByResourceGroup(ctx, resourceGroupName, filter, top, skip, selectParameter, orderby, count)
+func (client AccountsClient) ListByResourceGroupComplete(ctx context.Context, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result DataLakeAnalyticsAccountListResultIterator, err error) {
+	result.page, err = client.ListByResourceGroup(ctx, filter, top, skip, selectParameter, orderby, count)
 	return
 }
 
 // Update updates the Data Lake Analytics account object specified by the accountName with the contents of the account
 // object.
 //
-// resourceGroupName is the name of the Azure resource group that contains the Data Lake Analytics account. accountName
-// is the name of the Data Lake Analytics account to update. parameters is parameters supplied to the update Data Lake
-// Analytics account operation.
-func (client Client) Update(ctx context.Context, resourceGroupName string, accountName string, parameters *DataLakeAnalyticsAccountUpdateParameters) (result AccountUpdateFuture, err error) {
-	req, err := client.UpdatePreparer(ctx, resourceGroupName, accountName, parameters)
+// parameters is parameters supplied to the update Data Lake Analytics account operation.
+func (client AccountsClient) Update(ctx context.Context, parameters *UpdateDataLakeAnalyticsAccountParameters) (result AccountsUpdateFuture, err error) {
+	req, err := client.UpdatePreparer(ctx, parameters)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "Update", nil, "Failure preparing request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "Update", nil, "Failure preparing request")
 		return
 	}
 
 	result, err = client.UpdateSender(req)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "account.Client", "Update", result.Response(), "Failure sending request")
+		err = autorest.NewErrorWithError(err, "account.AccountsClient", "Update", result.Response(), "Failure sending request")
 		return
 	}
 
@@ -623,10 +613,10 @@ func (client Client) Update(ctx context.Context, resourceGroupName string, accou
 }
 
 // UpdatePreparer prepares the Update request.
-func (client Client) UpdatePreparer(ctx context.Context, resourceGroupName string, accountName string, parameters *DataLakeAnalyticsAccountUpdateParameters) (*http.Request, error) {
+func (client AccountsClient) UpdatePreparer(ctx context.Context, parameters *UpdateDataLakeAnalyticsAccountParameters) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
-		"accountName":       autorest.Encode("path", accountName),
-		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"accountName":       autorest.Encode("path", client.AccountName),
+		"resourceGroupName": autorest.Encode("path", client.ResourceGroupName),
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
@@ -650,7 +640,7 @@ func (client Client) UpdatePreparer(ctx context.Context, resourceGroupName strin
 
 // UpdateSender sends the Update request. The method will close the
 // http.Response Body if it receives an error.
-func (client Client) UpdateSender(req *http.Request) (future AccountUpdateFuture, err error) {
+func (client AccountsClient) UpdateSender(req *http.Request) (future AccountsUpdateFuture, err error) {
 	sender := autorest.DecorateSender(client, azure.DoRetryWithRegistration(client.Client))
 	future.Future = azure.NewFuture(req)
 	future.req = req
@@ -665,7 +655,7 @@ func (client Client) UpdateSender(req *http.Request) (future AccountUpdateFuture
 
 // UpdateResponder handles the response to the Update request. The method always
 // closes the http.Response Body.
-func (client Client) UpdateResponder(resp *http.Response) (result DataLakeAnalyticsAccount, err error) {
+func (client AccountsClient) UpdateResponder(resp *http.Response) (result DataLakeAnalyticsAccount, err error) {
 	err = autorest.Respond(
 		resp,
 		client.ByInspecting(),
