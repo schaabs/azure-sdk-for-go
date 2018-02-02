@@ -18,732 +18,552 @@ package containerregistry
 // Changes may cause incorrect behavior and will be lost if the code is regenerated.
 
 import (
+	"bytes"
 	"context"
-	"github.com/Azure/go-autorest/autorest"
-	"github.com/Azure/go-autorest/autorest/azure"
-	"github.com/Azure/go-autorest/autorest/validation"
+	"encoding/json"
+	"github.com/Azure/azure-pipeline-go/pipeline"
+	"io/ioutil"
 	"net/http"
 )
 
 // WebhooksClient is the client for the Webhooks methods of the Containerregistry service.
 type WebhooksClient struct {
-	BaseClient
+	ManagementClient
 }
 
 // NewWebhooksClient creates an instance of the WebhooksClient client.
-func NewWebhooksClient(subscriptionID string) WebhooksClient {
-	return NewWebhooksClientWithBaseURI(DefaultBaseURI, subscriptionID)
+func NewWebhooksClient(p pipeline.Pipeline) WebhooksClient {
+	return WebhooksClient{NewManagementClient(p)}
 }
 
-// NewWebhooksClientWithBaseURI creates an instance of the WebhooksClient client.
-func NewWebhooksClientWithBaseURI(baseURI string, subscriptionID string) WebhooksClient {
-	return WebhooksClient{NewWithBaseURI(baseURI, subscriptionID)}
-}
-
-// Create creates a webhook for a container registry with the specified parameters.
+// Create creates a webhook for a container registry with the specified parameters. This method may poll for
+// completion. Polling can be canceled by passing the cancel channel argument. The channel will be used to cancel
+// polling and any outstanding HTTP requests.
 //
 // resourceGroupName is the name of the resource group to which the container registry belongs. registryName is the
 // name of the container registry. webhookName is the name of the webhook. webhookCreateParameters is the parameters
 // for creating a webhook.
-func (client WebhooksClient) Create(ctx context.Context, resourceGroupName string, registryName string, webhookName string, webhookCreateParameters WebhookCreateParameters) (result WebhooksCreateFuture, err error) {
-	if err := validation.Validate([]validation.Validation{
-		{TargetValue: registryName,
-			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
-				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
-				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}},
-		{TargetValue: webhookName,
-			Constraints: []validation.Constraint{{Target: "webhookName", Name: validation.MaxLength, Rule: 50, Chain: nil},
-				{Target: "webhookName", Name: validation.MinLength, Rule: 5, Chain: nil},
-				{Target: "webhookName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}},
-		{TargetValue: webhookCreateParameters,
-			Constraints: []validation.Constraint{{Target: "webhookCreateParameters.Location", Name: validation.Null, Rule: true, Chain: nil},
-				{Target: "webhookCreateParameters.WebhookPropertiesCreateParameters", Name: validation.Null, Rule: false,
-					Chain: []validation.Constraint{{Target: "webhookCreateParameters.WebhookPropertiesCreateParameters.ServiceURI", Name: validation.Null, Rule: true, Chain: nil},
-						{Target: "webhookCreateParameters.WebhookPropertiesCreateParameters.Actions", Name: validation.Null, Rule: true, Chain: nil},
+func (client WebhooksClient) Create(ctx context.Context, resourceGroupName string, registryName string, webhookName string, webhookCreateParameters WebhookCreateParameters) (*Webhook, error) {
+	if err := validate([]validation{
+		{targetValue: registryName,
+			constraints: []constraint{{target: "registryName", name: maxLength, rule: 50, chain: nil},
+				{target: "registryName", name: minLength, rule: 5, chain: nil},
+				{target: "registryName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}},
+		{targetValue: webhookName,
+			constraints: []constraint{{target: "webhookName", name: maxLength, rule: 50, chain: nil},
+				{target: "webhookName", name: minLength, rule: 5, chain: nil},
+				{target: "webhookName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}},
+		{targetValue: webhookCreateParameters,
+			constraints: []constraint{{target: "webhookCreateParameters.Location", name: null, rule: true, chain: nil},
+				{target: "webhookCreateParameters.WebhookPropertiesCreateParameters", name: null, rule: false,
+					chain: []constraint{{target: "webhookCreateParameters.WebhookPropertiesCreateParameters.ServiceURI", name: null, rule: true, chain: nil},
+						{target: "webhookCreateParameters.WebhookPropertiesCreateParameters.Actions", name: null, rule: true, chain: nil},
 					}}}}}); err != nil {
-		return result, validation.NewErrorWithValidationError(err, "containerregistry.WebhooksClient", "Create")
+		return nil, err
 	}
-
-	req, err := client.CreatePreparer(ctx, resourceGroupName, registryName, webhookName, webhookCreateParameters)
+	req, err := client.createPreparer(resourceGroupName, registryName, webhookName, webhookCreateParameters)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "Create", nil, "Failure preparing request")
-		return
+		return nil, err
 	}
-
-	result, err = client.CreateSender(req)
+	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.createResponder}, req)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "Create", result.Response(), "Failure sending request")
-		return
+		return nil, err
 	}
-
-	return
+	return resp.(*Webhook), err
 }
 
-// CreatePreparer prepares the Create request.
-func (client WebhooksClient) CreatePreparer(ctx context.Context, resourceGroupName string, registryName string, webhookName string, webhookCreateParameters WebhookCreateParameters) (*http.Request, error) {
-	pathParameters := map[string]interface{}{
-		"registryName":      autorest.Encode("path", registryName),
-		"resourceGroupName": autorest.Encode("path", resourceGroupName),
-		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
-		"webhookName":       autorest.Encode("path", webhookName),
-	}
-
-	const APIVersion = "2017-06-01-preview"
-	queryParameters := map[string]interface{}{
-		"api-version": APIVersion,
-	}
-
-	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
-		autorest.AsPut(),
-		autorest.WithBaseURL(client.BaseURI),
-		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks/{webhookName}", pathParameters),
-		autorest.WithJSON(webhookCreateParameters),
-		autorest.WithQueryParameters(queryParameters))
-	return preparer.Prepare((&http.Request{}).WithContext(ctx))
-}
-
-// CreateSender sends the Create request. The method will close the
-// http.Response Body if it receives an error.
-func (client WebhooksClient) CreateSender(req *http.Request) (future WebhooksCreateFuture, err error) {
-	sender := autorest.DecorateSender(client, azure.DoRetryWithRegistration(client.Client))
-	future.Future = azure.NewFuture(req)
-	future.req = req
-	_, err = future.Done(sender)
+// createPreparer prepares the Create request.
+func (client WebhooksClient) createPreparer(resourceGroupName string, registryName string, webhookName string, webhookCreateParameters WebhookCreateParameters) (pipeline.Request, error) {
+	u := client.url
+	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks/{webhookName}"
+	req, err := pipeline.NewRequest("PUT", u, nil)
 	if err != nil {
-		return
+		return req, pipeline.NewError(err, "failed to create request")
 	}
-	err = autorest.Respond(future.Response(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusCreated))
-	return
+	params := req.URL.Query()
+	params.Set("api-version", APIVersion)
+	req.URL.RawQuery = params.Encode()
+	b, err := json.Marshal(webhookCreateParameters)
+	if err != nil {
+		return req, pipeline.NewError(err, "failed to marshal request body")
+	}
+	req.Header.Set("Content-Type", "application/json")
+	err = req.SetBody(bytes.NewReader(b))
+	if err != nil {
+		return req, pipeline.NewError(err, "failed to set request body")
+	}
+	return req, nil
 }
 
-// CreateResponder handles the response to the Create request. The method always
-// closes the http.Response Body.
-func (client WebhooksClient) CreateResponder(resp *http.Response) (result Webhook, err error) {
-	err = autorest.Respond(
-		resp,
-		client.ByInspecting(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusCreated),
-		autorest.ByUnmarshallingJSON(&result),
-		autorest.ByClosing())
-	result.Response = autorest.Response{Response: resp}
-	return
+// createResponder handles the response to the Create request.
+func (client WebhooksClient) createResponder(resp pipeline.Response) (pipeline.Response, error) {
+	err := validateResponse(resp, http.StatusOK, http.StatusCreated)
+	if resp == nil {
+		return nil, err
+	}
+	result := &Webhook{rawResponse: resp.Response()}
+	if err != nil {
+		return result, err
+	}
+	defer resp.Response().Body.Close()
+	b, err := ioutil.ReadAll(resp.Response().Body)
+	if err != nil {
+		return result, NewResponseError(err, resp.Response(), "failed to read response body")
+	}
+	if len(b) > 0 {
+		err = json.Unmarshal(b, result)
+		if err != nil {
+			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
+		}
+	}
+	return result, nil
 }
 
-// Delete deletes a webhook from a container registry.
+// Delete deletes a webhook from a container registry. This method may poll for completion. Polling can be canceled by
+// passing the cancel channel argument. The channel will be used to cancel polling and any outstanding HTTP requests.
 //
 // resourceGroupName is the name of the resource group to which the container registry belongs. registryName is the
 // name of the container registry. webhookName is the name of the webhook.
-func (client WebhooksClient) Delete(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (result WebhooksDeleteFuture, err error) {
-	if err := validation.Validate([]validation.Validation{
-		{TargetValue: registryName,
-			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
-				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
-				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}},
-		{TargetValue: webhookName,
-			Constraints: []validation.Constraint{{Target: "webhookName", Name: validation.MaxLength, Rule: 50, Chain: nil},
-				{Target: "webhookName", Name: validation.MinLength, Rule: 5, Chain: nil},
-				{Target: "webhookName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewErrorWithValidationError(err, "containerregistry.WebhooksClient", "Delete")
+func (client WebhooksClient) Delete(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (*http.Response, error) {
+	if err := validate([]validation{
+		{targetValue: registryName,
+			constraints: []constraint{{target: "registryName", name: maxLength, rule: 50, chain: nil},
+				{target: "registryName", name: minLength, rule: 5, chain: nil},
+				{target: "registryName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}},
+		{targetValue: webhookName,
+			constraints: []constraint{{target: "webhookName", name: maxLength, rule: 50, chain: nil},
+				{target: "webhookName", name: minLength, rule: 5, chain: nil},
+				{target: "webhookName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}}}); err != nil {
+		return nil, err
 	}
-
-	req, err := client.DeletePreparer(ctx, resourceGroupName, registryName, webhookName)
+	req, err := client.deletePreparer(resourceGroupName, registryName, webhookName)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "Delete", nil, "Failure preparing request")
-		return
+		return nil, err
 	}
-
-	result, err = client.DeleteSender(req)
+	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.deleteResponder}, req)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "Delete", result.Response(), "Failure sending request")
-		return
+		return nil, err
 	}
-
-	return
+	return resp.Response(), err
 }
 
-// DeletePreparer prepares the Delete request.
-func (client WebhooksClient) DeletePreparer(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (*http.Request, error) {
-	pathParameters := map[string]interface{}{
-		"registryName":      autorest.Encode("path", registryName),
-		"resourceGroupName": autorest.Encode("path", resourceGroupName),
-		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
-		"webhookName":       autorest.Encode("path", webhookName),
-	}
-
-	const APIVersion = "2017-06-01-preview"
-	queryParameters := map[string]interface{}{
-		"api-version": APIVersion,
-	}
-
-	preparer := autorest.CreatePreparer(
-		autorest.AsDelete(),
-		autorest.WithBaseURL(client.BaseURI),
-		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks/{webhookName}", pathParameters),
-		autorest.WithQueryParameters(queryParameters))
-	return preparer.Prepare((&http.Request{}).WithContext(ctx))
-}
-
-// DeleteSender sends the Delete request. The method will close the
-// http.Response Body if it receives an error.
-func (client WebhooksClient) DeleteSender(req *http.Request) (future WebhooksDeleteFuture, err error) {
-	sender := autorest.DecorateSender(client, azure.DoRetryWithRegistration(client.Client))
-	future.Future = azure.NewFuture(req)
-	future.req = req
-	_, err = future.Done(sender)
+// deletePreparer prepares the Delete request.
+func (client WebhooksClient) deletePreparer(resourceGroupName string, registryName string, webhookName string) (pipeline.Request, error) {
+	u := client.url
+	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks/{webhookName}"
+	req, err := pipeline.NewRequest("DELETE", u, nil)
 	if err != nil {
-		return
+		return req, pipeline.NewError(err, "failed to create request")
 	}
-	err = autorest.Respond(future.Response(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusAccepted, http.StatusNoContent))
-	return
+	params := req.URL.Query()
+	params.Set("api-version", APIVersion)
+	req.URL.RawQuery = params.Encode()
+	return req, nil
 }
 
-// DeleteResponder handles the response to the Delete request. The method always
-// closes the http.Response Body.
-func (client WebhooksClient) DeleteResponder(resp *http.Response) (result autorest.Response, err error) {
-	err = autorest.Respond(
-		resp,
-		client.ByInspecting(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusAccepted, http.StatusNoContent),
-		autorest.ByClosing())
-	result.Response = resp
-	return
+// deleteResponder handles the response to the Delete request.
+func (client WebhooksClient) deleteResponder(resp pipeline.Response) (pipeline.Response, error) {
+	err := validateResponse(resp, http.StatusOK, http.StatusAccepted, http.StatusNoContent)
+	if resp == nil {
+		return nil, err
+	}
+	return resp, err
 }
 
 // Get gets the properties of the specified webhook.
 //
 // resourceGroupName is the name of the resource group to which the container registry belongs. registryName is the
 // name of the container registry. webhookName is the name of the webhook.
-func (client WebhooksClient) Get(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (result Webhook, err error) {
-	if err := validation.Validate([]validation.Validation{
-		{TargetValue: registryName,
-			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
-				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
-				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}},
-		{TargetValue: webhookName,
-			Constraints: []validation.Constraint{{Target: "webhookName", Name: validation.MaxLength, Rule: 50, Chain: nil},
-				{Target: "webhookName", Name: validation.MinLength, Rule: 5, Chain: nil},
-				{Target: "webhookName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewErrorWithValidationError(err, "containerregistry.WebhooksClient", "Get")
+func (client WebhooksClient) Get(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (*Webhook, error) {
+	if err := validate([]validation{
+		{targetValue: registryName,
+			constraints: []constraint{{target: "registryName", name: maxLength, rule: 50, chain: nil},
+				{target: "registryName", name: minLength, rule: 5, chain: nil},
+				{target: "registryName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}},
+		{targetValue: webhookName,
+			constraints: []constraint{{target: "webhookName", name: maxLength, rule: 50, chain: nil},
+				{target: "webhookName", name: minLength, rule: 5, chain: nil},
+				{target: "webhookName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}}}); err != nil {
+		return nil, err
 	}
-
-	req, err := client.GetPreparer(ctx, resourceGroupName, registryName, webhookName)
+	req, err := client.getPreparer(resourceGroupName, registryName, webhookName)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "Get", nil, "Failure preparing request")
-		return
+		return nil, err
 	}
-
-	resp, err := client.GetSender(req)
+	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.getResponder}, req)
 	if err != nil {
-		result.Response = autorest.Response{Response: resp}
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "Get", resp, "Failure sending request")
-		return
+		return nil, err
 	}
-
-	result, err = client.GetResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "Get", resp, "Failure responding to request")
-	}
-
-	return
+	return resp.(*Webhook), err
 }
 
-// GetPreparer prepares the Get request.
-func (client WebhooksClient) GetPreparer(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (*http.Request, error) {
-	pathParameters := map[string]interface{}{
-		"registryName":      autorest.Encode("path", registryName),
-		"resourceGroupName": autorest.Encode("path", resourceGroupName),
-		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
-		"webhookName":       autorest.Encode("path", webhookName),
+// getPreparer prepares the Get request.
+func (client WebhooksClient) getPreparer(resourceGroupName string, registryName string, webhookName string) (pipeline.Request, error) {
+	u := client.url
+	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks/{webhookName}"
+	req, err := pipeline.NewRequest("GET", u, nil)
+	if err != nil {
+		return req, pipeline.NewError(err, "failed to create request")
 	}
-
-	const APIVersion = "2017-06-01-preview"
-	queryParameters := map[string]interface{}{
-		"api-version": APIVersion,
-	}
-
-	preparer := autorest.CreatePreparer(
-		autorest.AsGet(),
-		autorest.WithBaseURL(client.BaseURI),
-		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks/{webhookName}", pathParameters),
-		autorest.WithQueryParameters(queryParameters))
-	return preparer.Prepare((&http.Request{}).WithContext(ctx))
+	params := req.URL.Query()
+	params.Set("api-version", APIVersion)
+	req.URL.RawQuery = params.Encode()
+	return req, nil
 }
 
-// GetSender sends the Get request. The method will close the
-// http.Response Body if it receives an error.
-func (client WebhooksClient) GetSender(req *http.Request) (*http.Response, error) {
-	return autorest.SendWithSender(client, req,
-		azure.DoRetryWithRegistration(client.Client))
-}
-
-// GetResponder handles the response to the Get request. The method always
-// closes the http.Response Body.
-func (client WebhooksClient) GetResponder(resp *http.Response) (result Webhook, err error) {
-	err = autorest.Respond(
-		resp,
-		client.ByInspecting(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK),
-		autorest.ByUnmarshallingJSON(&result),
-		autorest.ByClosing())
-	result.Response = autorest.Response{Response: resp}
-	return
+// getResponder handles the response to the Get request.
+func (client WebhooksClient) getResponder(resp pipeline.Response) (pipeline.Response, error) {
+	err := validateResponse(resp, http.StatusOK)
+	if resp == nil {
+		return nil, err
+	}
+	result := &Webhook{rawResponse: resp.Response()}
+	if err != nil {
+		return result, err
+	}
+	defer resp.Response().Body.Close()
+	b, err := ioutil.ReadAll(resp.Response().Body)
+	if err != nil {
+		return result, NewResponseError(err, resp.Response(), "failed to read response body")
+	}
+	if len(b) > 0 {
+		err = json.Unmarshal(b, result)
+		if err != nil {
+			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
+		}
+	}
+	return result, nil
 }
 
 // GetCallbackConfig gets the configuration of service URI and custom headers for the webhook.
 //
 // resourceGroupName is the name of the resource group to which the container registry belongs. registryName is the
 // name of the container registry. webhookName is the name of the webhook.
-func (client WebhooksClient) GetCallbackConfig(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (result CallbackConfig, err error) {
-	if err := validation.Validate([]validation.Validation{
-		{TargetValue: registryName,
-			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
-				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
-				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}},
-		{TargetValue: webhookName,
-			Constraints: []validation.Constraint{{Target: "webhookName", Name: validation.MaxLength, Rule: 50, Chain: nil},
-				{Target: "webhookName", Name: validation.MinLength, Rule: 5, Chain: nil},
-				{Target: "webhookName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewErrorWithValidationError(err, "containerregistry.WebhooksClient", "GetCallbackConfig")
+func (client WebhooksClient) GetCallbackConfig(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (*CallbackConfig, error) {
+	if err := validate([]validation{
+		{targetValue: registryName,
+			constraints: []constraint{{target: "registryName", name: maxLength, rule: 50, chain: nil},
+				{target: "registryName", name: minLength, rule: 5, chain: nil},
+				{target: "registryName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}},
+		{targetValue: webhookName,
+			constraints: []constraint{{target: "webhookName", name: maxLength, rule: 50, chain: nil},
+				{target: "webhookName", name: minLength, rule: 5, chain: nil},
+				{target: "webhookName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}}}); err != nil {
+		return nil, err
 	}
-
-	req, err := client.GetCallbackConfigPreparer(ctx, resourceGroupName, registryName, webhookName)
+	req, err := client.getCallbackConfigPreparer(resourceGroupName, registryName, webhookName)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "GetCallbackConfig", nil, "Failure preparing request")
-		return
+		return nil, err
 	}
-
-	resp, err := client.GetCallbackConfigSender(req)
+	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.getCallbackConfigResponder}, req)
 	if err != nil {
-		result.Response = autorest.Response{Response: resp}
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "GetCallbackConfig", resp, "Failure sending request")
-		return
+		return nil, err
 	}
-
-	result, err = client.GetCallbackConfigResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "GetCallbackConfig", resp, "Failure responding to request")
-	}
-
-	return
+	return resp.(*CallbackConfig), err
 }
 
-// GetCallbackConfigPreparer prepares the GetCallbackConfig request.
-func (client WebhooksClient) GetCallbackConfigPreparer(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (*http.Request, error) {
-	pathParameters := map[string]interface{}{
-		"registryName":      autorest.Encode("path", registryName),
-		"resourceGroupName": autorest.Encode("path", resourceGroupName),
-		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
-		"webhookName":       autorest.Encode("path", webhookName),
+// getCallbackConfigPreparer prepares the GetCallbackConfig request.
+func (client WebhooksClient) getCallbackConfigPreparer(resourceGroupName string, registryName string, webhookName string) (pipeline.Request, error) {
+	u := client.url
+	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks/{webhookName}/getCallbackConfig"
+	req, err := pipeline.NewRequest("POST", u, nil)
+	if err != nil {
+		return req, pipeline.NewError(err, "failed to create request")
 	}
-
-	const APIVersion = "2017-06-01-preview"
-	queryParameters := map[string]interface{}{
-		"api-version": APIVersion,
-	}
-
-	preparer := autorest.CreatePreparer(
-		autorest.AsPost(),
-		autorest.WithBaseURL(client.BaseURI),
-		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks/{webhookName}/getCallbackConfig", pathParameters),
-		autorest.WithQueryParameters(queryParameters))
-	return preparer.Prepare((&http.Request{}).WithContext(ctx))
+	params := req.URL.Query()
+	params.Set("api-version", APIVersion)
+	req.URL.RawQuery = params.Encode()
+	return req, nil
 }
 
-// GetCallbackConfigSender sends the GetCallbackConfig request. The method will close the
-// http.Response Body if it receives an error.
-func (client WebhooksClient) GetCallbackConfigSender(req *http.Request) (*http.Response, error) {
-	return autorest.SendWithSender(client, req,
-		azure.DoRetryWithRegistration(client.Client))
-}
-
-// GetCallbackConfigResponder handles the response to the GetCallbackConfig request. The method always
-// closes the http.Response Body.
-func (client WebhooksClient) GetCallbackConfigResponder(resp *http.Response) (result CallbackConfig, err error) {
-	err = autorest.Respond(
-		resp,
-		client.ByInspecting(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK),
-		autorest.ByUnmarshallingJSON(&result),
-		autorest.ByClosing())
-	result.Response = autorest.Response{Response: resp}
-	return
+// getCallbackConfigResponder handles the response to the GetCallbackConfig request.
+func (client WebhooksClient) getCallbackConfigResponder(resp pipeline.Response) (pipeline.Response, error) {
+	err := validateResponse(resp, http.StatusOK)
+	if resp == nil {
+		return nil, err
+	}
+	result := &CallbackConfig{rawResponse: resp.Response()}
+	if err != nil {
+		return result, err
+	}
+	defer resp.Response().Body.Close()
+	b, err := ioutil.ReadAll(resp.Response().Body)
+	if err != nil {
+		return result, NewResponseError(err, resp.Response(), "failed to read response body")
+	}
+	if len(b) > 0 {
+		err = json.Unmarshal(b, result)
+		if err != nil {
+			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
+		}
+	}
+	return result, nil
 }
 
 // List lists all the webhooks for the specified container registry.
 //
 // resourceGroupName is the name of the resource group to which the container registry belongs. registryName is the
 // name of the container registry.
-func (client WebhooksClient) List(ctx context.Context, resourceGroupName string, registryName string) (result WebhookListResultPage, err error) {
-	if err := validation.Validate([]validation.Validation{
-		{TargetValue: registryName,
-			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
-				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
-				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewErrorWithValidationError(err, "containerregistry.WebhooksClient", "List")
+func (client WebhooksClient) List(ctx context.Context, resourceGroupName string, registryName string) (*WebhookListResult, error) {
+	if err := validate([]validation{
+		{targetValue: registryName,
+			constraints: []constraint{{target: "registryName", name: maxLength, rule: 50, chain: nil},
+				{target: "registryName", name: minLength, rule: 5, chain: nil},
+				{target: "registryName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}}}); err != nil {
+		return nil, err
 	}
-
-	result.fn = client.listNextResults
-	req, err := client.ListPreparer(ctx, resourceGroupName, registryName)
+	req, err := client.listPreparer(resourceGroupName, registryName)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "List", nil, "Failure preparing request")
-		return
+		return nil, err
 	}
-
-	resp, err := client.ListSender(req)
+	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.listResponder}, req)
 	if err != nil {
-		result.wlr.Response = autorest.Response{Response: resp}
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "List", resp, "Failure sending request")
-		return
+		return nil, err
 	}
-
-	result.wlr, err = client.ListResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "List", resp, "Failure responding to request")
-	}
-
-	return
+	return resp.(*WebhookListResult), err
 }
 
-// ListPreparer prepares the List request.
-func (client WebhooksClient) ListPreparer(ctx context.Context, resourceGroupName string, registryName string) (*http.Request, error) {
-	pathParameters := map[string]interface{}{
-		"registryName":      autorest.Encode("path", registryName),
-		"resourceGroupName": autorest.Encode("path", resourceGroupName),
-		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
-	}
-
-	const APIVersion = "2017-06-01-preview"
-	queryParameters := map[string]interface{}{
-		"api-version": APIVersion,
-	}
-
-	preparer := autorest.CreatePreparer(
-		autorest.AsGet(),
-		autorest.WithBaseURL(client.BaseURI),
-		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks", pathParameters),
-		autorest.WithQueryParameters(queryParameters))
-	return preparer.Prepare((&http.Request{}).WithContext(ctx))
-}
-
-// ListSender sends the List request. The method will close the
-// http.Response Body if it receives an error.
-func (client WebhooksClient) ListSender(req *http.Request) (*http.Response, error) {
-	return autorest.SendWithSender(client, req,
-		azure.DoRetryWithRegistration(client.Client))
-}
-
-// ListResponder handles the response to the List request. The method always
-// closes the http.Response Body.
-func (client WebhooksClient) ListResponder(resp *http.Response) (result WebhookListResult, err error) {
-	err = autorest.Respond(
-		resp,
-		client.ByInspecting(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK),
-		autorest.ByUnmarshallingJSON(&result),
-		autorest.ByClosing())
-	result.Response = autorest.Response{Response: resp}
-	return
-}
-
-// listNextResults retrieves the next set of results, if any.
-func (client WebhooksClient) listNextResults(lastResults WebhookListResult) (result WebhookListResult, err error) {
-	req, err := lastResults.webhookListResultPreparer()
+// listPreparer prepares the List request.
+func (client WebhooksClient) listPreparer(resourceGroupName string, registryName string) (pipeline.Request, error) {
+	u := client.url
+	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks"
+	req, err := pipeline.NewRequest("GET", u, nil)
 	if err != nil {
-		return result, autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "listNextResults", nil, "Failure preparing next results request")
+		return req, pipeline.NewError(err, "failed to create request")
 	}
-	if req == nil {
-		return
-	}
-	resp, err := client.ListSender(req)
-	if err != nil {
-		result.Response = autorest.Response{Response: resp}
-		return result, autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "listNextResults", resp, "Failure sending next results request")
-	}
-	result, err = client.ListResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "listNextResults", resp, "Failure responding to next results request")
-	}
-	return
+	params := req.URL.Query()
+	params.Set("api-version", APIVersion)
+	req.URL.RawQuery = params.Encode()
+	return req, nil
 }
 
-// ListComplete enumerates all values, automatically crossing page boundaries as required.
-func (client WebhooksClient) ListComplete(ctx context.Context, resourceGroupName string, registryName string) (result WebhookListResultIterator, err error) {
-	result.page, err = client.List(ctx, resourceGroupName, registryName)
-	return
+// listResponder handles the response to the List request.
+func (client WebhooksClient) listResponder(resp pipeline.Response) (pipeline.Response, error) {
+	err := validateResponse(resp, http.StatusOK)
+	if resp == nil {
+		return nil, err
+	}
+	result := &WebhookListResult{rawResponse: resp.Response()}
+	if err != nil {
+		return result, err
+	}
+	defer resp.Response().Body.Close()
+	b, err := ioutil.ReadAll(resp.Response().Body)
+	if err != nil {
+		return result, NewResponseError(err, resp.Response(), "failed to read response body")
+	}
+	if len(b) > 0 {
+		err = json.Unmarshal(b, result)
+		if err != nil {
+			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
+		}
+	}
+	return result, nil
 }
 
 // ListEvents lists recent events for the specified webhook.
 //
 // resourceGroupName is the name of the resource group to which the container registry belongs. registryName is the
 // name of the container registry. webhookName is the name of the webhook.
-func (client WebhooksClient) ListEvents(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (result EventListResultPage, err error) {
-	if err := validation.Validate([]validation.Validation{
-		{TargetValue: registryName,
-			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
-				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
-				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}},
-		{TargetValue: webhookName,
-			Constraints: []validation.Constraint{{Target: "webhookName", Name: validation.MaxLength, Rule: 50, Chain: nil},
-				{Target: "webhookName", Name: validation.MinLength, Rule: 5, Chain: nil},
-				{Target: "webhookName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewErrorWithValidationError(err, "containerregistry.WebhooksClient", "ListEvents")
+func (client WebhooksClient) ListEvents(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (*EventListResult, error) {
+	if err := validate([]validation{
+		{targetValue: registryName,
+			constraints: []constraint{{target: "registryName", name: maxLength, rule: 50, chain: nil},
+				{target: "registryName", name: minLength, rule: 5, chain: nil},
+				{target: "registryName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}},
+		{targetValue: webhookName,
+			constraints: []constraint{{target: "webhookName", name: maxLength, rule: 50, chain: nil},
+				{target: "webhookName", name: minLength, rule: 5, chain: nil},
+				{target: "webhookName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}}}); err != nil {
+		return nil, err
 	}
-
-	result.fn = client.listEventsNextResults
-	req, err := client.ListEventsPreparer(ctx, resourceGroupName, registryName, webhookName)
+	req, err := client.listEventsPreparer(resourceGroupName, registryName, webhookName)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "ListEvents", nil, "Failure preparing request")
-		return
+		return nil, err
 	}
-
-	resp, err := client.ListEventsSender(req)
+	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.listEventsResponder}, req)
 	if err != nil {
-		result.elr.Response = autorest.Response{Response: resp}
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "ListEvents", resp, "Failure sending request")
-		return
+		return nil, err
 	}
-
-	result.elr, err = client.ListEventsResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "ListEvents", resp, "Failure responding to request")
-	}
-
-	return
+	return resp.(*EventListResult), err
 }
 
-// ListEventsPreparer prepares the ListEvents request.
-func (client WebhooksClient) ListEventsPreparer(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (*http.Request, error) {
-	pathParameters := map[string]interface{}{
-		"registryName":      autorest.Encode("path", registryName),
-		"resourceGroupName": autorest.Encode("path", resourceGroupName),
-		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
-		"webhookName":       autorest.Encode("path", webhookName),
-	}
-
-	const APIVersion = "2017-06-01-preview"
-	queryParameters := map[string]interface{}{
-		"api-version": APIVersion,
-	}
-
-	preparer := autorest.CreatePreparer(
-		autorest.AsPost(),
-		autorest.WithBaseURL(client.BaseURI),
-		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks/{webhookName}/listEvents", pathParameters),
-		autorest.WithQueryParameters(queryParameters))
-	return preparer.Prepare((&http.Request{}).WithContext(ctx))
-}
-
-// ListEventsSender sends the ListEvents request. The method will close the
-// http.Response Body if it receives an error.
-func (client WebhooksClient) ListEventsSender(req *http.Request) (*http.Response, error) {
-	return autorest.SendWithSender(client, req,
-		azure.DoRetryWithRegistration(client.Client))
-}
-
-// ListEventsResponder handles the response to the ListEvents request. The method always
-// closes the http.Response Body.
-func (client WebhooksClient) ListEventsResponder(resp *http.Response) (result EventListResult, err error) {
-	err = autorest.Respond(
-		resp,
-		client.ByInspecting(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK),
-		autorest.ByUnmarshallingJSON(&result),
-		autorest.ByClosing())
-	result.Response = autorest.Response{Response: resp}
-	return
-}
-
-// listEventsNextResults retrieves the next set of results, if any.
-func (client WebhooksClient) listEventsNextResults(lastResults EventListResult) (result EventListResult, err error) {
-	req, err := lastResults.eventListResultPreparer()
+// listEventsPreparer prepares the ListEvents request.
+func (client WebhooksClient) listEventsPreparer(resourceGroupName string, registryName string, webhookName string) (pipeline.Request, error) {
+	u := client.url
+	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks/{webhookName}/listEvents"
+	req, err := pipeline.NewRequest("POST", u, nil)
 	if err != nil {
-		return result, autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "listEventsNextResults", nil, "Failure preparing next results request")
+		return req, pipeline.NewError(err, "failed to create request")
 	}
-	if req == nil {
-		return
-	}
-	resp, err := client.ListEventsSender(req)
-	if err != nil {
-		result.Response = autorest.Response{Response: resp}
-		return result, autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "listEventsNextResults", resp, "Failure sending next results request")
-	}
-	result, err = client.ListEventsResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "listEventsNextResults", resp, "Failure responding to next results request")
-	}
-	return
+	params := req.URL.Query()
+	params.Set("api-version", APIVersion)
+	req.URL.RawQuery = params.Encode()
+	return req, nil
 }
 
-// ListEventsComplete enumerates all values, automatically crossing page boundaries as required.
-func (client WebhooksClient) ListEventsComplete(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (result EventListResultIterator, err error) {
-	result.page, err = client.ListEvents(ctx, resourceGroupName, registryName, webhookName)
-	return
+// listEventsResponder handles the response to the ListEvents request.
+func (client WebhooksClient) listEventsResponder(resp pipeline.Response) (pipeline.Response, error) {
+	err := validateResponse(resp, http.StatusOK)
+	if resp == nil {
+		return nil, err
+	}
+	result := &EventListResult{rawResponse: resp.Response()}
+	if err != nil {
+		return result, err
+	}
+	defer resp.Response().Body.Close()
+	b, err := ioutil.ReadAll(resp.Response().Body)
+	if err != nil {
+		return result, NewResponseError(err, resp.Response(), "failed to read response body")
+	}
+	if len(b) > 0 {
+		err = json.Unmarshal(b, result)
+		if err != nil {
+			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
+		}
+	}
+	return result, nil
 }
 
 // Ping triggers a ping event to be sent to the webhook.
 //
 // resourceGroupName is the name of the resource group to which the container registry belongs. registryName is the
 // name of the container registry. webhookName is the name of the webhook.
-func (client WebhooksClient) Ping(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (result EventInfo, err error) {
-	if err := validation.Validate([]validation.Validation{
-		{TargetValue: registryName,
-			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
-				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
-				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}},
-		{TargetValue: webhookName,
-			Constraints: []validation.Constraint{{Target: "webhookName", Name: validation.MaxLength, Rule: 50, Chain: nil},
-				{Target: "webhookName", Name: validation.MinLength, Rule: 5, Chain: nil},
-				{Target: "webhookName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewErrorWithValidationError(err, "containerregistry.WebhooksClient", "Ping")
+func (client WebhooksClient) Ping(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (*EventInfo, error) {
+	if err := validate([]validation{
+		{targetValue: registryName,
+			constraints: []constraint{{target: "registryName", name: maxLength, rule: 50, chain: nil},
+				{target: "registryName", name: minLength, rule: 5, chain: nil},
+				{target: "registryName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}},
+		{targetValue: webhookName,
+			constraints: []constraint{{target: "webhookName", name: maxLength, rule: 50, chain: nil},
+				{target: "webhookName", name: minLength, rule: 5, chain: nil},
+				{target: "webhookName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}}}); err != nil {
+		return nil, err
 	}
-
-	req, err := client.PingPreparer(ctx, resourceGroupName, registryName, webhookName)
+	req, err := client.pingPreparer(resourceGroupName, registryName, webhookName)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "Ping", nil, "Failure preparing request")
-		return
+		return nil, err
 	}
-
-	resp, err := client.PingSender(req)
+	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.pingResponder}, req)
 	if err != nil {
-		result.Response = autorest.Response{Response: resp}
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "Ping", resp, "Failure sending request")
-		return
+		return nil, err
 	}
+	return resp.(*EventInfo), err
+}
 
-	result, err = client.PingResponder(resp)
+// pingPreparer prepares the Ping request.
+func (client WebhooksClient) pingPreparer(resourceGroupName string, registryName string, webhookName string) (pipeline.Request, error) {
+	u := client.url
+	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks/{webhookName}/ping"
+	req, err := pipeline.NewRequest("POST", u, nil)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "Ping", resp, "Failure responding to request")
+		return req, pipeline.NewError(err, "failed to create request")
 	}
-
-	return
+	params := req.URL.Query()
+	params.Set("api-version", APIVersion)
+	req.URL.RawQuery = params.Encode()
+	return req, nil
 }
 
-// PingPreparer prepares the Ping request.
-func (client WebhooksClient) PingPreparer(ctx context.Context, resourceGroupName string, registryName string, webhookName string) (*http.Request, error) {
-	pathParameters := map[string]interface{}{
-		"registryName":      autorest.Encode("path", registryName),
-		"resourceGroupName": autorest.Encode("path", resourceGroupName),
-		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
-		"webhookName":       autorest.Encode("path", webhookName),
+// pingResponder handles the response to the Ping request.
+func (client WebhooksClient) pingResponder(resp pipeline.Response) (pipeline.Response, error) {
+	err := validateResponse(resp, http.StatusOK)
+	if resp == nil {
+		return nil, err
 	}
-
-	const APIVersion = "2017-06-01-preview"
-	queryParameters := map[string]interface{}{
-		"api-version": APIVersion,
+	result := &EventInfo{rawResponse: resp.Response()}
+	if err != nil {
+		return result, err
 	}
-
-	preparer := autorest.CreatePreparer(
-		autorest.AsPost(),
-		autorest.WithBaseURL(client.BaseURI),
-		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks/{webhookName}/ping", pathParameters),
-		autorest.WithQueryParameters(queryParameters))
-	return preparer.Prepare((&http.Request{}).WithContext(ctx))
+	defer resp.Response().Body.Close()
+	b, err := ioutil.ReadAll(resp.Response().Body)
+	if err != nil {
+		return result, NewResponseError(err, resp.Response(), "failed to read response body")
+	}
+	if len(b) > 0 {
+		err = json.Unmarshal(b, result)
+		if err != nil {
+			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
+		}
+	}
+	return result, nil
 }
 
-// PingSender sends the Ping request. The method will close the
-// http.Response Body if it receives an error.
-func (client WebhooksClient) PingSender(req *http.Request) (*http.Response, error) {
-	return autorest.SendWithSender(client, req,
-		azure.DoRetryWithRegistration(client.Client))
-}
-
-// PingResponder handles the response to the Ping request. The method always
-// closes the http.Response Body.
-func (client WebhooksClient) PingResponder(resp *http.Response) (result EventInfo, err error) {
-	err = autorest.Respond(
-		resp,
-		client.ByInspecting(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK),
-		autorest.ByUnmarshallingJSON(&result),
-		autorest.ByClosing())
-	result.Response = autorest.Response{Response: resp}
-	return
-}
-
-// Update updates a webhook with the specified parameters.
+// Update updates a webhook with the specified parameters. This method may poll for completion. Polling can be canceled
+// by passing the cancel channel argument. The channel will be used to cancel polling and any outstanding HTTP
+// requests.
 //
 // resourceGroupName is the name of the resource group to which the container registry belongs. registryName is the
 // name of the container registry. webhookName is the name of the webhook. webhookUpdateParameters is the parameters
 // for updating a webhook.
-func (client WebhooksClient) Update(ctx context.Context, resourceGroupName string, registryName string, webhookName string, webhookUpdateParameters WebhookUpdateParameters) (result WebhooksUpdateFuture, err error) {
-	if err := validation.Validate([]validation.Validation{
-		{TargetValue: registryName,
-			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
-				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
-				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}},
-		{TargetValue: webhookName,
-			Constraints: []validation.Constraint{{Target: "webhookName", Name: validation.MaxLength, Rule: 50, Chain: nil},
-				{Target: "webhookName", Name: validation.MinLength, Rule: 5, Chain: nil},
-				{Target: "webhookName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewErrorWithValidationError(err, "containerregistry.WebhooksClient", "Update")
+func (client WebhooksClient) Update(ctx context.Context, resourceGroupName string, registryName string, webhookName string, webhookUpdateParameters WebhookUpdateParameters) (*Webhook, error) {
+	if err := validate([]validation{
+		{targetValue: registryName,
+			constraints: []constraint{{target: "registryName", name: maxLength, rule: 50, chain: nil},
+				{target: "registryName", name: minLength, rule: 5, chain: nil},
+				{target: "registryName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}},
+		{targetValue: webhookName,
+			constraints: []constraint{{target: "webhookName", name: maxLength, rule: 50, chain: nil},
+				{target: "webhookName", name: minLength, rule: 5, chain: nil},
+				{target: "webhookName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}}}); err != nil {
+		return nil, err
 	}
-
-	req, err := client.UpdatePreparer(ctx, resourceGroupName, registryName, webhookName, webhookUpdateParameters)
+	req, err := client.updatePreparer(resourceGroupName, registryName, webhookName, webhookUpdateParameters)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "Update", nil, "Failure preparing request")
-		return
+		return nil, err
 	}
-
-	result, err = client.UpdateSender(req)
+	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.updateResponder}, req)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksClient", "Update", result.Response(), "Failure sending request")
-		return
+		return nil, err
 	}
-
-	return
+	return resp.(*Webhook), err
 }
 
-// UpdatePreparer prepares the Update request.
-func (client WebhooksClient) UpdatePreparer(ctx context.Context, resourceGroupName string, registryName string, webhookName string, webhookUpdateParameters WebhookUpdateParameters) (*http.Request, error) {
-	pathParameters := map[string]interface{}{
-		"registryName":      autorest.Encode("path", registryName),
-		"resourceGroupName": autorest.Encode("path", resourceGroupName),
-		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
-		"webhookName":       autorest.Encode("path", webhookName),
-	}
-
-	const APIVersion = "2017-06-01-preview"
-	queryParameters := map[string]interface{}{
-		"api-version": APIVersion,
-	}
-
-	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
-		autorest.AsPatch(),
-		autorest.WithBaseURL(client.BaseURI),
-		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks/{webhookName}", pathParameters),
-		autorest.WithJSON(webhookUpdateParameters),
-		autorest.WithQueryParameters(queryParameters))
-	return preparer.Prepare((&http.Request{}).WithContext(ctx))
-}
-
-// UpdateSender sends the Update request. The method will close the
-// http.Response Body if it receives an error.
-func (client WebhooksClient) UpdateSender(req *http.Request) (future WebhooksUpdateFuture, err error) {
-	sender := autorest.DecorateSender(client, azure.DoRetryWithRegistration(client.Client))
-	future.Future = azure.NewFuture(req)
-	future.req = req
-	_, err = future.Done(sender)
+// updatePreparer prepares the Update request.
+func (client WebhooksClient) updatePreparer(resourceGroupName string, registryName string, webhookName string, webhookUpdateParameters WebhookUpdateParameters) (pipeline.Request, error) {
+	u := client.url
+	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/webhooks/{webhookName}"
+	req, err := pipeline.NewRequest("PATCH", u, nil)
 	if err != nil {
-		return
+		return req, pipeline.NewError(err, "failed to create request")
 	}
-	err = autorest.Respond(future.Response(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusCreated))
-	return
+	params := req.URL.Query()
+	params.Set("api-version", APIVersion)
+	req.URL.RawQuery = params.Encode()
+	b, err := json.Marshal(webhookUpdateParameters)
+	if err != nil {
+		return req, pipeline.NewError(err, "failed to marshal request body")
+	}
+	req.Header.Set("Content-Type", "application/json")
+	err = req.SetBody(bytes.NewReader(b))
+	if err != nil {
+		return req, pipeline.NewError(err, "failed to set request body")
+	}
+	return req, nil
 }
 
-// UpdateResponder handles the response to the Update request. The method always
-// closes the http.Response Body.
-func (client WebhooksClient) UpdateResponder(resp *http.Response) (result Webhook, err error) {
-	err = autorest.Respond(
-		resp,
-		client.ByInspecting(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusCreated),
-		autorest.ByUnmarshallingJSON(&result),
-		autorest.ByClosing())
-	result.Response = autorest.Response{Response: resp}
-	return
+// updateResponder handles the response to the Update request.
+func (client WebhooksClient) updateResponder(resp pipeline.Response) (pipeline.Response, error) {
+	err := validateResponse(resp, http.StatusOK, http.StatusCreated)
+	if resp == nil {
+		return nil, err
+	}
+	result := &Webhook{rawResponse: resp.Response()}
+	if err != nil {
+		return result, err
+	}
+	defer resp.Response().Body.Close()
+	b, err := ioutil.ReadAll(resp.Response().Body)
+	if err != nil {
+		return result, NewResponseError(err, resp.Response(), "failed to read response body")
+	}
+	if len(b) > 0 {
+		err = json.Unmarshal(b, result)
+		if err != nil {
+			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
+		}
+	}
+	return result, nil
 }

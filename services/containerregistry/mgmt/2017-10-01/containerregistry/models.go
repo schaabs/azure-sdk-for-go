@@ -18,2063 +18,163 @@ package containerregistry
 // Changes may cause incorrect behavior and will be lost if the code is regenerated.
 
 import (
-	"encoding/json"
-	"github.com/Azure/go-autorest/autorest"
-	"github.com/Azure/go-autorest/autorest/azure"
-	"github.com/Azure/go-autorest/autorest/date"
-	"github.com/Azure/go-autorest/autorest/to"
 	"net/http"
+	"time"
 )
 
-// BuildDefinitionStatus enumerates the values for build definition status.
-type BuildDefinitionStatus string
+// Marker represents an opaque value used in paged responses.
+type Marker struct {
+	val *string
+}
+
+// NotDone returns true if the list enumeration should be started or is not yet complete. Specifically, NotDone returns true
+// for a just-initialized (zero value) Marker indicating that you should make an initial request to get a result portion from
+// the service. NotDone also returns true whenever the service returns an interim result portion. NotDone returns false only
+// after the service has returned the final result portion.
+func (m Marker) NotDone() bool {
+	return m.val == nil || *m.val != ""
+}
+
+// UnmarshalXML implements the xml.Unmarshaler interface for Marker.
+func (m *Marker) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var out string
+	err := d.DecodeElement(&out, &start)
+	m.val = &out
+	return err
+}
+
+// PasswordNameType enumerates the values for password name.
+type PasswordNameType string
 
 const (
-	// Disabled ...
-	Disabled BuildDefinitionStatus = "Disabled"
-	// Enabled ...
-	Enabled BuildDefinitionStatus = "Enabled"
+	// PasswordNameNone represents an empty PasswordNameType.
+	PasswordNameNone PasswordNameType = ""
+	// PasswordNamePassword ...
+	PasswordNamePassword PasswordNameType = "password"
+	// PasswordNamePassword2 ...
+	PasswordNamePassword2 PasswordNameType = "password2"
 )
 
-// BuildStatus enumerates the values for build status.
-type BuildStatus string
-
-const (
-	// Cancelled ...
-	Cancelled BuildStatus = "Cancelled"
-	// Failed ...
-	Failed BuildStatus = "Failed"
-	// Queued ...
-	Queued BuildStatus = "Queued"
-	// Running ...
-	Running BuildStatus = "Running"
-	// Started ...
-	Started BuildStatus = "Started"
-	// Succeeded ...
-	Succeeded BuildStatus = "Succeeded"
-)
-
-// BuildType enumerates the values for build type.
-type BuildType string
-
-const (
-	// AutoBuild ...
-	AutoBuild BuildType = "AutoBuild"
-	// QuickBuild ...
-	QuickBuild BuildType = "QuickBuild"
-)
-
-// OsTypes enumerates the values for os types.
-type OsTypes string
-
-const (
-	// Linux ...
-	Linux OsTypes = "Linux"
-	// Windows ...
-	Windows OsTypes = "Windows"
-)
-
-// PasswordName enumerates the values for password name.
-type PasswordName string
-
-const (
-	// Password ...
-	Password PasswordName = "password"
-	// Password2 ...
-	Password2 PasswordName = "password2"
-)
-
-// ProvisioningState enumerates the values for provisioning state.
-type ProvisioningState string
+// ProvisioningStateType enumerates the values for provisioning state.
+type ProvisioningStateType string
 
 const (
 	// ProvisioningStateCanceled ...
-	ProvisioningStateCanceled ProvisioningState = "Canceled"
+	ProvisioningStateCanceled ProvisioningStateType = "Canceled"
 	// ProvisioningStateCreating ...
-	ProvisioningStateCreating ProvisioningState = "Creating"
+	ProvisioningStateCreating ProvisioningStateType = "Creating"
 	// ProvisioningStateDeleting ...
-	ProvisioningStateDeleting ProvisioningState = "Deleting"
+	ProvisioningStateDeleting ProvisioningStateType = "Deleting"
 	// ProvisioningStateFailed ...
-	ProvisioningStateFailed ProvisioningState = "Failed"
+	ProvisioningStateFailed ProvisioningStateType = "Failed"
+	// ProvisioningStateNone represents an empty ProvisioningStateType.
+	ProvisioningStateNone ProvisioningStateType = ""
 	// ProvisioningStateSucceeded ...
-	ProvisioningStateSucceeded ProvisioningState = "Succeeded"
+	ProvisioningStateSucceeded ProvisioningStateType = "Succeeded"
 	// ProvisioningStateUpdating ...
-	ProvisioningStateUpdating ProvisioningState = "Updating"
+	ProvisioningStateUpdating ProvisioningStateType = "Updating"
 )
 
-// RegistryUsageUnit enumerates the values for registry usage unit.
-type RegistryUsageUnit string
+// RegistryUsageUnitType enumerates the values for registry usage unit.
+type RegistryUsageUnitType string
 
 const (
-	// Bytes ...
-	Bytes RegistryUsageUnit = "Bytes"
-	// Count ...
-	Count RegistryUsageUnit = "Count"
+	// RegistryUsageUnitBytes ...
+	RegistryUsageUnitBytes RegistryUsageUnitType = "Bytes"
+	// RegistryUsageUnitCount ...
+	RegistryUsageUnitCount RegistryUsageUnitType = "Count"
+	// RegistryUsageUnitNone represents an empty RegistryUsageUnitType.
+	RegistryUsageUnitNone RegistryUsageUnitType = ""
 )
 
-// SkuName enumerates the values for sku name.
-type SkuName string
+// SkuNameType enumerates the values for sku name.
+type SkuNameType string
 
 const (
-	// Basic ...
-	Basic SkuName = "Basic"
-	// Classic ...
-	Classic SkuName = "Classic"
-	// Premium ...
-	Premium SkuName = "Premium"
-	// Standard ...
-	Standard SkuName = "Standard"
+	// SkuNameBasic ...
+	SkuNameBasic SkuNameType = "Basic"
+	// SkuNameClassic ...
+	SkuNameClassic SkuNameType = "Classic"
+	// SkuNameNone represents an empty SkuNameType.
+	SkuNameNone SkuNameType = ""
+	// SkuNamePremium ...
+	SkuNamePremium SkuNameType = "Premium"
+	// SkuNameStandard ...
+	SkuNameStandard SkuNameType = "Standard"
 )
 
-// SkuTier enumerates the values for sku tier.
-type SkuTier string
+// SkuTierType enumerates the values for sku tier.
+type SkuTierType string
 
 const (
 	// SkuTierBasic ...
-	SkuTierBasic SkuTier = "Basic"
+	SkuTierBasic SkuTierType = "Basic"
 	// SkuTierClassic ...
-	SkuTierClassic SkuTier = "Classic"
+	SkuTierClassic SkuTierType = "Classic"
+	// SkuTierNone represents an empty SkuTierType.
+	SkuTierNone SkuTierType = ""
 	// SkuTierPremium ...
-	SkuTierPremium SkuTier = "Premium"
+	SkuTierPremium SkuTierType = "Premium"
 	// SkuTierStandard ...
-	SkuTierStandard SkuTier = "Standard"
+	SkuTierStandard SkuTierType = "Standard"
 )
 
-// SourceControlTypes enumerates the values for source control types.
-type SourceControlTypes string
+// WebhookActionType enumerates the values for webhook action.
+type WebhookActionType string
 
 const (
-	// Github ...
-	Github SourceControlTypes = "Github"
-	// VisualStudioTeamService ...
-	VisualStudioTeamService SourceControlTypes = "VisualStudioTeamService"
+	// WebhookActionDelete ...
+	WebhookActionDelete WebhookActionType = "delete"
+	// WebhookActionNone represents an empty WebhookActionType.
+	WebhookActionNone WebhookActionType = ""
+	// WebhookActionPush ...
+	WebhookActionPush WebhookActionType = "push"
 )
 
-// TokenType enumerates the values for token type.
-type TokenType string
-
-const (
-	// OAuth ...
-	OAuth TokenType = "OAuth"
-	// PAT ...
-	PAT TokenType = "PAT"
-)
-
-// Type enumerates the values for type.
-type Type string
-
-const (
-	// TypeBuildStepCreateParameters ...
-	TypeBuildStepCreateParameters Type = "BuildStepCreateParameters"
-	// TypeDocker ...
-	TypeDocker Type = "Docker"
-)
-
-// TypeBasicBuildStep enumerates the values for type basic build step.
-type TypeBasicBuildStep string
-
-const (
-	// TypeBasicBuildStepTypeBuildStep ...
-	TypeBasicBuildStepTypeBuildStep TypeBasicBuildStep = "BuildStep"
-	// TypeBasicBuildStepTypeDocker ...
-	TypeBasicBuildStepTypeDocker TypeBasicBuildStep = "Docker"
-)
-
-// TypeBasicBuildStepUpdateParameters enumerates the values for type basic build step update parameters.
-type TypeBasicBuildStepUpdateParameters string
-
-const (
-	// TypeBasicBuildStepUpdateParametersTypeBuildStepUpdateParameters ...
-	TypeBasicBuildStepUpdateParametersTypeBuildStepUpdateParameters TypeBasicBuildStepUpdateParameters = "BuildStepUpdateParameters"
-	// TypeBasicBuildStepUpdateParametersTypeDocker ...
-	TypeBasicBuildStepUpdateParametersTypeDocker TypeBasicBuildStepUpdateParameters = "Docker"
-)
-
-// TypeBasicBuildTrigger enumerates the values for type basic build trigger.
-type TypeBasicBuildTrigger string
-
-const (
-	// TypeBuildTrigger ...
-	TypeBuildTrigger TypeBasicBuildTrigger = "BuildTrigger"
-	// TypeImageTrigger ...
-	TypeImageTrigger TypeBasicBuildTrigger = "ImageTrigger"
-)
-
-// TypeBasicBuildTriggerParameters enumerates the values for type basic build trigger parameters.
-type TypeBasicBuildTriggerParameters string
-
-const (
-	// TypeBasicBuildTriggerParametersTypeBuildTriggerParameters ...
-	TypeBasicBuildTriggerParametersTypeBuildTriggerParameters TypeBasicBuildTriggerParameters = "BuildTriggerParameters"
-	// TypeBasicBuildTriggerParametersTypeImageTrigger ...
-	TypeBasicBuildTriggerParametersTypeImageTrigger TypeBasicBuildTriggerParameters = "ImageTrigger"
-)
-
-// TypeBasicQueueBuildParameters enumerates the values for type basic queue build parameters.
-type TypeBasicQueueBuildParameters string
-
-const (
-	// TypeBasicQueueBuildParametersTypeDocker ...
-	TypeBasicQueueBuildParametersTypeDocker TypeBasicQueueBuildParameters = "Docker"
-	// TypeBasicQueueBuildParametersTypeQueueBuildParameters ...
-	TypeBasicQueueBuildParametersTypeQueueBuildParameters TypeBasicQueueBuildParameters = "QueueBuildParameters"
-)
-
-// WebhookAction enumerates the values for webhook action.
-type WebhookAction string
-
-const (
-	// Delete ...
-	Delete WebhookAction = "delete"
-	// Push ...
-	Push WebhookAction = "push"
-)
-
-// WebhookStatus enumerates the values for webhook status.
-type WebhookStatus string
+// WebhookStatusType enumerates the values for webhook status.
+type WebhookStatusType string
 
 const (
 	// WebhookStatusDisabled ...
-	WebhookStatusDisabled WebhookStatus = "disabled"
+	WebhookStatusDisabled WebhookStatusType = "disabled"
 	// WebhookStatusEnabled ...
-	WebhookStatusEnabled WebhookStatus = "enabled"
+	WebhookStatusEnabled WebhookStatusType = "enabled"
+	// WebhookStatusNone represents an empty WebhookStatusType.
+	WebhookStatusNone WebhookStatusType = ""
 )
 
-// Actor the agent that initiated the event. For most situations, this could be from the authorization context of the
+// Actor - The agent that initiated the event. For most situations, this could be from the authorization context of the
 // request.
 type Actor struct {
 	// Name - The subject or username associated with the request context that generated the event.
 	Name *string `json:"name,omitempty"`
 }
 
-// Build the properties for a build.
-type Build struct {
-	autorest.Response `json:"-"`
-	// BuildID - The unique identifier for the build.
-	BuildID *string `json:"buildId,omitempty"`
-	// Status - The current status of the build. Possible values include: 'Queued', 'Started', 'Running', 'Succeeded', 'Failed', 'Cancelled'
-	Status BuildStatus `json:"status,omitempty"`
-	// LastUpdatedTime - The last updated time for the build.
-	LastUpdatedTime *date.Time `json:"lastUpdatedTime,omitempty"`
-	// BuildType - The type of build. Possible values include: 'AutoBuild', 'QuickBuild'
-	BuildType BuildType `json:"buildType,omitempty"`
-	// CreateTime - The time the build was created.
-	CreateTime *date.Time `json:"createTime,omitempty"`
-	// StartTime - The time the build started.
-	StartTime *date.Time `json:"startTime,omitempty"`
-	// FinishTime - The time the build finished.
-	FinishTime *date.Time `json:"finishTime,omitempty"`
-	// OutputImages - The list of all images that were generated from the build.
-	OutputImages *[]ImageDescriptor `json:"outputImages,omitempty"`
-	// BuildDefinition - All the properties of the build definition with which the build was started.
-	BuildDefinition *string `json:"buildDefinition,omitempty"`
-	// Trigger - The trigger that caused the build.
-	Trigger *string `json:"trigger,omitempty"`
-	// IsArchiveEnabled - The value that indicates whether archiving is enabled or not.
-	IsArchiveEnabled *bool `json:"isArchiveEnabled,omitempty"`
-	// Platform - The platform properties against which the build will happen.
-	Platform *PlatformProperties `json:"platform,omitempty"`
-}
-
-// BuildArgument properties of a build argument.
-type BuildArgument struct {
-	// Type - The type of the argument.
-	Type *string `json:"type,omitempty"`
-	// Name - The name of the argument.
-	Name *string `json:"name,omitempty"`
-	// Value - The value of the argument.
-	Value *string `json:"value,omitempty"`
-	// IsSecret - Flag to indicate whether the argument represents a secret and want to be removed from build logs.
-	IsSecret *bool `json:"isSecret,omitempty"`
-}
-
-// BuildBase the shallow information about build.
-type BuildBase struct {
-	// BuildID - The unique identifier for the build.
-	BuildID *string `json:"buildId,omitempty"`
-	// Status - The current status of the build. Possible values include: 'Queued', 'Started', 'Running', 'Succeeded', 'Failed', 'Cancelled'
-	Status BuildStatus `json:"status,omitempty"`
-	// LastUpdatedTime - The last updated time for the build.
-	LastUpdatedTime *date.Time `json:"lastUpdatedTime,omitempty"`
-}
-
-// BuildDefinition the Build defintion that has the resource and all build items. The build definition will have all
-// information to schedule a build against it.
-type BuildDefinition struct {
-	autorest.Response `json:"-"`
-	// ID - The resource ID.
-	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource.
-	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource.
-	Type *string `json:"type,omitempty"`
-	// Location - The location of the resource. This cannot be changed after the resource is created.
-	Location *string `json:"location,omitempty"`
-	// Tags - The tags of the resource.
-	Tags *map[string]*string `json:"tags,omitempty"`
-	// BuildDefinitionProperties - The properties of a build definition.
-	*BuildDefinitionProperties `json:"properties,omitempty"`
-}
-
-// UnmarshalJSON is the custom unmarshaler for BuildDefinition struct.
-func (bd *BuildDefinition) UnmarshalJSON(body []byte) error {
-	var m map[string]*json.RawMessage
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return err
-	}
-	var v *json.RawMessage
-
-	v = m["properties"]
-	if v != nil {
-		var properties BuildDefinitionProperties
-		err = json.Unmarshal(*m["properties"], &properties)
-		if err != nil {
-			return err
-		}
-		bd.BuildDefinitionProperties = &properties
-	}
-
-	v = m["id"]
-	if v != nil {
-		var ID string
-		err = json.Unmarshal(*m["id"], &ID)
-		if err != nil {
-			return err
-		}
-		bd.ID = &ID
-	}
-
-	v = m["name"]
-	if v != nil {
-		var name string
-		err = json.Unmarshal(*m["name"], &name)
-		if err != nil {
-			return err
-		}
-		bd.Name = &name
-	}
-
-	v = m["type"]
-	if v != nil {
-		var typeVar string
-		err = json.Unmarshal(*m["type"], &typeVar)
-		if err != nil {
-			return err
-		}
-		bd.Type = &typeVar
-	}
-
-	v = m["location"]
-	if v != nil {
-		var location string
-		err = json.Unmarshal(*m["location"], &location)
-		if err != nil {
-			return err
-		}
-		bd.Location = &location
-	}
-
-	v = m["tags"]
-	if v != nil {
-		var tags map[string]*string
-		err = json.Unmarshal(*m["tags"], &tags)
-		if err != nil {
-			return err
-		}
-		bd.Tags = &tags
-	}
-
-	return nil
-}
-
-// BuildDefinitionCreateParameters the parameters for creating a build definition.
-type BuildDefinitionCreateParameters struct {
-	// BuildDefinitionPropertiesCreateParameters - The properties for creating a build definition.
-	*BuildDefinitionPropertiesCreateParameters `json:"properties,omitempty"`
-	// Location - The region of the resource.
-	Location *string `json:"location,omitempty"`
-	// Tags - The ARM resource tags.
-	Tags *map[string]*string `json:"tags,omitempty"`
-}
-
-// UnmarshalJSON is the custom unmarshaler for BuildDefinitionCreateParameters struct.
-func (bdcp *BuildDefinitionCreateParameters) UnmarshalJSON(body []byte) error {
-	var m map[string]*json.RawMessage
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return err
-	}
-	var v *json.RawMessage
-
-	v = m["properties"]
-	if v != nil {
-		var properties BuildDefinitionPropertiesCreateParameters
-		err = json.Unmarshal(*m["properties"], &properties)
-		if err != nil {
-			return err
-		}
-		bdcp.BuildDefinitionPropertiesCreateParameters = &properties
-	}
-
-	v = m["location"]
-	if v != nil {
-		var location string
-		err = json.Unmarshal(*m["location"], &location)
-		if err != nil {
-			return err
-		}
-		bdcp.Location = &location
-	}
-
-	v = m["tags"]
-	if v != nil {
-		var tags map[string]*string
-		err = json.Unmarshal(*m["tags"], &tags)
-		if err != nil {
-			return err
-		}
-		bdcp.Tags = &tags
-	}
-
-	return nil
-}
-
-// BuildDefinitionFilter the filter that can be used for listing build definitions.
-type BuildDefinitionFilter struct {
-	// Alias - The alternative name for build definition.
-	Alias *string `json:"alias,omitempty"`
-}
-
-// BuildDefinitionListResult the collection of build definitions.
-type BuildDefinitionListResult struct {
-	autorest.Response `json:"-"`
-	// Value - The collection value.
-	Value *[]BuildDefinition `json:"value,omitempty"`
-	// NextLink - The full NextLink used for paging.
-	NextLink *string `json:"nextLink,omitempty"`
-}
-
-// BuildDefinitionListResultIterator provides access to a complete listing of BuildDefinition values.
-type BuildDefinitionListResultIterator struct {
-	i    int
-	page BuildDefinitionListResultPage
-}
-
-// Next advances to the next value.  If there was an error making
-// the request the iterator does not advance and the error is returned.
-func (iter *BuildDefinitionListResultIterator) Next() error {
-	iter.i++
-	if iter.i < len(iter.page.Values()) {
-		return nil
-	}
-	err := iter.page.Next()
-	if err != nil {
-		iter.i--
-		return err
-	}
-	iter.i = 0
-	return nil
-}
-
-// NotDone returns true if the enumeration should be started or is not yet complete.
-func (iter BuildDefinitionListResultIterator) NotDone() bool {
-	return iter.page.NotDone() && iter.i < len(iter.page.Values())
-}
-
-// Response returns the raw server response from the last page request.
-func (iter BuildDefinitionListResultIterator) Response() BuildDefinitionListResult {
-	return iter.page.Response()
-}
-
-// Value returns the current value or a zero-initialized value if the
-// iterator has advanced beyond the end of the collection.
-func (iter BuildDefinitionListResultIterator) Value() BuildDefinition {
-	if !iter.page.NotDone() {
-		return BuildDefinition{}
-	}
-	return iter.page.Values()[iter.i]
-}
-
-// IsEmpty returns true if the ListResult contains no values.
-func (bdlr BuildDefinitionListResult) IsEmpty() bool {
-	return bdlr.Value == nil || len(*bdlr.Value) == 0
-}
-
-// buildDefinitionListResultPreparer prepares a request to retrieve the next set of results.
-// It returns nil if no more results exist.
-func (bdlr BuildDefinitionListResult) buildDefinitionListResultPreparer() (*http.Request, error) {
-	if bdlr.NextLink == nil || len(to.String(bdlr.NextLink)) < 1 {
-		return nil, nil
-	}
-	return autorest.Prepare(&http.Request{},
-		autorest.AsJSON(),
-		autorest.AsGet(),
-		autorest.WithBaseURL(to.String(bdlr.NextLink)))
-}
-
-// BuildDefinitionListResultPage contains a page of BuildDefinition values.
-type BuildDefinitionListResultPage struct {
-	fn   func(BuildDefinitionListResult) (BuildDefinitionListResult, error)
-	bdlr BuildDefinitionListResult
-}
-
-// Next advances to the next page of values.  If there was an error making
-// the request the page does not advance and the error is returned.
-func (page *BuildDefinitionListResultPage) Next() error {
-	next, err := page.fn(page.bdlr)
-	if err != nil {
-		return err
-	}
-	page.bdlr = next
-	return nil
-}
-
-// NotDone returns true if the page enumeration should be started or is not yet complete.
-func (page BuildDefinitionListResultPage) NotDone() bool {
-	return !page.bdlr.IsEmpty()
-}
-
-// Response returns the raw server response from the last page request.
-func (page BuildDefinitionListResultPage) Response() BuildDefinitionListResult {
-	return page.bdlr
-}
-
-// Values returns the slice of values for the current page or nil if there are no values.
-func (page BuildDefinitionListResultPage) Values() []BuildDefinition {
-	if page.bdlr.IsEmpty() {
-		return nil
-	}
-	return *page.bdlr.Value
-}
-
-// BuildDefinitionProperties the properties of a build definition.
-type BuildDefinitionProperties struct {
-	// ProvisioningState - The provisioning state of the build definition. Possible values include: 'ProvisioningStateCreating', 'ProvisioningStateUpdating', 'ProvisioningStateDeleting', 'ProvisioningStateSucceeded', 'ProvisioningStateFailed', 'ProvisioningStateCanceled'
-	ProvisioningState ProvisioningState `json:"provisioningState,omitempty"`
-	// CreationDate - The creation date of build definition.
-	CreationDate *date.Time `json:"creationDate,omitempty"`
-	// Alias - The alternative updatable name for a build definition.
-	Alias *string `json:"alias,omitempty"`
-	// Status - The current status of build definition. Possible values include: 'Disabled', 'Enabled'
-	Status BuildDefinitionStatus `json:"status,omitempty"`
-	// SourceRepository - The properties that describes the source(code) for the build definition.
-	SourceRepository *SourceRepositoryProperties `json:"sourceRepository,omitempty"`
-	// Timeout - Build Time out in seconds.
-	Timeout *int32 `json:"timeout,omitempty"`
-	// IsBaseImageTriggersEnabled - The value of this property indicates whether auto triggers of the build items trigger a build against this definition.
-	IsBaseImageTriggersEnabled *bool `json:"isBaseImageTriggersEnabled,omitempty"`
-}
-
-// BuildDefinitionPropertiesCreateParameters the properties for creating a build definition.
-type BuildDefinitionPropertiesCreateParameters struct {
-	// SourceRepository - The properties that describes the source(code) for the build definition.
-	SourceRepository *SourceRepositoryCreateParameters `json:"sourceRepository,omitempty"`
-	// Steps - The list of build steps in a build definition.
-	Steps *[]BasicBuildStepCreateParameters `json:"steps,omitempty"`
-	// Triggers - A collection of custom triggers for this build definition.
-	Triggers *[]BasicBuildTriggerParameters `json:"triggers,omitempty"`
-	// Alias - The alternative updatable name for a build definition.
-	Alias *string `json:"alias,omitempty"`
-	// Status - The current status of build definition. Possible values include: 'Disabled', 'Enabled'
-	Status BuildDefinitionStatus `json:"status,omitempty"`
-	// Timeout - Build Time out in seconds.
-	Timeout *int32 `json:"timeout,omitempty"`
-	// IsBaseImageTriggersEnabled - The value of this property indicates whether auto triggers of the build items trigger a build against this definition.
-	IsBaseImageTriggersEnabled *bool `json:"isBaseImageTriggersEnabled,omitempty"`
-}
-
-// UnmarshalJSON is the custom unmarshaler for BuildDefinitionPropertiesCreateParameters struct.
-func (bdpcp *BuildDefinitionPropertiesCreateParameters) UnmarshalJSON(body []byte) error {
-	var m map[string]*json.RawMessage
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return err
-	}
-	var v *json.RawMessage
-
-	v = m["sourceRepository"]
-	if v != nil {
-		var sourceRepository SourceRepositoryCreateParameters
-		err = json.Unmarshal(*m["sourceRepository"], &sourceRepository)
-		if err != nil {
-			return err
-		}
-		bdpcp.SourceRepository = &sourceRepository
-	}
-
-	v = m["steps"]
-	if v != nil {
-		steps, err := unmarshalBasicBuildStepCreateParametersArray(*m["steps"])
-		if err != nil {
-			return err
-		}
-		bdpcp.Steps = &steps
-	}
-
-	v = m["triggers"]
-	if v != nil {
-		triggers, err := unmarshalBasicBuildTriggerParametersArray(*m["triggers"])
-		if err != nil {
-			return err
-		}
-		bdpcp.Triggers = &triggers
-	}
-
-	v = m["alias"]
-	if v != nil {
-		var alias string
-		err = json.Unmarshal(*m["alias"], &alias)
-		if err != nil {
-			return err
-		}
-		bdpcp.Alias = &alias
-	}
-
-	v = m["status"]
-	if v != nil {
-		var status BuildDefinitionStatus
-		err = json.Unmarshal(*m["status"], &status)
-		if err != nil {
-			return err
-		}
-		bdpcp.Status = status
-	}
-
-	v = m["timeout"]
-	if v != nil {
-		var timeout int32
-		err = json.Unmarshal(*m["timeout"], &timeout)
-		if err != nil {
-			return err
-		}
-		bdpcp.Timeout = &timeout
-	}
-
-	v = m["isBaseImageTriggersEnabled"]
-	if v != nil {
-		var isBaseImageTriggersEnabled bool
-		err = json.Unmarshal(*m["isBaseImageTriggersEnabled"], &isBaseImageTriggersEnabled)
-		if err != nil {
-			return err
-		}
-		bdpcp.IsBaseImageTriggersEnabled = &isBaseImageTriggersEnabled
-	}
-
-	return nil
-}
-
-// BuildDefinitionPropertiesUpdateParameters the properties for updating a build definition.
-type BuildDefinitionPropertiesUpdateParameters struct {
-	// Alias - The alternative updatable name for a build definition.
-	Alias *string `json:"alias,omitempty"`
-	// Status - The current status of build definition. Possible values include: 'Disabled', 'Enabled'
-	Status BuildDefinitionStatus `json:"status,omitempty"`
-	// Timeout - Build Time out in seconds.
-	Timeout *int32 `json:"timeout,omitempty"`
-	// IsBaseImageTriggersEnabled - The value of this property indicates whether auto triggers of the build items trigger a build against this definition.
-	IsBaseImageTriggersEnabled *bool `json:"isBaseImageTriggersEnabled,omitempty"`
-	// SourceRepository - The properties that describes the source(code) for the build definition.
-	SourceRepository *SourceRepositoryUpdateParameters `json:"sourceRepository,omitempty"`
-}
-
-// BuildDefinitionsAddTriggerFuture an abstraction for monitoring and retrieving the results of a long-running
-// operation.
-type BuildDefinitionsAddTriggerFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future BuildDefinitionsAddTriggerFuture) Result(client BuildDefinitionsClient) (btm BuildTriggerModel, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsAddTriggerFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return btm, azure.NewAsyncOpIncompleteError("containerregistry.BuildDefinitionsAddTriggerFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		btm, err = client.AddTriggerResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsAddTriggerFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsAddTriggerFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	btm, err = client.AddTriggerResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsAddTriggerFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// BuildDefinitionsCreateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type BuildDefinitionsCreateFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future BuildDefinitionsCreateFuture) Result(client BuildDefinitionsClient) (bd BuildDefinition, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsCreateFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return bd, azure.NewAsyncOpIncompleteError("containerregistry.BuildDefinitionsCreateFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		bd, err = client.CreateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsCreateFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsCreateFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	bd, err = client.CreateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsCreateFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// BuildDefinitionsDeleteFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type BuildDefinitionsDeleteFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future BuildDefinitionsDeleteFuture) Result(client BuildDefinitionsClient) (ar autorest.Response, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsDeleteFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("containerregistry.BuildDefinitionsDeleteFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		ar, err = client.DeleteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsDeleteFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsDeleteFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	ar, err = client.DeleteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsDeleteFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// BuildDefinitionsQueueBuildFuture an abstraction for monitoring and retrieving the results of a long-running
-// operation.
-type BuildDefinitionsQueueBuildFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future BuildDefinitionsQueueBuildFuture) Result(client BuildDefinitionsClient) (b Build, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsQueueBuildFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return b, azure.NewAsyncOpIncompleteError("containerregistry.BuildDefinitionsQueueBuildFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		b, err = client.QueueBuildResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsQueueBuildFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsQueueBuildFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	b, err = client.QueueBuildResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsQueueBuildFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// BuildDefinitionsUpdateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type BuildDefinitionsUpdateFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future BuildDefinitionsUpdateFuture) Result(client BuildDefinitionsClient) (bd BuildDefinition, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsUpdateFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return bd, azure.NewAsyncOpIncompleteError("containerregistry.BuildDefinitionsUpdateFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		bd, err = client.UpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsUpdateFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	bd, err = client.UpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildDefinitionsUpdateFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// BuildDefinitionUpdateParameters the parameters for updating a build definition.
-type BuildDefinitionUpdateParameters struct {
-	// BuildDefinitionPropertiesUpdateParameters - The properties for updating a build definition.
-	*BuildDefinitionPropertiesUpdateParameters `json:"properties,omitempty"`
-	// Tags - The ARM resource tags.
-	Tags *map[string]*string `json:"tags,omitempty"`
-}
-
-// UnmarshalJSON is the custom unmarshaler for BuildDefinitionUpdateParameters struct.
-func (bdup *BuildDefinitionUpdateParameters) UnmarshalJSON(body []byte) error {
-	var m map[string]*json.RawMessage
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return err
-	}
-	var v *json.RawMessage
-
-	v = m["properties"]
-	if v != nil {
-		var properties BuildDefinitionPropertiesUpdateParameters
-		err = json.Unmarshal(*m["properties"], &properties)
-		if err != nil {
-			return err
-		}
-		bdup.BuildDefinitionPropertiesUpdateParameters = &properties
-	}
-
-	v = m["tags"]
-	if v != nil {
-		var tags map[string]*string
-		err = json.Unmarshal(*m["tags"], &tags)
-		if err != nil {
-			return err
-		}
-		bdup.Tags = &tags
-	}
-
-	return nil
-}
-
-// BuildFilter properties that are enabled for Odata querying.
-type BuildFilter struct {
-	// BuildID - The unique identifier for the build.
-	BuildID *string `json:"buildId,omitempty"`
-	// BuildType - The type of build. Possible values include: 'AutoBuild', 'QuickBuild'
-	BuildType BuildType `json:"buildType,omitempty"`
-	// Status - The current status of the build. Possible values include: 'Queued', 'Started', 'Running', 'Succeeded', 'Failed', 'Cancelled'
-	Status BuildStatus `json:"status,omitempty"`
-	// CreateTime - The create time for a build.
-	CreateTime *date.Time `json:"createTime,omitempty"`
-	// FinishTime - The time the build finished.
-	FinishTime *date.Time `json:"finishTime,omitempty"`
-	// OutputImageNames - The list of all images that were generated from the build.
-	OutputImageNames *[]string `json:"outputImageNames,omitempty"`
-	// IsArchiveEnabled - The value that indicates whether archiving is enabled or not.
-	IsArchiveEnabled *bool `json:"isArchiveEnabled,omitempty"`
-}
-
-// BuildListResult collection of builds.
-type BuildListResult struct {
-	autorest.Response `json:"-"`
-	// Value - The collection value.
-	Value *[]BuildBase `json:"value,omitempty"`
-	// NextLink - The full NextLink used for paging.
-	NextLink *string `json:"nextLink,omitempty"`
-}
-
-// BuildListResultIterator provides access to a complete listing of BuildBase values.
-type BuildListResultIterator struct {
-	i    int
-	page BuildListResultPage
-}
-
-// Next advances to the next value.  If there was an error making
-// the request the iterator does not advance and the error is returned.
-func (iter *BuildListResultIterator) Next() error {
-	iter.i++
-	if iter.i < len(iter.page.Values()) {
-		return nil
-	}
-	err := iter.page.Next()
-	if err != nil {
-		iter.i--
-		return err
-	}
-	iter.i = 0
-	return nil
-}
-
-// NotDone returns true if the enumeration should be started or is not yet complete.
-func (iter BuildListResultIterator) NotDone() bool {
-	return iter.page.NotDone() && iter.i < len(iter.page.Values())
-}
-
-// Response returns the raw server response from the last page request.
-func (iter BuildListResultIterator) Response() BuildListResult {
-	return iter.page.Response()
-}
-
-// Value returns the current value or a zero-initialized value if the
-// iterator has advanced beyond the end of the collection.
-func (iter BuildListResultIterator) Value() BuildBase {
-	if !iter.page.NotDone() {
-		return BuildBase{}
-	}
-	return iter.page.Values()[iter.i]
-}
-
-// IsEmpty returns true if the ListResult contains no values.
-func (blr BuildListResult) IsEmpty() bool {
-	return blr.Value == nil || len(*blr.Value) == 0
-}
-
-// buildListResultPreparer prepares a request to retrieve the next set of results.
-// It returns nil if no more results exist.
-func (blr BuildListResult) buildListResultPreparer() (*http.Request, error) {
-	if blr.NextLink == nil || len(to.String(blr.NextLink)) < 1 {
-		return nil, nil
-	}
-	return autorest.Prepare(&http.Request{},
-		autorest.AsJSON(),
-		autorest.AsGet(),
-		autorest.WithBaseURL(to.String(blr.NextLink)))
-}
-
-// BuildListResultPage contains a page of BuildBase values.
-type BuildListResultPage struct {
-	fn  func(BuildListResult) (BuildListResult, error)
-	blr BuildListResult
-}
-
-// Next advances to the next page of values.  If there was an error making
-// the request the page does not advance and the error is returned.
-func (page *BuildListResultPage) Next() error {
-	next, err := page.fn(page.blr)
-	if err != nil {
-		return err
-	}
-	page.blr = next
-	return nil
-}
-
-// NotDone returns true if the page enumeration should be started or is not yet complete.
-func (page BuildListResultPage) NotDone() bool {
-	return !page.blr.IsEmpty()
-}
-
-// Response returns the raw server response from the last page request.
-func (page BuildListResultPage) Response() BuildListResult {
-	return page.blr
-}
-
-// Values returns the slice of values for the current page or nil if there are no values.
-func (page BuildListResultPage) Values() []BuildBase {
-	if page.blr.IsEmpty() {
-		return nil
-	}
-	return *page.blr.Value
-}
-
-// BuildLogParameters the parameters for requesting build logs.
-type BuildLogParameters struct {
-	// LogType - The type of build log.
-	LogType *string `json:"logType,omitempty"`
-}
-
-// BuildLogResult the result of get build logs.
-type BuildLogResult struct {
-	autorest.Response `json:"-"`
-	// LogType - The type of build log.
-	LogType *string `json:"logType,omitempty"`
-	// LogLink - The link to the build log.
-	LogLink *string `json:"logLink,omitempty"`
-}
-
-// BuildsCancelFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type BuildsCancelFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future BuildsCancelFuture) Result(client BuildsClient) (ar autorest.Response, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildsCancelFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("containerregistry.BuildsCancelFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		ar, err = client.CancelResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.BuildsCancelFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildsCancelFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	ar, err = client.CancelResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildsCancelFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// BuildsQueueFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type BuildsQueueFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future BuildsQueueFuture) Result(client BuildsClient) (b Build, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildsQueueFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return b, azure.NewAsyncOpIncompleteError("containerregistry.BuildsQueueFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		b, err = client.QueueResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.BuildsQueueFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildsQueueFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	b, err = client.QueueResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildsQueueFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// BasicBuildStep base properties for any  build step.
-type BasicBuildStep interface {
-	AsDockerBuildStep() (*DockerBuildStep, bool)
-	AsBuildStep() (*BuildStep, bool)
-}
-
-// BuildStep base properties for any  build step.
-type BuildStep struct {
-	autorest.Response `json:"-"`
-	// Name - The unique name of the step.
-	Name *string `json:"name,omitempty"`
-	// Type - Possible values include: 'TypeBasicBuildStepTypeBuildStep', 'TypeBasicBuildStepTypeDocker'
-	Type TypeBasicBuildStep `json:"type,omitempty"`
-}
-
-func unmarshalBasicBuildStep(body []byte) (BasicBuildStep, error) {
-	var m map[string]interface{}
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return nil, err
-	}
-
-	switch m["type"] {
-	case string(TypeBasicBuildStepTypeDocker):
-		var dbs DockerBuildStep
-		err := json.Unmarshal(body, &dbs)
-		return dbs, err
-	default:
-		var bs BuildStep
-		err := json.Unmarshal(body, &bs)
-		return bs, err
-	}
-}
-func unmarshalBasicBuildStepArray(body []byte) ([]BasicBuildStep, error) {
-	var rawMessages []*json.RawMessage
-	err := json.Unmarshal(body, &rawMessages)
-	if err != nil {
-		return nil, err
-	}
-
-	bsArray := make([]BasicBuildStep, len(rawMessages))
-
-	for index, rawMessage := range rawMessages {
-		bs, err := unmarshalBasicBuildStep(*rawMessage)
-		if err != nil {
-			return nil, err
-		}
-		bsArray[index] = bs
-	}
-	return bsArray, nil
-}
-
-// MarshalJSON is the custom marshaler for BuildStep.
-func (bs BuildStep) MarshalJSON() ([]byte, error) {
-	bs.Type = TypeBasicBuildStepTypeBuildStep
-	type Alias BuildStep
-	return json.Marshal(&struct {
-		Alias
-	}{
-		Alias: (Alias)(bs),
-	})
-}
-
-// AsDockerBuildStep is the BasicBuildStep implementation for BuildStep.
-func (bs BuildStep) AsDockerBuildStep() (*DockerBuildStep, bool) {
-	return nil, false
-}
-
-// AsBuildStep is the BasicBuildStep implementation for BuildStep.
-func (bs BuildStep) AsBuildStep() (*BuildStep, bool) {
-	return &bs, true
-}
-
-// AsBasicBuildStep is the BasicBuildStep implementation for BuildStep.
-func (bs BuildStep) AsBasicBuildStep() (BasicBuildStep, bool) {
-	return &bs, true
-}
-
-// BasicBuildStepCreateParameters the base properties for creating any build step.
-type BasicBuildStepCreateParameters interface {
-	AsDockerBuildStepCreateParameters() (*DockerBuildStepCreateParameters, bool)
-	AsBuildStepCreateParameters() (*BuildStepCreateParameters, bool)
-}
-
-// BuildStepCreateParameters the base properties for creating any build step.
-type BuildStepCreateParameters struct {
-	// Name - The unique name of the step.
-	Name *string `json:"name,omitempty"`
-	// Type - Possible values include: 'TypeBuildStepCreateParameters', 'TypeDocker'
-	Type Type `json:"type,omitempty"`
-}
-
-func unmarshalBasicBuildStepCreateParameters(body []byte) (BasicBuildStepCreateParameters, error) {
-	var m map[string]interface{}
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return nil, err
-	}
-
-	switch m["type"] {
-	case string(TypeDocker):
-		var dbscp DockerBuildStepCreateParameters
-		err := json.Unmarshal(body, &dbscp)
-		return dbscp, err
-	default:
-		var bscp BuildStepCreateParameters
-		err := json.Unmarshal(body, &bscp)
-		return bscp, err
-	}
-}
-func unmarshalBasicBuildStepCreateParametersArray(body []byte) ([]BasicBuildStepCreateParameters, error) {
-	var rawMessages []*json.RawMessage
-	err := json.Unmarshal(body, &rawMessages)
-	if err != nil {
-		return nil, err
-	}
-
-	bscpArray := make([]BasicBuildStepCreateParameters, len(rawMessages))
-
-	for index, rawMessage := range rawMessages {
-		bscp, err := unmarshalBasicBuildStepCreateParameters(*rawMessage)
-		if err != nil {
-			return nil, err
-		}
-		bscpArray[index] = bscp
-	}
-	return bscpArray, nil
-}
-
-// MarshalJSON is the custom marshaler for BuildStepCreateParameters.
-func (bscp BuildStepCreateParameters) MarshalJSON() ([]byte, error) {
-	bscp.Type = TypeBuildStepCreateParameters
-	type Alias BuildStepCreateParameters
-	return json.Marshal(&struct {
-		Alias
-	}{
-		Alias: (Alias)(bscp),
-	})
-}
-
-// AsDockerBuildStepCreateParameters is the BasicBuildStepCreateParameters implementation for BuildStepCreateParameters.
-func (bscp BuildStepCreateParameters) AsDockerBuildStepCreateParameters() (*DockerBuildStepCreateParameters, bool) {
-	return nil, false
-}
-
-// AsBuildStepCreateParameters is the BasicBuildStepCreateParameters implementation for BuildStepCreateParameters.
-func (bscp BuildStepCreateParameters) AsBuildStepCreateParameters() (*BuildStepCreateParameters, bool) {
-	return &bscp, true
-}
-
-// AsBasicBuildStepCreateParameters is the BasicBuildStepCreateParameters implementation for BuildStepCreateParameters.
-func (bscp BuildStepCreateParameters) AsBasicBuildStepCreateParameters() (BasicBuildStepCreateParameters, bool) {
-	return &bscp, true
-}
-
-// BuildStepList the collection of build items.
-type BuildStepList struct {
-	autorest.Response `json:"-"`
-	// Value - The collection value.
-	Value *[]BasicBuildStep `json:"value,omitempty"`
-	// NextLink - The full NextLink used for paging.
-	NextLink *string `json:"nextLink,omitempty"`
-}
-
-// UnmarshalJSON is the custom unmarshaler for BuildStepList struct.
-func (bsl *BuildStepList) UnmarshalJSON(body []byte) error {
-	var m map[string]*json.RawMessage
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return err
-	}
-	var v *json.RawMessage
-
-	v = m["value"]
-	if v != nil {
-		value, err := unmarshalBasicBuildStepArray(*m["value"])
-		if err != nil {
-			return err
-		}
-		bsl.Value = &value
-	}
-
-	v = m["nextLink"]
-	if v != nil {
-		var nextLink string
-		err = json.Unmarshal(*m["nextLink"], &nextLink)
-		if err != nil {
-			return err
-		}
-		bsl.NextLink = &nextLink
-	}
-
-	return nil
-}
-
-// BuildStepListIterator provides access to a complete listing of BuildStep values.
-type BuildStepListIterator struct {
-	i    int
-	page BuildStepListPage
-}
-
-// Next advances to the next value.  If there was an error making
-// the request the iterator does not advance and the error is returned.
-func (iter *BuildStepListIterator) Next() error {
-	iter.i++
-	if iter.i < len(iter.page.Values()) {
-		return nil
-	}
-	err := iter.page.Next()
-	if err != nil {
-		iter.i--
-		return err
-	}
-	iter.i = 0
-	return nil
-}
-
-// NotDone returns true if the enumeration should be started or is not yet complete.
-func (iter BuildStepListIterator) NotDone() bool {
-	return iter.page.NotDone() && iter.i < len(iter.page.Values())
-}
-
-// Response returns the raw server response from the last page request.
-func (iter BuildStepListIterator) Response() BuildStepList {
-	return iter.page.Response()
-}
-
-// Value returns the current value or a zero-initialized value if the
-// iterator has advanced beyond the end of the collection.
-func (iter BuildStepListIterator) Value() BuildStep {
-	if !iter.page.NotDone() {
-		return BuildStep{}
-	}
-	return iter.page.Values()[iter.i]
-}
-
-// IsEmpty returns true if the ListResult contains no values.
-func (bsl BuildStepList) IsEmpty() bool {
-	return bsl.Value == nil || len(*bsl.Value) == 0
-}
-
-// buildStepListPreparer prepares a request to retrieve the next set of results.
-// It returns nil if no more results exist.
-func (bsl BuildStepList) buildStepListPreparer() (*http.Request, error) {
-	if bsl.NextLink == nil || len(to.String(bsl.NextLink)) < 1 {
-		return nil, nil
-	}
-	return autorest.Prepare(&http.Request{},
-		autorest.AsJSON(),
-		autorest.AsGet(),
-		autorest.WithBaseURL(to.String(bsl.NextLink)))
-}
-
-// BuildStepListPage contains a page of BuildStep values.
-type BuildStepListPage struct {
-	fn  func(BuildStepList) (BuildStepList, error)
-	bsl BuildStepList
-}
-
-// Next advances to the next page of values.  If there was an error making
-// the request the page does not advance and the error is returned.
-func (page *BuildStepListPage) Next() error {
-	next, err := page.fn(page.bsl)
-	if err != nil {
-		return err
-	}
-	page.bsl = next
-	return nil
-}
-
-// NotDone returns true if the page enumeration should be started or is not yet complete.
-func (page BuildStepListPage) NotDone() bool {
-	return !page.bsl.IsEmpty()
-}
-
-// Response returns the raw server response from the last page request.
-func (page BuildStepListPage) Response() BuildStepList {
-	return page.bsl
-}
-
-// Values returns the slice of values for the current page or nil if there are no values.
-func (page BuildStepListPage) Values() []BuildStep {
-	if page.bsl.IsEmpty() {
-		return nil
-	}
-	return *page.bsl.Value
-}
-
-// BuildStepModel ...
-type BuildStepModel struct {
-	autorest.Response `json:"-"`
-	Value             BasicBuildStep `json:"value,omitempty"`
-}
-
-// UnmarshalJSON is the custom unmarshaler for BuildStepModel struct.
-func (bsm *BuildStepModel) UnmarshalJSON(body []byte) error {
-	bs, err := unmarshalBasicBuildStep(body)
-	if err != nil {
-		return err
-	}
-	bsm.Value = bs
-
-	return nil
-}
-
-// BasicBuildStepUpdateParameters the base properties for updating any build step.
-type BasicBuildStepUpdateParameters interface {
-	AsDockerBuildStepUpdateParameters() (*DockerBuildStepUpdateParameters, bool)
-	AsBuildStepUpdateParameters() (*BuildStepUpdateParameters, bool)
-}
-
-// BuildStepUpdateParameters the base properties for updating any build step.
-type BuildStepUpdateParameters struct {
-	// Type - Possible values include: 'TypeBasicBuildStepUpdateParametersTypeBuildStepUpdateParameters', 'TypeBasicBuildStepUpdateParametersTypeDocker'
-	Type TypeBasicBuildStepUpdateParameters `json:"type,omitempty"`
-}
-
-func unmarshalBasicBuildStepUpdateParameters(body []byte) (BasicBuildStepUpdateParameters, error) {
-	var m map[string]interface{}
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return nil, err
-	}
-
-	switch m["type"] {
-	case string(TypeBasicBuildStepUpdateParametersTypeDocker):
-		var dbsup DockerBuildStepUpdateParameters
-		err := json.Unmarshal(body, &dbsup)
-		return dbsup, err
-	default:
-		var bsup BuildStepUpdateParameters
-		err := json.Unmarshal(body, &bsup)
-		return bsup, err
-	}
-}
-func unmarshalBasicBuildStepUpdateParametersArray(body []byte) ([]BasicBuildStepUpdateParameters, error) {
-	var rawMessages []*json.RawMessage
-	err := json.Unmarshal(body, &rawMessages)
-	if err != nil {
-		return nil, err
-	}
-
-	bsupArray := make([]BasicBuildStepUpdateParameters, len(rawMessages))
-
-	for index, rawMessage := range rawMessages {
-		bsup, err := unmarshalBasicBuildStepUpdateParameters(*rawMessage)
-		if err != nil {
-			return nil, err
-		}
-		bsupArray[index] = bsup
-	}
-	return bsupArray, nil
-}
-
-// MarshalJSON is the custom marshaler for BuildStepUpdateParameters.
-func (bsup BuildStepUpdateParameters) MarshalJSON() ([]byte, error) {
-	bsup.Type = TypeBasicBuildStepUpdateParametersTypeBuildStepUpdateParameters
-	type Alias BuildStepUpdateParameters
-	return json.Marshal(&struct {
-		Alias
-	}{
-		Alias: (Alias)(bsup),
-	})
-}
-
-// AsDockerBuildStepUpdateParameters is the BasicBuildStepUpdateParameters implementation for BuildStepUpdateParameters.
-func (bsup BuildStepUpdateParameters) AsDockerBuildStepUpdateParameters() (*DockerBuildStepUpdateParameters, bool) {
-	return nil, false
-}
-
-// AsBuildStepUpdateParameters is the BasicBuildStepUpdateParameters implementation for BuildStepUpdateParameters.
-func (bsup BuildStepUpdateParameters) AsBuildStepUpdateParameters() (*BuildStepUpdateParameters, bool) {
-	return &bsup, true
-}
-
-// AsBasicBuildStepUpdateParameters is the BasicBuildStepUpdateParameters implementation for BuildStepUpdateParameters.
-func (bsup BuildStepUpdateParameters) AsBasicBuildStepUpdateParameters() (BasicBuildStepUpdateParameters, bool) {
-	return &bsup, true
-}
-
-// BuildsUpdateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type BuildsUpdateFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future BuildsUpdateFuture) Result(client BuildsClient) (b Build, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildsUpdateFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return b, azure.NewAsyncOpIncompleteError("containerregistry.BuildsUpdateFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		b, err = client.UpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.BuildsUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildsUpdateFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	b, err = client.UpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildsUpdateFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// BasicBuildTrigger base properties for any build trigger.
-type BasicBuildTrigger interface {
-	AsImageTrigger() (*ImageTrigger, bool)
-	AsBuildTrigger() (*BuildTrigger, bool)
-}
-
-// BuildTrigger base properties for any build trigger.
-type BuildTrigger struct {
-	autorest.Response `json:"-"`
-	// Type - Possible values include: 'TypeBuildTrigger', 'TypeImageTrigger'
-	Type TypeBasicBuildTrigger `json:"type,omitempty"`
-}
-
-func unmarshalBasicBuildTrigger(body []byte) (BasicBuildTrigger, error) {
-	var m map[string]interface{}
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return nil, err
-	}
-
-	switch m["type"] {
-	case string(TypeImageTrigger):
-		var it ImageTrigger
-		err := json.Unmarshal(body, &it)
-		return it, err
-	default:
-		var bt BuildTrigger
-		err := json.Unmarshal(body, &bt)
-		return bt, err
-	}
-}
-func unmarshalBasicBuildTriggerArray(body []byte) ([]BasicBuildTrigger, error) {
-	var rawMessages []*json.RawMessage
-	err := json.Unmarshal(body, &rawMessages)
-	if err != nil {
-		return nil, err
-	}
-
-	btArray := make([]BasicBuildTrigger, len(rawMessages))
-
-	for index, rawMessage := range rawMessages {
-		bt, err := unmarshalBasicBuildTrigger(*rawMessage)
-		if err != nil {
-			return nil, err
-		}
-		btArray[index] = bt
-	}
-	return btArray, nil
-}
-
-// MarshalJSON is the custom marshaler for BuildTrigger.
-func (bt BuildTrigger) MarshalJSON() ([]byte, error) {
-	bt.Type = TypeBuildTrigger
-	type Alias BuildTrigger
-	return json.Marshal(&struct {
-		Alias
-	}{
-		Alias: (Alias)(bt),
-	})
-}
-
-// AsImageTrigger is the BasicBuildTrigger implementation for BuildTrigger.
-func (bt BuildTrigger) AsImageTrigger() (*ImageTrigger, bool) {
-	return nil, false
-}
-
-// AsBuildTrigger is the BasicBuildTrigger implementation for BuildTrigger.
-func (bt BuildTrigger) AsBuildTrigger() (*BuildTrigger, bool) {
-	return &bt, true
-}
-
-// AsBasicBuildTrigger is the BasicBuildTrigger implementation for BuildTrigger.
-func (bt BuildTrigger) AsBasicBuildTrigger() (BasicBuildTrigger, bool) {
-	return &bt, true
-}
-
-// BuildTriggerList the collection of build triggers.
-type BuildTriggerList struct {
-	autorest.Response `json:"-"`
-	// Value - The collection value.
-	Value *[]BasicBuildTrigger `json:"value,omitempty"`
-	// NextLink - The full NextLink used for paging.
-	NextLink *string `json:"nextLink,omitempty"`
-}
-
-// UnmarshalJSON is the custom unmarshaler for BuildTriggerList struct.
-func (btl *BuildTriggerList) UnmarshalJSON(body []byte) error {
-	var m map[string]*json.RawMessage
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return err
-	}
-	var v *json.RawMessage
-
-	v = m["value"]
-	if v != nil {
-		value, err := unmarshalBasicBuildTriggerArray(*m["value"])
-		if err != nil {
-			return err
-		}
-		btl.Value = &value
-	}
-
-	v = m["nextLink"]
-	if v != nil {
-		var nextLink string
-		err = json.Unmarshal(*m["nextLink"], &nextLink)
-		if err != nil {
-			return err
-		}
-		btl.NextLink = &nextLink
-	}
-
-	return nil
-}
-
-// BuildTriggerListIterator provides access to a complete listing of BuildTrigger values.
-type BuildTriggerListIterator struct {
-	i    int
-	page BuildTriggerListPage
-}
-
-// Next advances to the next value.  If there was an error making
-// the request the iterator does not advance and the error is returned.
-func (iter *BuildTriggerListIterator) Next() error {
-	iter.i++
-	if iter.i < len(iter.page.Values()) {
-		return nil
-	}
-	err := iter.page.Next()
-	if err != nil {
-		iter.i--
-		return err
-	}
-	iter.i = 0
-	return nil
-}
-
-// NotDone returns true if the enumeration should be started or is not yet complete.
-func (iter BuildTriggerListIterator) NotDone() bool {
-	return iter.page.NotDone() && iter.i < len(iter.page.Values())
-}
-
-// Response returns the raw server response from the last page request.
-func (iter BuildTriggerListIterator) Response() BuildTriggerList {
-	return iter.page.Response()
-}
-
-// Value returns the current value or a zero-initialized value if the
-// iterator has advanced beyond the end of the collection.
-func (iter BuildTriggerListIterator) Value() BuildTrigger {
-	if !iter.page.NotDone() {
-		return BuildTrigger{}
-	}
-	return iter.page.Values()[iter.i]
-}
-
-// IsEmpty returns true if the ListResult contains no values.
-func (btl BuildTriggerList) IsEmpty() bool {
-	return btl.Value == nil || len(*btl.Value) == 0
-}
-
-// buildTriggerListPreparer prepares a request to retrieve the next set of results.
-// It returns nil if no more results exist.
-func (btl BuildTriggerList) buildTriggerListPreparer() (*http.Request, error) {
-	if btl.NextLink == nil || len(to.String(btl.NextLink)) < 1 {
-		return nil, nil
-	}
-	return autorest.Prepare(&http.Request{},
-		autorest.AsJSON(),
-		autorest.AsGet(),
-		autorest.WithBaseURL(to.String(btl.NextLink)))
-}
-
-// BuildTriggerListPage contains a page of BuildTrigger values.
-type BuildTriggerListPage struct {
-	fn  func(BuildTriggerList) (BuildTriggerList, error)
-	btl BuildTriggerList
-}
-
-// Next advances to the next page of values.  If there was an error making
-// the request the page does not advance and the error is returned.
-func (page *BuildTriggerListPage) Next() error {
-	next, err := page.fn(page.btl)
-	if err != nil {
-		return err
-	}
-	page.btl = next
-	return nil
-}
-
-// NotDone returns true if the page enumeration should be started or is not yet complete.
-func (page BuildTriggerListPage) NotDone() bool {
-	return !page.btl.IsEmpty()
-}
-
-// Response returns the raw server response from the last page request.
-func (page BuildTriggerListPage) Response() BuildTriggerList {
-	return page.btl
-}
-
-// Values returns the slice of values for the current page or nil if there are no values.
-func (page BuildTriggerListPage) Values() []BuildTrigger {
-	if page.btl.IsEmpty() {
-		return nil
-	}
-	return *page.btl.Value
-}
-
-// BuildTriggerModel ...
-type BuildTriggerModel struct {
-	autorest.Response `json:"-"`
-	Value             BasicBuildTrigger `json:"value,omitempty"`
-}
-
-// UnmarshalJSON is the custom unmarshaler for BuildTriggerModel struct.
-func (btm *BuildTriggerModel) UnmarshalJSON(body []byte) error {
-	bt, err := unmarshalBasicBuildTrigger(body)
-	if err != nil {
-		return err
-	}
-	btm.Value = bt
-
-	return nil
-}
-
-// BasicBuildTriggerParameters properties for adding any build trigger.
-type BasicBuildTriggerParameters interface {
-	AsImageTriggerParameters() (*ImageTriggerParameters, bool)
-	AsBuildTriggerParameters() (*BuildTriggerParameters, bool)
-}
-
-// BuildTriggerParameters properties for adding any build trigger.
-type BuildTriggerParameters struct {
-	// Type - Possible values include: 'TypeBasicBuildTriggerParametersTypeBuildTriggerParameters', 'TypeBasicBuildTriggerParametersTypeImageTrigger'
-	Type TypeBasicBuildTriggerParameters `json:"type,omitempty"`
-}
-
-func unmarshalBasicBuildTriggerParameters(body []byte) (BasicBuildTriggerParameters, error) {
-	var m map[string]interface{}
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return nil, err
-	}
-
-	switch m["type"] {
-	case string(TypeBasicBuildTriggerParametersTypeImageTrigger):
-		var itp ImageTriggerParameters
-		err := json.Unmarshal(body, &itp)
-		return itp, err
-	default:
-		var btp BuildTriggerParameters
-		err := json.Unmarshal(body, &btp)
-		return btp, err
-	}
-}
-func unmarshalBasicBuildTriggerParametersArray(body []byte) ([]BasicBuildTriggerParameters, error) {
-	var rawMessages []*json.RawMessage
-	err := json.Unmarshal(body, &rawMessages)
-	if err != nil {
-		return nil, err
-	}
-
-	btpArray := make([]BasicBuildTriggerParameters, len(rawMessages))
-
-	for index, rawMessage := range rawMessages {
-		btp, err := unmarshalBasicBuildTriggerParameters(*rawMessage)
-		if err != nil {
-			return nil, err
-		}
-		btpArray[index] = btp
-	}
-	return btpArray, nil
-}
-
-// MarshalJSON is the custom marshaler for BuildTriggerParameters.
-func (btp BuildTriggerParameters) MarshalJSON() ([]byte, error) {
-	btp.Type = TypeBasicBuildTriggerParametersTypeBuildTriggerParameters
-	type Alias BuildTriggerParameters
-	return json.Marshal(&struct {
-		Alias
-	}{
-		Alias: (Alias)(btp),
-	})
-}
-
-// AsImageTriggerParameters is the BasicBuildTriggerParameters implementation for BuildTriggerParameters.
-func (btp BuildTriggerParameters) AsImageTriggerParameters() (*ImageTriggerParameters, bool) {
-	return nil, false
-}
-
-// AsBuildTriggerParameters is the BasicBuildTriggerParameters implementation for BuildTriggerParameters.
-func (btp BuildTriggerParameters) AsBuildTriggerParameters() (*BuildTriggerParameters, bool) {
-	return &btp, true
-}
-
-// AsBasicBuildTriggerParameters is the BasicBuildTriggerParameters implementation for BuildTriggerParameters.
-func (btp BuildTriggerParameters) AsBasicBuildTriggerParameters() (BasicBuildTriggerParameters, bool) {
-	return &btp, true
-}
-
-// BuildTriggersDeleteFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type BuildTriggersDeleteFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future BuildTriggersDeleteFuture) Result(client BuildTriggersClient) (ar autorest.Response, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildTriggersDeleteFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("containerregistry.BuildTriggersDeleteFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		ar, err = client.DeleteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.BuildTriggersDeleteFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildTriggersDeleteFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	ar, err = client.DeleteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.BuildTriggersDeleteFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// BuildUpdateParameters the set of build properties that can be updated.
-type BuildUpdateParameters struct {
-	// IsArchiveEnabled - The value that indicates whether archiving is enabled or not.
-	IsArchiveEnabled *bool `json:"isArchiveEnabled,omitempty"`
-}
-
-// CallbackConfig the configuration of service URI and custom headers for the webhook.
+// CallbackConfig - The configuration of service URI and custom headers for the webhook.
 type CallbackConfig struct {
-	autorest.Response `json:"-"`
+	rawResponse *http.Response
 	// ServiceURI - The service URI for the webhook to post notifications.
-	ServiceURI *string `json:"serviceUri,omitempty"`
+	ServiceURI string `json:"serviceUri,omitempty"`
 	// CustomHeaders - Custom headers that will be added to the webhook notifications.
-	CustomHeaders *map[string]*string `json:"customHeaders,omitempty"`
+	CustomHeaders map[string]string `json:"customHeaders,omitempty"`
 }
 
-// DockerBuildParameters build parameters for a docker build.
-type DockerBuildParameters struct {
-	// Type - Possible values include: 'TypeBasicQueueBuildParametersTypeQueueBuildParameters', 'TypeBasicQueueBuildParametersTypeDocker'
-	Type TypeBasicQueueBuildParameters `json:"type,omitempty"`
-	// DockerFilePath - The Docker file path relative to the source control root.
-	DockerFilePath *string `json:"dockerFilePath,omitempty"`
-	// ContextPath - The relative context path for a docker build in the source.
-	ContextPath *string `json:"contextPath,omitempty"`
+// Response returns the raw HTTP response object.
+func (cc CallbackConfig) Response() *http.Response {
+	return cc.rawResponse
 }
 
-// MarshalJSON is the custom marshaler for DockerBuildParameters.
-func (dbp DockerBuildParameters) MarshalJSON() ([]byte, error) {
-	dbp.Type = TypeBasicQueueBuildParametersTypeDocker
-	type Alias DockerBuildParameters
-	return json.Marshal(&struct {
-		Alias
-	}{
-		Alias: (Alias)(dbp),
-	})
+// StatusCode returns the HTTP status code of the response, e.g. 200.
+func (cc CallbackConfig) StatusCode() int {
+	return cc.rawResponse.StatusCode
 }
 
-// AsDockerBuildParameters is the BasicQueueBuildParameters implementation for DockerBuildParameters.
-func (dbp DockerBuildParameters) AsDockerBuildParameters() (*DockerBuildParameters, bool) {
-	return &dbp, true
+// Status returns the HTTP status message of the response, e.g. "200 OK".
+func (cc CallbackConfig) Status() string {
+	return cc.rawResponse.Status
 }
 
-// AsQueueBuildParameters is the BasicQueueBuildParameters implementation for DockerBuildParameters.
-func (dbp DockerBuildParameters) AsQueueBuildParameters() (*QueueBuildParameters, bool) {
-	return nil, false
-}
-
-// AsBasicQueueBuildParameters is the BasicQueueBuildParameters implementation for DockerBuildParameters.
-func (dbp DockerBuildParameters) AsBasicQueueBuildParameters() (BasicQueueBuildParameters, bool) {
-	return &dbp, true
-}
-
-// DockerBuildStep the Docker build step.
-type DockerBuildStep struct {
-	// Name - The unique name of the step.
-	Name *string `json:"name,omitempty"`
-	// Type - Possible values include: 'TypeBasicBuildStepTypeBuildStep', 'TypeBasicBuildStepTypeDocker'
-	Type TypeBasicBuildStep `json:"type,omitempty"`
-	// Branch - The repository branch name.
-	Branch *string `json:"branch,omitempty"`
-	// ImageName - The full qualified name of the image including the repository and tag.
-	ImageName *string `json:"imageName,omitempty"`
-	// IsPushEnabled - The value of this property indicate whether the image built should be pushed to the registry or not.
-	IsPushEnabled *bool `json:"isPushEnabled,omitempty"`
-	// DockerFilePath - The Docker file path relative to the source control root.
-	DockerFilePath *string `json:"dockerFilePath,omitempty"`
-	// ContextPath - The relative context path for a docker build in the source.
-	ContextPath *string `json:"contextPath,omitempty"`
-	// BuildArguments - The custom arguments for building this build step.
-	BuildArguments *[]BuildArgument `json:"buildArguments,omitempty"`
-	// BaseImageDependencies - The collection of base image dependencies that got generated by the latest build against this build item.
-	BaseImageDependencies *[]ImageDescriptor `json:"baseImageDependencies,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for DockerBuildStep.
-func (dbs DockerBuildStep) MarshalJSON() ([]byte, error) {
-	dbs.Type = TypeBasicBuildStepTypeDocker
-	type Alias DockerBuildStep
-	return json.Marshal(&struct {
-		Alias
-	}{
-		Alias: (Alias)(dbs),
-	})
-}
-
-// AsDockerBuildStep is the BasicBuildStep implementation for DockerBuildStep.
-func (dbs DockerBuildStep) AsDockerBuildStep() (*DockerBuildStep, bool) {
-	return &dbs, true
-}
-
-// AsBuildStep is the BasicBuildStep implementation for DockerBuildStep.
-func (dbs DockerBuildStep) AsBuildStep() (*BuildStep, bool) {
-	return nil, false
-}
-
-// AsBasicBuildStep is the BasicBuildStep implementation for DockerBuildStep.
-func (dbs DockerBuildStep) AsBasicBuildStep() (BasicBuildStep, bool) {
-	return &dbs, true
-}
-
-// DockerBuildStepCreateParameters the properties for creating Docker build step.
-type DockerBuildStepCreateParameters struct {
-	// Name - The unique name of the step.
-	Name *string `json:"name,omitempty"`
-	// Type - Possible values include: 'TypeBuildStepCreateParameters', 'TypeDocker'
-	Type Type `json:"type,omitempty"`
-	// Branch - The repository branch name.
-	Branch *string `json:"branch,omitempty"`
-	// ImageName - The full qualified name of the image including the repository and tag.
-	ImageName *string `json:"imageName,omitempty"`
-	// IsPushEnabled - The value of this property indicate whether the image built should be pushed to the registry or not.
-	IsPushEnabled *bool `json:"isPushEnabled,omitempty"`
-	// DockerFilePath - The Docker file path relative to the source control root.
-	DockerFilePath *string `json:"dockerFilePath,omitempty"`
-	// ContextPath - The relative context path for a docker build in the source.
-	ContextPath *string `json:"contextPath,omitempty"`
-	// BuildArguments - The custom arguments for building this build step.
-	BuildArguments *[]BuildArgument `json:"buildArguments,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for DockerBuildStepCreateParameters.
-func (dbscp DockerBuildStepCreateParameters) MarshalJSON() ([]byte, error) {
-	dbscp.Type = TypeDocker
-	type Alias DockerBuildStepCreateParameters
-	return json.Marshal(&struct {
-		Alias
-	}{
-		Alias: (Alias)(dbscp),
-	})
-}
-
-// AsDockerBuildStepCreateParameters is the BasicBuildStepCreateParameters implementation for DockerBuildStepCreateParameters.
-func (dbscp DockerBuildStepCreateParameters) AsDockerBuildStepCreateParameters() (*DockerBuildStepCreateParameters, bool) {
-	return &dbscp, true
-}
-
-// AsBuildStepCreateParameters is the BasicBuildStepCreateParameters implementation for DockerBuildStepCreateParameters.
-func (dbscp DockerBuildStepCreateParameters) AsBuildStepCreateParameters() (*BuildStepCreateParameters, bool) {
-	return nil, false
-}
-
-// AsBasicBuildStepCreateParameters is the BasicBuildStepCreateParameters implementation for DockerBuildStepCreateParameters.
-func (dbscp DockerBuildStepCreateParameters) AsBasicBuildStepCreateParameters() (BasicBuildStepCreateParameters, bool) {
-	return &dbscp, true
-}
-
-// DockerBuildStepUpdateParameters the properties for updating a docker build step.
-type DockerBuildStepUpdateParameters struct {
-	// Type - Possible values include: 'TypeBasicBuildStepUpdateParametersTypeBuildStepUpdateParameters', 'TypeBasicBuildStepUpdateParametersTypeDocker'
-	Type TypeBasicBuildStepUpdateParameters `json:"type,omitempty"`
-	// ImageName - The full qualified name of the image including the repository and tag.
-	ImageName *string `json:"imageName,omitempty"`
-	// IsPushEnabled - The value of this property indicate whether the image built should be pushed to the registry or not.
-	IsPushEnabled *bool `json:"isPushEnabled,omitempty"`
-	// DockerFilePath - The Docker file path relative to the source control root.
-	DockerFilePath *string `json:"dockerFilePath,omitempty"`
-	// ContextPath - The relative context path for a docker build in the source.
-	ContextPath *string `json:"contextPath,omitempty"`
-	// BuildArguments - The custom arguments for building this build step.
-	BuildArguments *[]BuildArgument `json:"buildArguments,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for DockerBuildStepUpdateParameters.
-func (dbsup DockerBuildStepUpdateParameters) MarshalJSON() ([]byte, error) {
-	dbsup.Type = TypeBasicBuildStepUpdateParametersTypeDocker
-	type Alias DockerBuildStepUpdateParameters
-	return json.Marshal(&struct {
-		Alias
-	}{
-		Alias: (Alias)(dbsup),
-	})
-}
-
-// AsDockerBuildStepUpdateParameters is the BasicBuildStepUpdateParameters implementation for DockerBuildStepUpdateParameters.
-func (dbsup DockerBuildStepUpdateParameters) AsDockerBuildStepUpdateParameters() (*DockerBuildStepUpdateParameters, bool) {
-	return &dbsup, true
-}
-
-// AsBuildStepUpdateParameters is the BasicBuildStepUpdateParameters implementation for DockerBuildStepUpdateParameters.
-func (dbsup DockerBuildStepUpdateParameters) AsBuildStepUpdateParameters() (*BuildStepUpdateParameters, bool) {
-	return nil, false
-}
-
-// AsBasicBuildStepUpdateParameters is the BasicBuildStepUpdateParameters implementation for DockerBuildStepUpdateParameters.
-func (dbsup DockerBuildStepUpdateParameters) AsBasicBuildStepUpdateParameters() (BasicBuildStepUpdateParameters, bool) {
-	return &dbsup, true
-}
-
-// Event the event for a webhook.
+// Event - The event for a webhook.
 type Event struct {
 	// ID - The event ID.
 	ID *string `json:"id,omitempty"`
@@ -2084,12 +184,12 @@ type Event struct {
 	EventResponseMessage *EventResponseMessage `json:"eventResponseMessage,omitempty"`
 }
 
-// EventContent the content of the event request message.
+// EventContent - The content of the event request message.
 type EventContent struct {
 	// ID - The event ID.
 	ID *string `json:"id,omitempty"`
 	// Timestamp - The time at which the event occurred.
-	Timestamp *date.Time `json:"timestamp,omitempty"`
+	Timestamp *time.Time `json:"timestamp,omitempty"`
 	// Action - The action that encompasses the provided event.
 	Action *string `json:"action,omitempty"`
 	// Target - The target of the event.
@@ -2102,121 +202,58 @@ type EventContent struct {
 	Source *Source `json:"source,omitempty"`
 }
 
-// EventInfo the basic information of an event.
+// EventInfo - The basic information of an event.
 type EventInfo struct {
-	autorest.Response `json:"-"`
+	rawResponse *http.Response
 	// ID - The event ID.
 	ID *string `json:"id,omitempty"`
 }
 
-// EventListResult the result of a request to list events for a webhook.
+// Response returns the raw HTTP response object.
+func (ei EventInfo) Response() *http.Response {
+	return ei.rawResponse
+}
+
+// StatusCode returns the HTTP status code of the response, e.g. 200.
+func (ei EventInfo) StatusCode() int {
+	return ei.rawResponse.StatusCode
+}
+
+// Status returns the HTTP status message of the response, e.g. "200 OK".
+func (ei EventInfo) Status() string {
+	return ei.rawResponse.Status
+}
+
+// EventListResult - The result of a request to list events for a webhook.
 type EventListResult struct {
-	autorest.Response `json:"-"`
+	rawResponse *http.Response
 	// Value - The list of events. Since this list may be incomplete, the nextLink field should be used to request the next list of events.
-	Value *[]Event `json:"value,omitempty"`
+	Value []Event `json:"value,omitempty"`
 	// NextLink - The URI that can be used to request the next list of events.
-	NextLink *string `json:"nextLink,omitempty"`
+	NextLink Marker `json:"NextLink"`
 }
 
-// EventListResultIterator provides access to a complete listing of Event values.
-type EventListResultIterator struct {
-	i    int
-	page EventListResultPage
+// Response returns the raw HTTP response object.
+func (elr EventListResult) Response() *http.Response {
+	return elr.rawResponse
 }
 
-// Next advances to the next value.  If there was an error making
-// the request the iterator does not advance and the error is returned.
-func (iter *EventListResultIterator) Next() error {
-	iter.i++
-	if iter.i < len(iter.page.Values()) {
-		return nil
-	}
-	err := iter.page.Next()
-	if err != nil {
-		iter.i--
-		return err
-	}
-	iter.i = 0
-	return nil
+// StatusCode returns the HTTP status code of the response, e.g. 200.
+func (elr EventListResult) StatusCode() int {
+	return elr.rawResponse.StatusCode
 }
 
-// NotDone returns true if the enumeration should be started or is not yet complete.
-func (iter EventListResultIterator) NotDone() bool {
-	return iter.page.NotDone() && iter.i < len(iter.page.Values())
+// Status returns the HTTP status message of the response, e.g. "200 OK".
+func (elr EventListResult) Status() string {
+	return elr.rawResponse.Status
 }
 
-// Response returns the raw server response from the last page request.
-func (iter EventListResultIterator) Response() EventListResult {
-	return iter.page.Response()
-}
-
-// Value returns the current value or a zero-initialized value if the
-// iterator has advanced beyond the end of the collection.
-func (iter EventListResultIterator) Value() Event {
-	if !iter.page.NotDone() {
-		return Event{}
-	}
-	return iter.page.Values()[iter.i]
-}
-
-// IsEmpty returns true if the ListResult contains no values.
-func (elr EventListResult) IsEmpty() bool {
-	return elr.Value == nil || len(*elr.Value) == 0
-}
-
-// eventListResultPreparer prepares a request to retrieve the next set of results.
-// It returns nil if no more results exist.
-func (elr EventListResult) eventListResultPreparer() (*http.Request, error) {
-	if elr.NextLink == nil || len(to.String(elr.NextLink)) < 1 {
-		return nil, nil
-	}
-	return autorest.Prepare(&http.Request{},
-		autorest.AsJSON(),
-		autorest.AsGet(),
-		autorest.WithBaseURL(to.String(elr.NextLink)))
-}
-
-// EventListResultPage contains a page of Event values.
-type EventListResultPage struct {
-	fn  func(EventListResult) (EventListResult, error)
-	elr EventListResult
-}
-
-// Next advances to the next page of values.  If there was an error making
-// the request the page does not advance and the error is returned.
-func (page *EventListResultPage) Next() error {
-	next, err := page.fn(page.elr)
-	if err != nil {
-		return err
-	}
-	page.elr = next
-	return nil
-}
-
-// NotDone returns true if the page enumeration should be started or is not yet complete.
-func (page EventListResultPage) NotDone() bool {
-	return !page.elr.IsEmpty()
-}
-
-// Response returns the raw server response from the last page request.
-func (page EventListResultPage) Response() EventListResult {
-	return page.elr
-}
-
-// Values returns the slice of values for the current page or nil if there are no values.
-func (page EventListResultPage) Values() []Event {
-	if page.elr.IsEmpty() {
-		return nil
-	}
-	return *page.elr.Value
-}
-
-// EventRequestMessage the event request message sent to the service URI.
+// EventRequestMessage - The event request message sent to the service URI.
 type EventRequestMessage struct {
 	// Content - The content of the event request message.
 	Content *EventContent `json:"content,omitempty"`
 	// Headers - The headers of the event request message.
-	Headers *map[string]*string `json:"headers,omitempty"`
+	Headers map[string]string `json:"headers,omitempty"`
 	// Method - The HTTP method used to send the event request message.
 	Method *string `json:"method,omitempty"`
 	// RequestURI - The URI used to send the event request message.
@@ -2225,12 +262,12 @@ type EventRequestMessage struct {
 	Version *string `json:"version,omitempty"`
 }
 
-// EventResponseMessage the event response message received from the service URI.
+// EventResponseMessage - The event response message received from the service URI.
 type EventResponseMessage struct {
 	// Content - The content of the event response message.
 	Content *string `json:"content,omitempty"`
 	// Headers - The headers of the event response message.
-	Headers *map[string]*string `json:"headers,omitempty"`
+	Headers map[string]string `json:"headers,omitempty"`
 	// ReasonPhrase - The reason phrase of the event response message.
 	ReasonPhrase *string `json:"reasonPhrase,omitempty"`
 	// StatusCode - The status code of the event response message.
@@ -2239,91 +276,7 @@ type EventResponseMessage struct {
 	Version *string `json:"version,omitempty"`
 }
 
-// ImageDescriptor properties for a registry image.
-type ImageDescriptor struct {
-	// ImageName - Name of the repository or image.
-	ImageName *string `json:"imageName,omitempty"`
-	// Tag - The tag name.
-	Tag *string `json:"tag,omitempty"`
-	// Digest - The image digest.
-	Digest *string `json:"digest,omitempty"`
-}
-
-// ImageTrigger a build trigger based on Image updates.
-type ImageTrigger struct {
-	// Type - Possible values include: 'TypeBuildTrigger', 'TypeImageTrigger'
-	Type TypeBasicBuildTrigger `json:"type,omitempty"`
-	// ID - The unique identifier of a trigger.
-	ID *string `json:"id,omitempty"`
-	// ImageName - Name of the repository or image.
-	ImageName *string `json:"imageName,omitempty"`
-	// Tag - The tag name.
-	Tag *string `json:"tag,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for ImageTrigger.
-func (it ImageTrigger) MarshalJSON() ([]byte, error) {
-	it.Type = TypeImageTrigger
-	type Alias ImageTrigger
-	return json.Marshal(&struct {
-		Alias
-	}{
-		Alias: (Alias)(it),
-	})
-}
-
-// AsImageTrigger is the BasicBuildTrigger implementation for ImageTrigger.
-func (it ImageTrigger) AsImageTrigger() (*ImageTrigger, bool) {
-	return &it, true
-}
-
-// AsBuildTrigger is the BasicBuildTrigger implementation for ImageTrigger.
-func (it ImageTrigger) AsBuildTrigger() (*BuildTrigger, bool) {
-	return nil, false
-}
-
-// AsBasicBuildTrigger is the BasicBuildTrigger implementation for ImageTrigger.
-func (it ImageTrigger) AsBasicBuildTrigger() (BasicBuildTrigger, bool) {
-	return &it, true
-}
-
-// ImageTriggerParameters the parameters that identify a image trigger.
-type ImageTriggerParameters struct {
-	// Type - Possible values include: 'TypeBasicBuildTriggerParametersTypeBuildTriggerParameters', 'TypeBasicBuildTriggerParametersTypeImageTrigger'
-	Type TypeBasicBuildTriggerParameters `json:"type,omitempty"`
-	// ImageName - Name of the repository or image.
-	ImageName *string `json:"imageName,omitempty"`
-	// Tag - The tag name.
-	Tag *string `json:"tag,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for ImageTriggerParameters.
-func (itp ImageTriggerParameters) MarshalJSON() ([]byte, error) {
-	itp.Type = TypeBasicBuildTriggerParametersTypeImageTrigger
-	type Alias ImageTriggerParameters
-	return json.Marshal(&struct {
-		Alias
-	}{
-		Alias: (Alias)(itp),
-	})
-}
-
-// AsImageTriggerParameters is the BasicBuildTriggerParameters implementation for ImageTriggerParameters.
-func (itp ImageTriggerParameters) AsImageTriggerParameters() (*ImageTriggerParameters, bool) {
-	return &itp, true
-}
-
-// AsBuildTriggerParameters is the BasicBuildTriggerParameters implementation for ImageTriggerParameters.
-func (itp ImageTriggerParameters) AsBuildTriggerParameters() (*BuildTriggerParameters, bool) {
-	return nil, false
-}
-
-// AsBasicBuildTriggerParameters is the BasicBuildTriggerParameters implementation for ImageTriggerParameters.
-func (itp ImageTriggerParameters) AsBasicBuildTriggerParameters() (BasicBuildTriggerParameters, bool) {
-	return &itp, true
-}
-
-// OperationDefinition the definition of a container registry operation.
+// OperationDefinition - The definition of a container registry operation.
 type OperationDefinition struct {
 	// Name - Operation name: {provider}/{resource}/{operation}.
 	Name *string `json:"name,omitempty"`
@@ -2331,7 +284,7 @@ type OperationDefinition struct {
 	Display *OperationDisplayDefinition `json:"display,omitempty"`
 }
 
-// OperationDisplayDefinition the display information for a container registry operation.
+// OperationDisplayDefinition - The display information for a container registry operation.
 type OperationDisplayDefinition struct {
 	// Provider - The resource provider name: Microsoft.ContainerRegistry.
 	Provider *string `json:"provider,omitempty"`
@@ -2343,416 +296,39 @@ type OperationDisplayDefinition struct {
 	Description *string `json:"description,omitempty"`
 }
 
-// OperationListResult the result of a request to list container registry operations.
+// OperationListResult - The result of a request to list container registry operations.
 type OperationListResult struct {
-	autorest.Response `json:"-"`
+	rawResponse *http.Response
 	// Value - The list of container registry operations. Since this list may be incomplete, the nextLink field should be used to request the next list of operations.
-	Value *[]OperationDefinition `json:"value,omitempty"`
+	Value []OperationDefinition `json:"value,omitempty"`
 	// NextLink - The URI that can be used to request the next list of container registry operations.
-	NextLink *string `json:"nextLink,omitempty"`
+	NextLink Marker `json:"NextLink"`
 }
 
-// OperationListResultIterator provides access to a complete listing of OperationDefinition values.
-type OperationListResultIterator struct {
-	i    int
-	page OperationListResultPage
+// Response returns the raw HTTP response object.
+func (olr OperationListResult) Response() *http.Response {
+	return olr.rawResponse
 }
 
-// Next advances to the next value.  If there was an error making
-// the request the iterator does not advance and the error is returned.
-func (iter *OperationListResultIterator) Next() error {
-	iter.i++
-	if iter.i < len(iter.page.Values()) {
-		return nil
-	}
-	err := iter.page.Next()
-	if err != nil {
-		iter.i--
-		return err
-	}
-	iter.i = 0
-	return nil
+// StatusCode returns the HTTP status code of the response, e.g. 200.
+func (olr OperationListResult) StatusCode() int {
+	return olr.rawResponse.StatusCode
 }
 
-// NotDone returns true if the enumeration should be started or is not yet complete.
-func (iter OperationListResultIterator) NotDone() bool {
-	return iter.page.NotDone() && iter.i < len(iter.page.Values())
+// Status returns the HTTP status message of the response, e.g. "200 OK".
+func (olr OperationListResult) Status() string {
+	return olr.rawResponse.Status
 }
 
-// Response returns the raw server response from the last page request.
-func (iter OperationListResultIterator) Response() OperationListResult {
-	return iter.page.Response()
-}
-
-// Value returns the current value or a zero-initialized value if the
-// iterator has advanced beyond the end of the collection.
-func (iter OperationListResultIterator) Value() OperationDefinition {
-	if !iter.page.NotDone() {
-		return OperationDefinition{}
-	}
-	return iter.page.Values()[iter.i]
-}
-
-// IsEmpty returns true if the ListResult contains no values.
-func (olr OperationListResult) IsEmpty() bool {
-	return olr.Value == nil || len(*olr.Value) == 0
-}
-
-// operationListResultPreparer prepares a request to retrieve the next set of results.
-// It returns nil if no more results exist.
-func (olr OperationListResult) operationListResultPreparer() (*http.Request, error) {
-	if olr.NextLink == nil || len(to.String(olr.NextLink)) < 1 {
-		return nil, nil
-	}
-	return autorest.Prepare(&http.Request{},
-		autorest.AsJSON(),
-		autorest.AsGet(),
-		autorest.WithBaseURL(to.String(olr.NextLink)))
-}
-
-// OperationListResultPage contains a page of OperationDefinition values.
-type OperationListResultPage struct {
-	fn  func(OperationListResult) (OperationListResult, error)
-	olr OperationListResult
-}
-
-// Next advances to the next page of values.  If there was an error making
-// the request the page does not advance and the error is returned.
-func (page *OperationListResultPage) Next() error {
-	next, err := page.fn(page.olr)
-	if err != nil {
-		return err
-	}
-	page.olr = next
-	return nil
-}
-
-// NotDone returns true if the page enumeration should be started or is not yet complete.
-func (page OperationListResultPage) NotDone() bool {
-	return !page.olr.IsEmpty()
-}
-
-// Response returns the raw server response from the last page request.
-func (page OperationListResultPage) Response() OperationListResult {
-	return page.olr
-}
-
-// Values returns the slice of values for the current page or nil if there are no values.
-func (page OperationListResultPage) Values() []OperationDefinition {
-	if page.olr.IsEmpty() {
-		return nil
-	}
-	return *page.olr.Value
-}
-
-// PlatformProperties the platform properties against which the build has to happen.
-type PlatformProperties struct {
-	// OsType - The operating system type required for the build. Possible values include: 'Windows', 'Linux'
-	OsType OsTypes `json:"osType,omitempty"`
-	// CPU - The CPU configuration in terms of number of cores required for the build.
-	CPU *int32 `json:"cpu,omitempty"`
-}
-
-// BasicQueueBuildParameters the properties of a quick build.
-type BasicQueueBuildParameters interface {
-	AsDockerBuildParameters() (*DockerBuildParameters, bool)
-	AsQueueBuildParameters() (*QueueBuildParameters, bool)
-}
-
-// QueueBuildParameters the properties of a quick build.
-type QueueBuildParameters struct {
-	// Type - Possible values include: 'TypeBasicQueueBuildParametersTypeQueueBuildParameters', 'TypeBasicQueueBuildParametersTypeDocker'
-	Type TypeBasicQueueBuildParameters `json:"type,omitempty"`
-}
-
-func unmarshalBasicQueueBuildParameters(body []byte) (BasicQueueBuildParameters, error) {
-	var m map[string]interface{}
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return nil, err
-	}
-
-	switch m["type"] {
-	case string(TypeBasicQueueBuildParametersTypeDocker):
-		var dbp DockerBuildParameters
-		err := json.Unmarshal(body, &dbp)
-		return dbp, err
-	default:
-		var qbp QueueBuildParameters
-		err := json.Unmarshal(body, &qbp)
-		return qbp, err
-	}
-}
-func unmarshalBasicQueueBuildParametersArray(body []byte) ([]BasicQueueBuildParameters, error) {
-	var rawMessages []*json.RawMessage
-	err := json.Unmarshal(body, &rawMessages)
-	if err != nil {
-		return nil, err
-	}
-
-	qbpArray := make([]BasicQueueBuildParameters, len(rawMessages))
-
-	for index, rawMessage := range rawMessages {
-		qbp, err := unmarshalBasicQueueBuildParameters(*rawMessage)
-		if err != nil {
-			return nil, err
-		}
-		qbpArray[index] = qbp
-	}
-	return qbpArray, nil
-}
-
-// MarshalJSON is the custom marshaler for QueueBuildParameters.
-func (qbp QueueBuildParameters) MarshalJSON() ([]byte, error) {
-	qbp.Type = TypeBasicQueueBuildParametersTypeQueueBuildParameters
-	type Alias QueueBuildParameters
-	return json.Marshal(&struct {
-		Alias
-	}{
-		Alias: (Alias)(qbp),
-	})
-}
-
-// AsDockerBuildParameters is the BasicQueueBuildParameters implementation for QueueBuildParameters.
-func (qbp QueueBuildParameters) AsDockerBuildParameters() (*DockerBuildParameters, bool) {
-	return nil, false
-}
-
-// AsQueueBuildParameters is the BasicQueueBuildParameters implementation for QueueBuildParameters.
-func (qbp QueueBuildParameters) AsQueueBuildParameters() (*QueueBuildParameters, bool) {
-	return &qbp, true
-}
-
-// AsBasicQueueBuildParameters is the BasicQueueBuildParameters implementation for QueueBuildParameters.
-func (qbp QueueBuildParameters) AsBasicQueueBuildParameters() (BasicQueueBuildParameters, bool) {
-	return &qbp, true
-}
-
-// QueueBuildRequest the queue build request parameters.
-type QueueBuildRequest struct {
-	// ImageName - The fully qualified image name with the tag that the build tags it.
-	ImageName *string `json:"imageName,omitempty"`
-	// SourceLocation - The URL to the source that needs to be built. For Docker build, it can be an URL to a tar or github repoistory as supported by Docker.
-	SourceLocation *string `json:"sourceLocation,omitempty"`
-	// BuildArguments - The collection of build arguments to be used.
-	BuildArguments *[]BuildArgument `json:"buildArguments,omitempty"`
-	// IsPushEnabled - The value of this property indicate whether the image built should be pushed to the registry or not.
-	IsPushEnabled *bool `json:"isPushEnabled,omitempty"`
-	// Timeout - Build Time out in seconds.
-	Timeout *int32 `json:"timeout,omitempty"`
-	// Platform - The platform properties against which the build will happen.
-	Platform *PlatformProperties `json:"platform,omitempty"`
-	// BuildParameters - The build parameters depending on the type of the build.
-	BuildParameters BasicQueueBuildParameters `json:"buildParameters,omitempty"`
-}
-
-// UnmarshalJSON is the custom unmarshaler for QueueBuildRequest struct.
-func (qbr *QueueBuildRequest) UnmarshalJSON(body []byte) error {
-	var m map[string]*json.RawMessage
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return err
-	}
-	var v *json.RawMessage
-
-	v = m["imageName"]
-	if v != nil {
-		var imageName string
-		err = json.Unmarshal(*m["imageName"], &imageName)
-		if err != nil {
-			return err
-		}
-		qbr.ImageName = &imageName
-	}
-
-	v = m["sourceLocation"]
-	if v != nil {
-		var sourceLocation string
-		err = json.Unmarshal(*m["sourceLocation"], &sourceLocation)
-		if err != nil {
-			return err
-		}
-		qbr.SourceLocation = &sourceLocation
-	}
-
-	v = m["buildArguments"]
-	if v != nil {
-		var buildArguments []BuildArgument
-		err = json.Unmarshal(*m["buildArguments"], &buildArguments)
-		if err != nil {
-			return err
-		}
-		qbr.BuildArguments = &buildArguments
-	}
-
-	v = m["isPushEnabled"]
-	if v != nil {
-		var isPushEnabled bool
-		err = json.Unmarshal(*m["isPushEnabled"], &isPushEnabled)
-		if err != nil {
-			return err
-		}
-		qbr.IsPushEnabled = &isPushEnabled
-	}
-
-	v = m["timeout"]
-	if v != nil {
-		var timeout int32
-		err = json.Unmarshal(*m["timeout"], &timeout)
-		if err != nil {
-			return err
-		}
-		qbr.Timeout = &timeout
-	}
-
-	v = m["platform"]
-	if v != nil {
-		var platform PlatformProperties
-		err = json.Unmarshal(*m["platform"], &platform)
-		if err != nil {
-			return err
-		}
-		qbr.Platform = &platform
-	}
-
-	v = m["buildParameters"]
-	if v != nil {
-		buildParameters, err := unmarshalBasicQueueBuildParameters(*m["buildParameters"])
-		if err != nil {
-			return err
-		}
-		qbr.BuildParameters = buildParameters
-	}
-
-	return nil
-}
-
-// RegenerateCredentialParameters the parameters used to regenerate the login credential.
+// RegenerateCredentialParameters - The parameters used to regenerate the login credential.
 type RegenerateCredentialParameters struct {
-	// Name - Specifies name of the password which should be regenerated -- password or password2. Possible values include: 'Password', 'Password2'
-	Name PasswordName `json:"name,omitempty"`
+	// Name - Specifies name of the password which should be regenerated -- password or password2. Possible values include: 'Password', 'Password2', 'None'
+	Name PasswordNameType `json:"name,omitempty"`
 }
 
-// RegistriesCreateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type RegistriesCreateFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future RegistriesCreateFuture) Result(client RegistriesClient) (r Registry, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return r, azure.NewAsyncOpIncompleteError("containerregistry.RegistriesCreateFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		r, err = client.CreateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	r, err = client.CreateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// RegistriesDeleteFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type RegistriesDeleteFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future RegistriesDeleteFuture) Result(client RegistriesClient) (ar autorest.Response, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesDeleteFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("containerregistry.RegistriesDeleteFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		ar, err = client.DeleteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.RegistriesDeleteFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesDeleteFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	ar, err = client.DeleteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesDeleteFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// RegistriesUpdateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type RegistriesUpdateFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future RegistriesUpdateFuture) Result(client RegistriesClient) (r Registry, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesUpdateFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return r, azure.NewAsyncOpIncompleteError("containerregistry.RegistriesUpdateFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		r, err = client.UpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.RegistriesUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesUpdateFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	r, err = client.UpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesUpdateFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// Registry an object that represents a container registry.
+// Registry - An object that represents a container registry.
 type Registry struct {
-	autorest.Response `json:"-"`
+	rawResponse *http.Response
 	// ID - The resource ID.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -2760,219 +336,89 @@ type Registry struct {
 	// Type - The type of the resource.
 	Type *string `json:"type,omitempty"`
 	// Location - The location of the resource. This cannot be changed after the resource is created.
-	Location *string `json:"location,omitempty"`
+	Location string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags *map[string]*string `json:"tags,omitempty"`
+	Tags map[string]string `json:"tags,omitempty"`
 	// Sku - The SKU of the container registry.
-	Sku *Sku `json:"sku,omitempty"`
-	// RegistryProperties - The properties of the container registry.
+	Sku Sku `json:"sku,omitempty"`
+	// Properties - The properties of the container registry.
 	*RegistryProperties `json:"properties,omitempty"`
 }
 
-// UnmarshalJSON is the custom unmarshaler for Registry struct.
-func (r *Registry) UnmarshalJSON(body []byte) error {
-	var m map[string]*json.RawMessage
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return err
-	}
-	var v *json.RawMessage
-
-	v = m["sku"]
-	if v != nil {
-		var sku Sku
-		err = json.Unmarshal(*m["sku"], &sku)
-		if err != nil {
-			return err
-		}
-		r.Sku = &sku
-	}
-
-	v = m["properties"]
-	if v != nil {
-		var properties RegistryProperties
-		err = json.Unmarshal(*m["properties"], &properties)
-		if err != nil {
-			return err
-		}
-		r.RegistryProperties = &properties
-	}
-
-	v = m["id"]
-	if v != nil {
-		var ID string
-		err = json.Unmarshal(*m["id"], &ID)
-		if err != nil {
-			return err
-		}
-		r.ID = &ID
-	}
-
-	v = m["name"]
-	if v != nil {
-		var name string
-		err = json.Unmarshal(*m["name"], &name)
-		if err != nil {
-			return err
-		}
-		r.Name = &name
-	}
-
-	v = m["type"]
-	if v != nil {
-		var typeVar string
-		err = json.Unmarshal(*m["type"], &typeVar)
-		if err != nil {
-			return err
-		}
-		r.Type = &typeVar
-	}
-
-	v = m["location"]
-	if v != nil {
-		var location string
-		err = json.Unmarshal(*m["location"], &location)
-		if err != nil {
-			return err
-		}
-		r.Location = &location
-	}
-
-	v = m["tags"]
-	if v != nil {
-		var tags map[string]*string
-		err = json.Unmarshal(*m["tags"], &tags)
-		if err != nil {
-			return err
-		}
-		r.Tags = &tags
-	}
-
-	return nil
+// Response returns the raw HTTP response object.
+func (r Registry) Response() *http.Response {
+	return r.rawResponse
 }
 
-// RegistryListCredentialsResult the response from the ListCredentials operation.
+// StatusCode returns the HTTP status code of the response, e.g. 200.
+func (r Registry) StatusCode() int {
+	return r.rawResponse.StatusCode
+}
+
+// Status returns the HTTP status message of the response, e.g. "200 OK".
+func (r Registry) Status() string {
+	return r.rawResponse.Status
+}
+
+// RegistryListCredentialsResult - The response from the ListCredentials operation.
 type RegistryListCredentialsResult struct {
-	autorest.Response `json:"-"`
+	rawResponse *http.Response
 	// Username - The username for a container registry.
 	Username *string `json:"username,omitempty"`
 	// Passwords - The list of passwords for a container registry.
-	Passwords *[]RegistryPassword `json:"passwords,omitempty"`
+	Passwords []RegistryPassword `json:"passwords,omitempty"`
 }
 
-// RegistryListResult the result of a request to list container registries.
+// Response returns the raw HTTP response object.
+func (rlcr RegistryListCredentialsResult) Response() *http.Response {
+	return rlcr.rawResponse
+}
+
+// StatusCode returns the HTTP status code of the response, e.g. 200.
+func (rlcr RegistryListCredentialsResult) StatusCode() int {
+	return rlcr.rawResponse.StatusCode
+}
+
+// Status returns the HTTP status message of the response, e.g. "200 OK".
+func (rlcr RegistryListCredentialsResult) Status() string {
+	return rlcr.rawResponse.Status
+}
+
+// RegistryListResult - The result of a request to list container registries.
 type RegistryListResult struct {
-	autorest.Response `json:"-"`
+	rawResponse *http.Response
 	// Value - The list of container registries. Since this list may be incomplete, the nextLink field should be used to request the next list of container registries.
-	Value *[]Registry `json:"value,omitempty"`
+	Value []Registry `json:"value,omitempty"`
 	// NextLink - The URI that can be used to request the next list of container registries.
-	NextLink *string `json:"nextLink,omitempty"`
+	NextLink Marker `json:"NextLink"`
 }
 
-// RegistryListResultIterator provides access to a complete listing of Registry values.
-type RegistryListResultIterator struct {
-	i    int
-	page RegistryListResultPage
+// Response returns the raw HTTP response object.
+func (rlr RegistryListResult) Response() *http.Response {
+	return rlr.rawResponse
 }
 
-// Next advances to the next value.  If there was an error making
-// the request the iterator does not advance and the error is returned.
-func (iter *RegistryListResultIterator) Next() error {
-	iter.i++
-	if iter.i < len(iter.page.Values()) {
-		return nil
-	}
-	err := iter.page.Next()
-	if err != nil {
-		iter.i--
-		return err
-	}
-	iter.i = 0
-	return nil
+// StatusCode returns the HTTP status code of the response, e.g. 200.
+func (rlr RegistryListResult) StatusCode() int {
+	return rlr.rawResponse.StatusCode
 }
 
-// NotDone returns true if the enumeration should be started or is not yet complete.
-func (iter RegistryListResultIterator) NotDone() bool {
-	return iter.page.NotDone() && iter.i < len(iter.page.Values())
+// Status returns the HTTP status message of the response, e.g. "200 OK".
+func (rlr RegistryListResult) Status() string {
+	return rlr.rawResponse.Status
 }
 
-// Response returns the raw server response from the last page request.
-func (iter RegistryListResultIterator) Response() RegistryListResult {
-	return iter.page.Response()
-}
-
-// Value returns the current value or a zero-initialized value if the
-// iterator has advanced beyond the end of the collection.
-func (iter RegistryListResultIterator) Value() Registry {
-	if !iter.page.NotDone() {
-		return Registry{}
-	}
-	return iter.page.Values()[iter.i]
-}
-
-// IsEmpty returns true if the ListResult contains no values.
-func (rlr RegistryListResult) IsEmpty() bool {
-	return rlr.Value == nil || len(*rlr.Value) == 0
-}
-
-// registryListResultPreparer prepares a request to retrieve the next set of results.
-// It returns nil if no more results exist.
-func (rlr RegistryListResult) registryListResultPreparer() (*http.Request, error) {
-	if rlr.NextLink == nil || len(to.String(rlr.NextLink)) < 1 {
-		return nil, nil
-	}
-	return autorest.Prepare(&http.Request{},
-		autorest.AsJSON(),
-		autorest.AsGet(),
-		autorest.WithBaseURL(to.String(rlr.NextLink)))
-}
-
-// RegistryListResultPage contains a page of Registry values.
-type RegistryListResultPage struct {
-	fn  func(RegistryListResult) (RegistryListResult, error)
-	rlr RegistryListResult
-}
-
-// Next advances to the next page of values.  If there was an error making
-// the request the page does not advance and the error is returned.
-func (page *RegistryListResultPage) Next() error {
-	next, err := page.fn(page.rlr)
-	if err != nil {
-		return err
-	}
-	page.rlr = next
-	return nil
-}
-
-// NotDone returns true if the page enumeration should be started or is not yet complete.
-func (page RegistryListResultPage) NotDone() bool {
-	return !page.rlr.IsEmpty()
-}
-
-// Response returns the raw server response from the last page request.
-func (page RegistryListResultPage) Response() RegistryListResult {
-	return page.rlr
-}
-
-// Values returns the slice of values for the current page or nil if there are no values.
-func (page RegistryListResultPage) Values() []Registry {
-	if page.rlr.IsEmpty() {
-		return nil
-	}
-	return *page.rlr.Value
-}
-
-// RegistryNameCheckRequest a request to check whether a container registry name is available.
+// RegistryNameCheckRequest - A request to check whether a container registry name is available.
 type RegistryNameCheckRequest struct {
 	// Name - The name of the container registry.
-	Name *string `json:"name,omitempty"`
+	Name string `json:"name,omitempty"`
 	// Type - The resource type of the container registry. This field must be set to 'Microsoft.ContainerRegistry/registries'.
-	Type *string `json:"type,omitempty"`
+	Type string `json:"type,omitempty"`
 }
 
-// RegistryNameStatus the result of a request to check the availability of a container registry name.
+// RegistryNameStatus - The result of a request to check the availability of a container registry name.
 type RegistryNameStatus struct {
-	autorest.Response `json:"-"`
+	rawResponse *http.Response
 	// NameAvailable - The value that indicates whether the name is available.
 	NameAvailable *bool `json:"nameAvailable,omitempty"`
 	// Reason - If any, the reason that the name is not available.
@@ -2981,22 +427,37 @@ type RegistryNameStatus struct {
 	Message *string `json:"message,omitempty"`
 }
 
-// RegistryPassword the login password for the container registry.
+// Response returns the raw HTTP response object.
+func (rns RegistryNameStatus) Response() *http.Response {
+	return rns.rawResponse
+}
+
+// StatusCode returns the HTTP status code of the response, e.g. 200.
+func (rns RegistryNameStatus) StatusCode() int {
+	return rns.rawResponse.StatusCode
+}
+
+// Status returns the HTTP status message of the response, e.g. "200 OK".
+func (rns RegistryNameStatus) Status() string {
+	return rns.rawResponse.Status
+}
+
+// RegistryPassword - The login password for the container registry.
 type RegistryPassword struct {
-	// Name - The password name. Possible values include: 'Password', 'Password2'
-	Name PasswordName `json:"name,omitempty"`
+	// Name - The password name. Possible values include: 'Password', 'Password2', 'None'
+	Name PasswordNameType `json:"name,omitempty"`
 	// Value - The password value.
 	Value *string `json:"value,omitempty"`
 }
 
-// RegistryProperties the properties of a container registry.
+// RegistryProperties - The properties of a container registry.
 type RegistryProperties struct {
 	// LoginServer - The URL that can be used to log into the container registry.
 	LoginServer *string `json:"loginServer,omitempty"`
 	// CreationDate - The creation date of the container registry in ISO8601 format.
-	CreationDate *date.Time `json:"creationDate,omitempty"`
-	// ProvisioningState - The provisioning state of the container registry at the time the operation was called. Possible values include: 'ProvisioningStateCreating', 'ProvisioningStateUpdating', 'ProvisioningStateDeleting', 'ProvisioningStateSucceeded', 'ProvisioningStateFailed', 'ProvisioningStateCanceled'
-	ProvisioningState ProvisioningState `json:"provisioningState,omitempty"`
+	CreationDate *time.Time `json:"creationDate,omitempty"`
+	// ProvisioningState - The provisioning state of the container registry at the time the operation was called. Possible values include: 'Creating', 'Updating', 'Deleting', 'Succeeded', 'Failed', 'Canceled', 'None'
+	ProvisioningState ProvisioningStateType `json:"provisioningState,omitempty"`
 	// Status - The status of the container registry at the time the operation was called.
 	Status *Status `json:"status,omitempty"`
 	// AdminUserEnabled - The value that indicates whether the admin user is enabled.
@@ -3005,7 +466,7 @@ type RegistryProperties struct {
 	StorageAccount *StorageAccountProperties `json:"storageAccount,omitempty"`
 }
 
-// RegistryPropertiesUpdateParameters the parameters for updating the properties of a container registry.
+// RegistryPropertiesUpdateParameters - The parameters for updating the properties of a container registry.
 type RegistryPropertiesUpdateParameters struct {
 	// AdminUserEnabled - The value that indicates whether the admin user is enabled.
 	AdminUserEnabled *bool `json:"adminUserEnabled,omitempty"`
@@ -3013,59 +474,17 @@ type RegistryPropertiesUpdateParameters struct {
 	StorageAccount *StorageAccountProperties `json:"storageAccount,omitempty"`
 }
 
-// RegistryUpdateParameters the parameters for updating a container registry.
+// RegistryUpdateParameters - The parameters for updating a container registry.
 type RegistryUpdateParameters struct {
 	// Tags - The tags for the container registry.
-	Tags *map[string]*string `json:"tags,omitempty"`
+	Tags map[string]string `json:"tags,omitempty"`
 	// Sku - The SKU of the container registry.
 	Sku *Sku `json:"sku,omitempty"`
-	// RegistryPropertiesUpdateParameters - The properties that the container registry will be updated with.
+	// Properties - The properties that the container registry will be updated with.
 	*RegistryPropertiesUpdateParameters `json:"properties,omitempty"`
 }
 
-// UnmarshalJSON is the custom unmarshaler for RegistryUpdateParameters struct.
-func (rup *RegistryUpdateParameters) UnmarshalJSON(body []byte) error {
-	var m map[string]*json.RawMessage
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return err
-	}
-	var v *json.RawMessage
-
-	v = m["tags"]
-	if v != nil {
-		var tags map[string]*string
-		err = json.Unmarshal(*m["tags"], &tags)
-		if err != nil {
-			return err
-		}
-		rup.Tags = &tags
-	}
-
-	v = m["sku"]
-	if v != nil {
-		var sku Sku
-		err = json.Unmarshal(*m["sku"], &sku)
-		if err != nil {
-			return err
-		}
-		rup.Sku = &sku
-	}
-
-	v = m["properties"]
-	if v != nil {
-		var properties RegistryPropertiesUpdateParameters
-		err = json.Unmarshal(*m["properties"], &properties)
-		if err != nil {
-			return err
-		}
-		rup.RegistryPropertiesUpdateParameters = &properties
-	}
-
-	return nil
-}
-
-// RegistryUsage the quota usage for a container registry.
+// RegistryUsage - The quota usage for a container registry.
 type RegistryUsage struct {
 	// Name - The name of the usage.
 	Name *string `json:"name,omitempty"`
@@ -3073,20 +492,35 @@ type RegistryUsage struct {
 	Limit *int64 `json:"limit,omitempty"`
 	// CurrentValue - The current value of the usage.
 	CurrentValue *int64 `json:"currentValue,omitempty"`
-	// Unit - The unit of measurement. Possible values include: 'Count', 'Bytes'
-	Unit RegistryUsageUnit `json:"unit,omitempty"`
+	// Unit - The unit of measurement. Possible values include: 'Count', 'Bytes', 'None'
+	Unit RegistryUsageUnitType `json:"unit,omitempty"`
 }
 
-// RegistryUsageListResult the result of a request to get container registry quota usages.
+// RegistryUsageListResult - The result of a request to get container registry quota usages.
 type RegistryUsageListResult struct {
-	autorest.Response `json:"-"`
+	rawResponse *http.Response
 	// Value - The list of container registry quota usages.
-	Value *[]RegistryUsage `json:"value,omitempty"`
+	Value []RegistryUsage `json:"value,omitempty"`
 }
 
-// Replication an object that represents a replication for a container registry.
+// Response returns the raw HTTP response object.
+func (rulr RegistryUsageListResult) Response() *http.Response {
+	return rulr.rawResponse
+}
+
+// StatusCode returns the HTTP status code of the response, e.g. 200.
+func (rulr RegistryUsageListResult) StatusCode() int {
+	return rulr.rawResponse.StatusCode
+}
+
+// Status returns the HTTP status message of the response, e.g. "200 OK".
+func (rulr RegistryUsageListResult) Status() string {
+	return rulr.rawResponse.Status
+}
+
+// Replication - An object that represents a replication for a container registry.
 type Replication struct {
-	autorest.Response `json:"-"`
+	rawResponse *http.Response
 	// ID - The resource ID.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -3094,319 +528,67 @@ type Replication struct {
 	// Type - The type of the resource.
 	Type *string `json:"type,omitempty"`
 	// Location - The location of the resource. This cannot be changed after the resource is created.
-	Location *string `json:"location,omitempty"`
+	Location string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags *map[string]*string `json:"tags,omitempty"`
-	// ReplicationProperties - The properties of the replication.
+	Tags map[string]string `json:"tags,omitempty"`
+	// Properties - The properties of the replication.
 	*ReplicationProperties `json:"properties,omitempty"`
 }
 
-// UnmarshalJSON is the custom unmarshaler for Replication struct.
-func (r *Replication) UnmarshalJSON(body []byte) error {
-	var m map[string]*json.RawMessage
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return err
-	}
-	var v *json.RawMessage
-
-	v = m["properties"]
-	if v != nil {
-		var properties ReplicationProperties
-		err = json.Unmarshal(*m["properties"], &properties)
-		if err != nil {
-			return err
-		}
-		r.ReplicationProperties = &properties
-	}
-
-	v = m["id"]
-	if v != nil {
-		var ID string
-		err = json.Unmarshal(*m["id"], &ID)
-		if err != nil {
-			return err
-		}
-		r.ID = &ID
-	}
-
-	v = m["name"]
-	if v != nil {
-		var name string
-		err = json.Unmarshal(*m["name"], &name)
-		if err != nil {
-			return err
-		}
-		r.Name = &name
-	}
-
-	v = m["type"]
-	if v != nil {
-		var typeVar string
-		err = json.Unmarshal(*m["type"], &typeVar)
-		if err != nil {
-			return err
-		}
-		r.Type = &typeVar
-	}
-
-	v = m["location"]
-	if v != nil {
-		var location string
-		err = json.Unmarshal(*m["location"], &location)
-		if err != nil {
-			return err
-		}
-		r.Location = &location
-	}
-
-	v = m["tags"]
-	if v != nil {
-		var tags map[string]*string
-		err = json.Unmarshal(*m["tags"], &tags)
-		if err != nil {
-			return err
-		}
-		r.Tags = &tags
-	}
-
-	return nil
+// Response returns the raw HTTP response object.
+func (r Replication) Response() *http.Response {
+	return r.rawResponse
 }
 
-// ReplicationListResult the result of a request to list replications for a container registry.
+// StatusCode returns the HTTP status code of the response, e.g. 200.
+func (r Replication) StatusCode() int {
+	return r.rawResponse.StatusCode
+}
+
+// Status returns the HTTP status message of the response, e.g. "200 OK".
+func (r Replication) Status() string {
+	return r.rawResponse.Status
+}
+
+// ReplicationListResult - The result of a request to list replications for a container registry.
 type ReplicationListResult struct {
-	autorest.Response `json:"-"`
+	rawResponse *http.Response
 	// Value - The list of replications. Since this list may be incomplete, the nextLink field should be used to request the next list of replications.
-	Value *[]Replication `json:"value,omitempty"`
+	Value []Replication `json:"value,omitempty"`
 	// NextLink - The URI that can be used to request the next list of replications.
-	NextLink *string `json:"nextLink,omitempty"`
+	NextLink Marker `json:"NextLink"`
 }
 
-// ReplicationListResultIterator provides access to a complete listing of Replication values.
-type ReplicationListResultIterator struct {
-	i    int
-	page ReplicationListResultPage
+// Response returns the raw HTTP response object.
+func (rlr ReplicationListResult) Response() *http.Response {
+	return rlr.rawResponse
 }
 
-// Next advances to the next value.  If there was an error making
-// the request the iterator does not advance and the error is returned.
-func (iter *ReplicationListResultIterator) Next() error {
-	iter.i++
-	if iter.i < len(iter.page.Values()) {
-		return nil
-	}
-	err := iter.page.Next()
-	if err != nil {
-		iter.i--
-		return err
-	}
-	iter.i = 0
-	return nil
+// StatusCode returns the HTTP status code of the response, e.g. 200.
+func (rlr ReplicationListResult) StatusCode() int {
+	return rlr.rawResponse.StatusCode
 }
 
-// NotDone returns true if the enumeration should be started or is not yet complete.
-func (iter ReplicationListResultIterator) NotDone() bool {
-	return iter.page.NotDone() && iter.i < len(iter.page.Values())
+// Status returns the HTTP status message of the response, e.g. "200 OK".
+func (rlr ReplicationListResult) Status() string {
+	return rlr.rawResponse.Status
 }
 
-// Response returns the raw server response from the last page request.
-func (iter ReplicationListResultIterator) Response() ReplicationListResult {
-	return iter.page.Response()
-}
-
-// Value returns the current value or a zero-initialized value if the
-// iterator has advanced beyond the end of the collection.
-func (iter ReplicationListResultIterator) Value() Replication {
-	if !iter.page.NotDone() {
-		return Replication{}
-	}
-	return iter.page.Values()[iter.i]
-}
-
-// IsEmpty returns true if the ListResult contains no values.
-func (rlr ReplicationListResult) IsEmpty() bool {
-	return rlr.Value == nil || len(*rlr.Value) == 0
-}
-
-// replicationListResultPreparer prepares a request to retrieve the next set of results.
-// It returns nil if no more results exist.
-func (rlr ReplicationListResult) replicationListResultPreparer() (*http.Request, error) {
-	if rlr.NextLink == nil || len(to.String(rlr.NextLink)) < 1 {
-		return nil, nil
-	}
-	return autorest.Prepare(&http.Request{},
-		autorest.AsJSON(),
-		autorest.AsGet(),
-		autorest.WithBaseURL(to.String(rlr.NextLink)))
-}
-
-// ReplicationListResultPage contains a page of Replication values.
-type ReplicationListResultPage struct {
-	fn  func(ReplicationListResult) (ReplicationListResult, error)
-	rlr ReplicationListResult
-}
-
-// Next advances to the next page of values.  If there was an error making
-// the request the page does not advance and the error is returned.
-func (page *ReplicationListResultPage) Next() error {
-	next, err := page.fn(page.rlr)
-	if err != nil {
-		return err
-	}
-	page.rlr = next
-	return nil
-}
-
-// NotDone returns true if the page enumeration should be started or is not yet complete.
-func (page ReplicationListResultPage) NotDone() bool {
-	return !page.rlr.IsEmpty()
-}
-
-// Response returns the raw server response from the last page request.
-func (page ReplicationListResultPage) Response() ReplicationListResult {
-	return page.rlr
-}
-
-// Values returns the slice of values for the current page or nil if there are no values.
-func (page ReplicationListResultPage) Values() []Replication {
-	if page.rlr.IsEmpty() {
-		return nil
-	}
-	return *page.rlr.Value
-}
-
-// ReplicationProperties the properties of a replication.
+// ReplicationProperties - The properties of a replication.
 type ReplicationProperties struct {
-	// ProvisioningState - The provisioning state of the replication at the time the operation was called. Possible values include: 'ProvisioningStateCreating', 'ProvisioningStateUpdating', 'ProvisioningStateDeleting', 'ProvisioningStateSucceeded', 'ProvisioningStateFailed', 'ProvisioningStateCanceled'
-	ProvisioningState ProvisioningState `json:"provisioningState,omitempty"`
+	// ProvisioningState - The provisioning state of the replication at the time the operation was called. Possible values include: 'Creating', 'Updating', 'Deleting', 'Succeeded', 'Failed', 'Canceled', 'None'
+	ProvisioningState ProvisioningStateType `json:"provisioningState,omitempty"`
 	// Status - The status of the replication at the time the operation was called.
 	Status *Status `json:"status,omitempty"`
 }
 
-// ReplicationsCreateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type ReplicationsCreateFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future ReplicationsCreateFuture) Result(client ReplicationsClient) (r Replication, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsCreateFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return r, azure.NewAsyncOpIncompleteError("containerregistry.ReplicationsCreateFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		r, err = client.CreateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsCreateFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsCreateFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	r, err = client.CreateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsCreateFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// ReplicationsDeleteFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type ReplicationsDeleteFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future ReplicationsDeleteFuture) Result(client ReplicationsClient) (ar autorest.Response, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsDeleteFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("containerregistry.ReplicationsDeleteFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		ar, err = client.DeleteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsDeleteFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsDeleteFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	ar, err = client.DeleteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsDeleteFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// ReplicationsUpdateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type ReplicationsUpdateFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future ReplicationsUpdateFuture) Result(client ReplicationsClient) (r Replication, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsUpdateFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return r, azure.NewAsyncOpIncompleteError("containerregistry.ReplicationsUpdateFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		r, err = client.UpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsUpdateFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	r, err = client.UpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsUpdateFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// ReplicationUpdateParameters the parameters for updating a replication.
+// ReplicationUpdateParameters - The parameters for updating a replication.
 type ReplicationUpdateParameters struct {
 	// Tags - The tags for the replication.
-	Tags *map[string]*string `json:"tags,omitempty"`
+	Tags map[string]string `json:"tags,omitempty"`
 }
 
-// Request the request that generated the event.
+// Request - The request that generated the event.
 type Request struct {
 	// ID - The ID of the request that initiated the event.
 	ID *string `json:"id,omitempty"`
@@ -3420,7 +602,7 @@ type Request struct {
 	Useragent *string `json:"useragent,omitempty"`
 }
 
-// Resource an Azure resource.
+// Resource - An Azure resource.
 type Resource struct {
 	// ID - The resource ID.
 	ID *string `json:"id,omitempty"`
@@ -3429,21 +611,21 @@ type Resource struct {
 	// Type - The type of the resource.
 	Type *string `json:"type,omitempty"`
 	// Location - The location of the resource. This cannot be changed after the resource is created.
-	Location *string `json:"location,omitempty"`
+	Location string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags *map[string]*string `json:"tags,omitempty"`
+	Tags map[string]string `json:"tags,omitempty"`
 }
 
-// Sku the SKU of a container registry.
+// Sku - The SKU of a container registry.
 type Sku struct {
-	// Name - The SKU name of the container registry. Required for registry creation. Possible values include: 'Classic', 'Basic', 'Standard', 'Premium'
-	Name SkuName `json:"name,omitempty"`
-	// Tier - The SKU tier based on the SKU name. Possible values include: 'SkuTierClassic', 'SkuTierBasic', 'SkuTierStandard', 'SkuTierPremium'
-	Tier SkuTier `json:"tier,omitempty"`
+	// Name - The SKU name of the container registry. Required for registry creation. Possible values include: 'Classic', 'Basic', 'Standard', 'Premium', 'None'
+	Name SkuNameType `json:"name,omitempty"`
+	// Tier - The SKU tier based on the SKU name. Possible values include: 'Classic', 'Basic', 'Standard', 'Premium', 'None'
+	Tier SkuTierType `json:"tier,omitempty"`
 }
 
-// Source the registry node that generated the event. Put differently, while the actor initiates the event, the source
-// generates it.
+// Source - The registry node that generated the event. Put differently, while the actor initiates the event, the
+// source generates it.
 type Source struct {
 	// Addr - The IP or hostname and the port of the registry node that generated the event. Generally, this will be resolved by os.Hostname() along with the running port.
 	Addr *string `json:"addr,omitempty"`
@@ -3451,68 +633,24 @@ type Source struct {
 	InstanceID *string `json:"instanceID,omitempty"`
 }
 
-// SourceControlAuthInfo the authorization properties for accessing the source code repository.
-type SourceControlAuthInfo struct {
-	// TokenType - The type of Auth token. Possible values include: 'PAT', 'OAuth'
-	TokenType TokenType `json:"tokenType,omitempty"`
-	// Token - The Access token used to access the source control provider.
-	Token *string `json:"token,omitempty"`
-	// RefreshToken - The refresh token used to refresh the access token.
-	RefreshToken *string `json:"refreshToken,omitempty"`
-	// Scope - The scope of the access token.
-	Scope *string `json:"scope,omitempty"`
-	// ExpiresIn - Time in seconds that the token remains valid
-	ExpiresIn *int32 `json:"expiresIn,omitempty"`
-}
-
-// SourceRepositoryCreateParameters the properties for creating the source code repository configuration.
-type SourceRepositoryCreateParameters struct {
-	// SourceControlType - The type of source control service. Possible values include: 'Github', 'VisualStudioTeamService'
-	SourceControlType SourceControlTypes `json:"sourceControlType,omitempty"`
-	// RepositoryURL - The type of source control service.
-	RepositoryURL *string `json:"repositoryUrl,omitempty"`
-	// SourceControlAuthProperties - The authorization properties for accessing the source code repository.
-	SourceControlAuthProperties *SourceControlAuthInfo `json:"sourceControlAuthProperties,omitempty"`
-	// IsCommitTriggerEnabled - The value of this property indicates whether the source control commit trigger is enabled or not.
-	IsCommitTriggerEnabled *bool `json:"isCommitTriggerEnabled,omitempty"`
-}
-
-// SourceRepositoryProperties the properties of the source code repository.
-type SourceRepositoryProperties struct {
-	// SourceControlType - The type of source control service. Possible values include: 'Github', 'VisualStudioTeamService'
-	SourceControlType SourceControlTypes `json:"sourceControlType,omitempty"`
-	// RepositoryURL - The full URL to the source code respository
-	RepositoryURL *string `json:"repositoryUrl,omitempty"`
-	// IsCommitTriggerEnabled - The value of this property indicates whether the source control commit trigger is enabled or not.
-	IsCommitTriggerEnabled *bool `json:"isCommitTriggerEnabled,omitempty"`
-}
-
-// SourceRepositoryUpdateParameters the properties for updating the source code repository configuration.
-type SourceRepositoryUpdateParameters struct {
-	// SourceControlAuthProperties - The authorization properties for accessing the source code repository.
-	SourceControlAuthProperties *SourceControlAuthInfo `json:"sourceControlAuthProperties,omitempty"`
-	// IsCommitTriggerEnabled - The value of this property indicates whether the source control commit trigger is enabled or not.
-	IsCommitTriggerEnabled *bool `json:"isCommitTriggerEnabled,omitempty"`
-}
-
-// Status the status of an Azure resource at the time the operation was called.
+// Status - The status of an Azure resource at the time the operation was called.
 type Status struct {
 	// DisplayStatus - The short label for the status.
 	DisplayStatus *string `json:"displayStatus,omitempty"`
 	// Message - The detailed message for the status, including alerts and error messages.
 	Message *string `json:"message,omitempty"`
 	// Timestamp - The timestamp when the status was changed to the current value.
-	Timestamp *date.Time `json:"timestamp,omitempty"`
+	Timestamp *time.Time `json:"timestamp,omitempty"`
 }
 
-// StorageAccountProperties the properties of a storage account for a container registry. Only applicable to Classic
+// StorageAccountProperties - The properties of a storage account for a container registry. Only applicable to Classic
 // SKU.
 type StorageAccountProperties struct {
 	// ID - The resource ID of the storage account.
-	ID *string `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
 }
 
-// Target the target of the event.
+// Target - The target of the event.
 type Target struct {
 	// MediaType - The MIME type of the referenced object.
 	MediaType *string `json:"mediaType,omitempty"`
@@ -3530,9 +668,9 @@ type Target struct {
 	Tag *string `json:"tag,omitempty"`
 }
 
-// Webhook an object that represents a webhook for a container registry.
+// Webhook - An object that represents a webhook for a container registry.
 type Webhook struct {
-	autorest.Response `json:"-"`
+	rawResponse *http.Response
 	// ID - The resource ID.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -3540,432 +678,106 @@ type Webhook struct {
 	// Type - The type of the resource.
 	Type *string `json:"type,omitempty"`
 	// Location - The location of the resource. This cannot be changed after the resource is created.
-	Location *string `json:"location,omitempty"`
+	Location string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags *map[string]*string `json:"tags,omitempty"`
-	// WebhookProperties - The properties of the webhook.
+	Tags map[string]string `json:"tags,omitempty"`
+	// Properties - The properties of the webhook.
 	*WebhookProperties `json:"properties,omitempty"`
 }
 
-// UnmarshalJSON is the custom unmarshaler for Webhook struct.
-func (w *Webhook) UnmarshalJSON(body []byte) error {
-	var m map[string]*json.RawMessage
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return err
-	}
-	var v *json.RawMessage
-
-	v = m["properties"]
-	if v != nil {
-		var properties WebhookProperties
-		err = json.Unmarshal(*m["properties"], &properties)
-		if err != nil {
-			return err
-		}
-		w.WebhookProperties = &properties
-	}
-
-	v = m["id"]
-	if v != nil {
-		var ID string
-		err = json.Unmarshal(*m["id"], &ID)
-		if err != nil {
-			return err
-		}
-		w.ID = &ID
-	}
-
-	v = m["name"]
-	if v != nil {
-		var name string
-		err = json.Unmarshal(*m["name"], &name)
-		if err != nil {
-			return err
-		}
-		w.Name = &name
-	}
-
-	v = m["type"]
-	if v != nil {
-		var typeVar string
-		err = json.Unmarshal(*m["type"], &typeVar)
-		if err != nil {
-			return err
-		}
-		w.Type = &typeVar
-	}
-
-	v = m["location"]
-	if v != nil {
-		var location string
-		err = json.Unmarshal(*m["location"], &location)
-		if err != nil {
-			return err
-		}
-		w.Location = &location
-	}
-
-	v = m["tags"]
-	if v != nil {
-		var tags map[string]*string
-		err = json.Unmarshal(*m["tags"], &tags)
-		if err != nil {
-			return err
-		}
-		w.Tags = &tags
-	}
-
-	return nil
+// Response returns the raw HTTP response object.
+func (w Webhook) Response() *http.Response {
+	return w.rawResponse
 }
 
-// WebhookCreateParameters the parameters for creating a webhook.
+// StatusCode returns the HTTP status code of the response, e.g. 200.
+func (w Webhook) StatusCode() int {
+	return w.rawResponse.StatusCode
+}
+
+// Status returns the HTTP status message of the response, e.g. "200 OK".
+func (w Webhook) Status() string {
+	return w.rawResponse.Status
+}
+
+// WebhookCreateParameters - The parameters for creating a webhook.
 type WebhookCreateParameters struct {
 	// Tags - The tags for the webhook.
-	Tags *map[string]*string `json:"tags,omitempty"`
+	Tags map[string]string `json:"tags,omitempty"`
 	// Location - The location of the webhook. This cannot be changed after the resource is created.
-	Location *string `json:"location,omitempty"`
-	// WebhookPropertiesCreateParameters - The properties that the webhook will be created with.
+	Location string `json:"location,omitempty"`
+	// Properties - The properties that the webhook will be created with.
 	*WebhookPropertiesCreateParameters `json:"properties,omitempty"`
 }
 
-// UnmarshalJSON is the custom unmarshaler for WebhookCreateParameters struct.
-func (wcp *WebhookCreateParameters) UnmarshalJSON(body []byte) error {
-	var m map[string]*json.RawMessage
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return err
-	}
-	var v *json.RawMessage
-
-	v = m["tags"]
-	if v != nil {
-		var tags map[string]*string
-		err = json.Unmarshal(*m["tags"], &tags)
-		if err != nil {
-			return err
-		}
-		wcp.Tags = &tags
-	}
-
-	v = m["location"]
-	if v != nil {
-		var location string
-		err = json.Unmarshal(*m["location"], &location)
-		if err != nil {
-			return err
-		}
-		wcp.Location = &location
-	}
-
-	v = m["properties"]
-	if v != nil {
-		var properties WebhookPropertiesCreateParameters
-		err = json.Unmarshal(*m["properties"], &properties)
-		if err != nil {
-			return err
-		}
-		wcp.WebhookPropertiesCreateParameters = &properties
-	}
-
-	return nil
-}
-
-// WebhookListResult the result of a request to list webhooks for a container registry.
+// WebhookListResult - The result of a request to list webhooks for a container registry.
 type WebhookListResult struct {
-	autorest.Response `json:"-"`
+	rawResponse *http.Response
 	// Value - The list of webhooks. Since this list may be incomplete, the nextLink field should be used to request the next list of webhooks.
-	Value *[]Webhook `json:"value,omitempty"`
+	Value []Webhook `json:"value,omitempty"`
 	// NextLink - The URI that can be used to request the next list of webhooks.
-	NextLink *string `json:"nextLink,omitempty"`
+	NextLink Marker `json:"NextLink"`
 }
 
-// WebhookListResultIterator provides access to a complete listing of Webhook values.
-type WebhookListResultIterator struct {
-	i    int
-	page WebhookListResultPage
+// Response returns the raw HTTP response object.
+func (wlr WebhookListResult) Response() *http.Response {
+	return wlr.rawResponse
 }
 
-// Next advances to the next value.  If there was an error making
-// the request the iterator does not advance and the error is returned.
-func (iter *WebhookListResultIterator) Next() error {
-	iter.i++
-	if iter.i < len(iter.page.Values()) {
-		return nil
-	}
-	err := iter.page.Next()
-	if err != nil {
-		iter.i--
-		return err
-	}
-	iter.i = 0
-	return nil
+// StatusCode returns the HTTP status code of the response, e.g. 200.
+func (wlr WebhookListResult) StatusCode() int {
+	return wlr.rawResponse.StatusCode
 }
 
-// NotDone returns true if the enumeration should be started or is not yet complete.
-func (iter WebhookListResultIterator) NotDone() bool {
-	return iter.page.NotDone() && iter.i < len(iter.page.Values())
+// Status returns the HTTP status message of the response, e.g. "200 OK".
+func (wlr WebhookListResult) Status() string {
+	return wlr.rawResponse.Status
 }
 
-// Response returns the raw server response from the last page request.
-func (iter WebhookListResultIterator) Response() WebhookListResult {
-	return iter.page.Response()
-}
-
-// Value returns the current value or a zero-initialized value if the
-// iterator has advanced beyond the end of the collection.
-func (iter WebhookListResultIterator) Value() Webhook {
-	if !iter.page.NotDone() {
-		return Webhook{}
-	}
-	return iter.page.Values()[iter.i]
-}
-
-// IsEmpty returns true if the ListResult contains no values.
-func (wlr WebhookListResult) IsEmpty() bool {
-	return wlr.Value == nil || len(*wlr.Value) == 0
-}
-
-// webhookListResultPreparer prepares a request to retrieve the next set of results.
-// It returns nil if no more results exist.
-func (wlr WebhookListResult) webhookListResultPreparer() (*http.Request, error) {
-	if wlr.NextLink == nil || len(to.String(wlr.NextLink)) < 1 {
-		return nil, nil
-	}
-	return autorest.Prepare(&http.Request{},
-		autorest.AsJSON(),
-		autorest.AsGet(),
-		autorest.WithBaseURL(to.String(wlr.NextLink)))
-}
-
-// WebhookListResultPage contains a page of Webhook values.
-type WebhookListResultPage struct {
-	fn  func(WebhookListResult) (WebhookListResult, error)
-	wlr WebhookListResult
-}
-
-// Next advances to the next page of values.  If there was an error making
-// the request the page does not advance and the error is returned.
-func (page *WebhookListResultPage) Next() error {
-	next, err := page.fn(page.wlr)
-	if err != nil {
-		return err
-	}
-	page.wlr = next
-	return nil
-}
-
-// NotDone returns true if the page enumeration should be started or is not yet complete.
-func (page WebhookListResultPage) NotDone() bool {
-	return !page.wlr.IsEmpty()
-}
-
-// Response returns the raw server response from the last page request.
-func (page WebhookListResultPage) Response() WebhookListResult {
-	return page.wlr
-}
-
-// Values returns the slice of values for the current page or nil if there are no values.
-func (page WebhookListResultPage) Values() []Webhook {
-	if page.wlr.IsEmpty() {
-		return nil
-	}
-	return *page.wlr.Value
-}
-
-// WebhookProperties the properties of a webhook.
+// WebhookProperties - The properties of a webhook.
 type WebhookProperties struct {
-	// Status - The status of the webhook at the time the operation was called. Possible values include: 'WebhookStatusEnabled', 'WebhookStatusDisabled'
-	Status WebhookStatus `json:"status,omitempty"`
+	// Status - The status of the webhook at the time the operation was called. Possible values include: 'Enabled', 'Disabled', 'None'
+	Status WebhookStatusType `json:"status,omitempty"`
 	// Scope - The scope of repositories where the event can be triggered. For example, 'foo:*' means events for all tags under repository 'foo'. 'foo:bar' means events for 'foo:bar' only. 'foo' is equivalent to 'foo:latest'. Empty means all events.
 	Scope *string `json:"scope,omitempty"`
 	// Actions - The list of actions that trigger the webhook to post notifications.
-	Actions *[]WebhookAction `json:"actions,omitempty"`
-	// ProvisioningState - The provisioning state of the webhook at the time the operation was called. Possible values include: 'ProvisioningStateCreating', 'ProvisioningStateUpdating', 'ProvisioningStateDeleting', 'ProvisioningStateSucceeded', 'ProvisioningStateFailed', 'ProvisioningStateCanceled'
-	ProvisioningState ProvisioningState `json:"provisioningState,omitempty"`
+	Actions []WebhookActionType `json:"actions,omitempty"`
+	// ProvisioningState - The provisioning state of the webhook at the time the operation was called. Possible values include: 'Creating', 'Updating', 'Deleting', 'Succeeded', 'Failed', 'Canceled', 'None'
+	ProvisioningState ProvisioningStateType `json:"provisioningState,omitempty"`
 }
 
-// WebhookPropertiesCreateParameters the parameters for creating the properties of a webhook.
+// WebhookPropertiesCreateParameters - The parameters for creating the properties of a webhook.
 type WebhookPropertiesCreateParameters struct {
 	// ServiceURI - The service URI for the webhook to post notifications.
-	ServiceURI *string `json:"serviceUri,omitempty"`
+	ServiceURI string `json:"serviceUri,omitempty"`
 	// CustomHeaders - Custom headers that will be added to the webhook notifications.
-	CustomHeaders *map[string]*string `json:"customHeaders,omitempty"`
-	// Status - The status of the webhook at the time the operation was called. Possible values include: 'WebhookStatusEnabled', 'WebhookStatusDisabled'
-	Status WebhookStatus `json:"status,omitempty"`
+	CustomHeaders map[string]string `json:"customHeaders,omitempty"`
+	// Status - The status of the webhook at the time the operation was called. Possible values include: 'Enabled', 'Disabled', 'None'
+	Status WebhookStatusType `json:"status,omitempty"`
 	// Scope - The scope of repositories where the event can be triggered. For example, 'foo:*' means events for all tags under repository 'foo'. 'foo:bar' means events for 'foo:bar' only. 'foo' is equivalent to 'foo:latest'. Empty means all events.
 	Scope *string `json:"scope,omitempty"`
 	// Actions - The list of actions that trigger the webhook to post notifications.
-	Actions *[]WebhookAction `json:"actions,omitempty"`
+	Actions []WebhookActionType `json:"actions,omitempty"`
 }
 
-// WebhookPropertiesUpdateParameters the parameters for updating the properties of a webhook.
+// WebhookPropertiesUpdateParameters - The parameters for updating the properties of a webhook.
 type WebhookPropertiesUpdateParameters struct {
 	// ServiceURI - The service URI for the webhook to post notifications.
 	ServiceURI *string `json:"serviceUri,omitempty"`
 	// CustomHeaders - Custom headers that will be added to the webhook notifications.
-	CustomHeaders *map[string]*string `json:"customHeaders,omitempty"`
-	// Status - The status of the webhook at the time the operation was called. Possible values include: 'WebhookStatusEnabled', 'WebhookStatusDisabled'
-	Status WebhookStatus `json:"status,omitempty"`
+	CustomHeaders map[string]string `json:"customHeaders,omitempty"`
+	// Status - The status of the webhook at the time the operation was called. Possible values include: 'Enabled', 'Disabled', 'None'
+	Status WebhookStatusType `json:"status,omitempty"`
 	// Scope - The scope of repositories where the event can be triggered. For example, 'foo:*' means events for all tags under repository 'foo'. 'foo:bar' means events for 'foo:bar' only. 'foo' is equivalent to 'foo:latest'. Empty means all events.
 	Scope *string `json:"scope,omitempty"`
 	// Actions - The list of actions that trigger the webhook to post notifications.
-	Actions *[]WebhookAction `json:"actions,omitempty"`
+	Actions []WebhookActionType `json:"actions,omitempty"`
 }
 
-// WebhooksCreateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type WebhooksCreateFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future WebhooksCreateFuture) Result(client WebhooksClient) (w Webhook, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksCreateFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return w, azure.NewAsyncOpIncompleteError("containerregistry.WebhooksCreateFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		w, err = client.CreateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.WebhooksCreateFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksCreateFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	w, err = client.CreateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksCreateFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// WebhooksDeleteFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type WebhooksDeleteFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future WebhooksDeleteFuture) Result(client WebhooksClient) (ar autorest.Response, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksDeleteFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("containerregistry.WebhooksDeleteFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		ar, err = client.DeleteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.WebhooksDeleteFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksDeleteFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	ar, err = client.DeleteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksDeleteFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// WebhooksUpdateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
-type WebhooksUpdateFuture struct {
-	azure.Future
-	req *http.Request
-}
-
-// Result returns the result of the asynchronous operation.
-// If the operation has not completed it will return an error.
-func (future WebhooksUpdateFuture) Result(client WebhooksClient) (w Webhook, err error) {
-	var done bool
-	done, err = future.Done(client)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksUpdateFuture", "Result", future.Response(), "Polling failure")
-		return
-	}
-	if !done {
-		return w, azure.NewAsyncOpIncompleteError("containerregistry.WebhooksUpdateFuture")
-	}
-	if future.PollingMethod() == azure.PollingLocation {
-		w, err = client.UpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "containerregistry.WebhooksUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
-		return
-	}
-	var resp *http.Response
-	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
-		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksUpdateFuture", "Result", resp, "Failure sending request")
-		return
-	}
-	w, err = client.UpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksUpdateFuture", "Result", resp, "Failure responding to request")
-	}
-	return
-}
-
-// WebhookUpdateParameters the parameters for updating a webhook.
+// WebhookUpdateParameters - The parameters for updating a webhook.
 type WebhookUpdateParameters struct {
 	// Tags - The tags for the webhook.
-	Tags *map[string]*string `json:"tags,omitempty"`
-	// WebhookPropertiesUpdateParameters - The properties that the webhook will be updated with.
+	Tags map[string]string `json:"tags,omitempty"`
+	// Properties - The properties that the webhook will be updated with.
 	*WebhookPropertiesUpdateParameters `json:"properties,omitempty"`
-}
-
-// UnmarshalJSON is the custom unmarshaler for WebhookUpdateParameters struct.
-func (wup *WebhookUpdateParameters) UnmarshalJSON(body []byte) error {
-	var m map[string]*json.RawMessage
-	err := json.Unmarshal(body, &m)
-	if err != nil {
-		return err
-	}
-	var v *json.RawMessage
-
-	v = m["tags"]
-	if v != nil {
-		var tags map[string]*string
-		err = json.Unmarshal(*m["tags"], &tags)
-		if err != nil {
-			return err
-		}
-		wup.Tags = &tags
-	}
-
-	v = m["properties"]
-	if v != nil {
-		var properties WebhookPropertiesUpdateParameters
-		err = json.Unmarshal(*m["properties"], &properties)
-		if err != nil {
-			return err
-		}
-		wup.WebhookPropertiesUpdateParameters = &properties
-	}
-
-	return nil
 }
