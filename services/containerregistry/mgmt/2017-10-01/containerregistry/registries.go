@@ -18,507 +18,673 @@ package containerregistry
 // Changes may cause incorrect behavior and will be lost if the code is regenerated.
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"github.com/Azure/azure-pipeline-go/pipeline"
-	"io/ioutil"
+	"github.com/Azure/go-autorest/autorest"
+	"github.com/Azure/go-autorest/autorest/azure"
+	"github.com/Azure/go-autorest/autorest/validation"
 	"net/http"
 )
 
 // RegistriesClient is the client for the Registries methods of the Containerregistry service.
 type RegistriesClient struct {
-	ManagementClient
+	BaseClient
 }
 
 // NewRegistriesClient creates an instance of the RegistriesClient client.
-func NewRegistriesClient(p pipeline.Pipeline) RegistriesClient {
-	return RegistriesClient{NewManagementClient(p)}
+func NewRegistriesClient(subscriptionID string) RegistriesClient {
+	return NewRegistriesClientWithBaseURI(DefaultBaseURI, subscriptionID)
+}
+
+// NewRegistriesClientWithBaseURI creates an instance of the RegistriesClient client.
+func NewRegistriesClientWithBaseURI(baseURI string, subscriptionID string) RegistriesClient {
+	return RegistriesClient{NewWithBaseURI(baseURI, subscriptionID)}
 }
 
 // CheckNameAvailability checks whether the container registry name is available for use. The name must contain only
 // alphanumeric characters, be globally unique, and between 5 and 50 characters in length.
 //
 // registryNameCheckRequest is the object containing information for the availability request.
-func (client RegistriesClient) CheckNameAvailability(ctx context.Context, registryNameCheckRequest RegistryNameCheckRequest) (*RegistryNameStatus, error) {
-	if err := validate([]validation{
-		{targetValue: registryNameCheckRequest,
-			constraints: []constraint{{target: "registryNameCheckRequest.Name", name: null, rule: true,
-				chain: []constraint{{target: "registryNameCheckRequest.Name", name: maxLength, rule: 50, chain: nil},
-					{target: "registryNameCheckRequest.Name", name: minLength, rule: 5, chain: nil},
-					{target: "registryNameCheckRequest.Name", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil},
+func (client RegistriesClient) CheckNameAvailability(ctx context.Context, registryNameCheckRequest RegistryNameCheckRequest) (result RegistryNameStatus, err error) {
+	if err := validation.Validate([]validation.Validation{
+		{TargetValue: registryNameCheckRequest,
+			Constraints: []validation.Constraint{{Target: "registryNameCheckRequest.Name", Name: validation.Null, Rule: true,
+				Chain: []validation.Constraint{{Target: "registryNameCheckRequest.Name", Name: validation.MaxLength, Rule: 50, Chain: nil},
+					{Target: "registryNameCheckRequest.Name", Name: validation.MinLength, Rule: 5, Chain: nil},
+					{Target: "registryNameCheckRequest.Name", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil},
 				}},
-				{target: "registryNameCheckRequest.Type", name: null, rule: true, chain: nil}}}}); err != nil {
-		return nil, err
+				{Target: "registryNameCheckRequest.Type", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "CheckNameAvailability")
 	}
-	req, err := client.checkNameAvailabilityPreparer(registryNameCheckRequest)
+
+	req, err := client.CheckNameAvailabilityPreparer(ctx, registryNameCheckRequest)
 	if err != nil {
-		return nil, err
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "CheckNameAvailability", nil, "Failure preparing request")
+		return
 	}
-	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.checkNameAvailabilityResponder}, req)
+
+	resp, err := client.CheckNameAvailabilitySender(req)
 	if err != nil {
-		return nil, err
+		result.Response = autorest.Response{Response: resp}
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "CheckNameAvailability", resp, "Failure sending request")
+		return
 	}
-	return resp.(*RegistryNameStatus), err
+
+	result, err = client.CheckNameAvailabilityResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "CheckNameAvailability", resp, "Failure responding to request")
+	}
+
+	return
 }
 
-// checkNameAvailabilityPreparer prepares the CheckNameAvailability request.
-func (client RegistriesClient) checkNameAvailabilityPreparer(registryNameCheckRequest RegistryNameCheckRequest) (pipeline.Request, error) {
-	u := client.url
-	u.Path = "/subscriptions/{subscriptionId}/providers/Microsoft.ContainerRegistry/checkNameAvailability"
-	req, err := pipeline.NewRequest("POST", u, nil)
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to create request")
+// CheckNameAvailabilityPreparer prepares the CheckNameAvailability request.
+func (client RegistriesClient) CheckNameAvailabilityPreparer(ctx context.Context, registryNameCheckRequest RegistryNameCheckRequest) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
-	params := req.URL.Query()
-	params.Set("api-version", APIVersion)
-	req.URL.RawQuery = params.Encode()
-	b, err := json.Marshal(registryNameCheckRequest)
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to marshal request body")
+
+	const APIVersion = "2017-10-01"
+	queryParameters := map[string]interface{}{
+		"api-version": APIVersion,
 	}
-	req.Header.Set("Content-Type", "application/json")
-	err = req.SetBody(bytes.NewReader(b))
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to set request body")
-	}
-	return req, nil
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsJSON(),
+		autorest.AsPost(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/providers/Microsoft.ContainerRegistry/checkNameAvailability", pathParameters),
+		autorest.WithJSON(registryNameCheckRequest),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
 
-// checkNameAvailabilityResponder handles the response to the CheckNameAvailability request.
-func (client RegistriesClient) checkNameAvailabilityResponder(resp pipeline.Response) (pipeline.Response, error) {
-	err := validateResponse(resp, http.StatusOK)
-	if resp == nil {
-		return nil, err
-	}
-	result := &RegistryNameStatus{rawResponse: resp.Response()}
-	if err != nil {
-		return result, err
-	}
-	defer resp.Response().Body.Close()
-	b, err := ioutil.ReadAll(resp.Response().Body)
-	if err != nil {
-		return result, NewResponseError(err, resp.Response(), "failed to read response body")
-	}
-	if len(b) > 0 {
-		err = json.Unmarshal(b, result)
-		if err != nil {
-			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
-		}
-	}
-	return result, nil
+// CheckNameAvailabilitySender sends the CheckNameAvailability request. The method will close the
+// http.Response Body if it receives an error.
+func (client RegistriesClient) CheckNameAvailabilitySender(req *http.Request) (*http.Response, error) {
+	return autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
 }
 
-// Create creates a container registry with the specified parameters. This method may poll for completion. Polling can
-// be canceled by passing the cancel channel argument. The channel will be used to cancel polling and any outstanding
-// HTTP requests.
+// CheckNameAvailabilityResponder handles the response to the CheckNameAvailability request. The method always
+// closes the http.Response Body.
+func (client RegistriesClient) CheckNameAvailabilityResponder(resp *http.Response) (result RegistryNameStatus, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK),
+		autorest.ByUnmarshallingJSON(&result),
+		autorest.ByClosing())
+	result.Response = autorest.Response{Response: resp}
+	return
+}
+
+// Create creates a container registry with the specified parameters.
 //
 // resourceGroupName is the name of the resource group to which the container registry belongs. registryName is the
 // name of the container registry. registry is the parameters for creating a container registry.
-func (client RegistriesClient) Create(ctx context.Context, resourceGroupName string, registryName string, registry Registry) (*Registry, error) {
-	if err := validate([]validation{
-		{targetValue: registryName,
-			constraints: []constraint{{target: "registryName", name: maxLength, rule: 50, chain: nil},
-				{target: "registryName", name: minLength, rule: 5, chain: nil},
-				{target: "registryName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}},
-		{targetValue: registry,
-			constraints: []constraint{{target: "registry.Sku", name: null, rule: true, chain: nil},
-				{target: "registry.RegistryProperties", name: null, rule: false,
-					chain: []constraint{{target: "registry.RegistryProperties.StorageAccount", name: null, rule: false,
-						chain: []constraint{{target: "registry.RegistryProperties.StorageAccount.ID", name: null, rule: true, chain: nil}}},
+func (client RegistriesClient) Create(ctx context.Context, resourceGroupName string, registryName string, registry Registry) (result RegistriesCreateFuture, err error) {
+	if err := validation.Validate([]validation.Validation{
+		{TargetValue: registryName,
+			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
+				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
+				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}},
+		{TargetValue: registry,
+			Constraints: []validation.Constraint{{Target: "registry.Sku", Name: validation.Null, Rule: true, Chain: nil},
+				{Target: "registry.RegistryProperties", Name: validation.Null, Rule: false,
+					Chain: []validation.Constraint{{Target: "registry.RegistryProperties.StorageAccount", Name: validation.Null, Rule: false,
+						Chain: []validation.Constraint{{Target: "registry.RegistryProperties.StorageAccount.ID", Name: validation.Null, Rule: true, Chain: nil}}},
 					}}}}}); err != nil {
-		return nil, err
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "Create")
 	}
-	req, err := client.createPreparer(resourceGroupName, registryName, registry)
+
+	req, err := client.CreatePreparer(ctx, resourceGroupName, registryName, registry)
 	if err != nil {
-		return nil, err
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "Create", nil, "Failure preparing request")
+		return
 	}
-	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.createResponder}, req)
+
+	result, err = client.CreateSender(req)
 	if err != nil {
-		return nil, err
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "Create", result.Response(), "Failure sending request")
+		return
 	}
-	return resp.(*Registry), err
+
+	return
 }
 
-// createPreparer prepares the Create request.
-func (client RegistriesClient) createPreparer(resourceGroupName string, registryName string, registry Registry) (pipeline.Request, error) {
-	u := client.url
-	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}"
-	req, err := pipeline.NewRequest("PUT", u, nil)
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to create request")
+// CreatePreparer prepares the Create request.
+func (client RegistriesClient) CreatePreparer(ctx context.Context, resourceGroupName string, registryName string, registry Registry) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"registryName":      autorest.Encode("path", registryName),
+		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
-	params := req.URL.Query()
-	params.Set("api-version", APIVersion)
-	req.URL.RawQuery = params.Encode()
-	b, err := json.Marshal(registry)
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to marshal request body")
+
+	const APIVersion = "2017-10-01"
+	queryParameters := map[string]interface{}{
+		"api-version": APIVersion,
 	}
-	req.Header.Set("Content-Type", "application/json")
-	err = req.SetBody(bytes.NewReader(b))
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to set request body")
-	}
-	return req, nil
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsJSON(),
+		autorest.AsPut(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}", pathParameters),
+		autorest.WithJSON(registry),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
 
-// createResponder handles the response to the Create request.
-func (client RegistriesClient) createResponder(resp pipeline.Response) (pipeline.Response, error) {
-	err := validateResponse(resp, http.StatusOK, http.StatusCreated)
-	if resp == nil {
-		return nil, err
-	}
-	result := &Registry{rawResponse: resp.Response()}
+// CreateSender sends the Create request. The method will close the
+// http.Response Body if it receives an error.
+func (client RegistriesClient) CreateSender(req *http.Request) (future RegistriesCreateFuture, err error) {
+	sender := autorest.DecorateSender(client, azure.DoRetryWithRegistration(client.Client))
+	future.Future = azure.NewFuture(req)
+	future.req = req
+	_, err = future.Done(sender)
 	if err != nil {
-		return result, err
+		return
 	}
-	defer resp.Response().Body.Close()
-	b, err := ioutil.ReadAll(resp.Response().Body)
-	if err != nil {
-		return result, NewResponseError(err, resp.Response(), "failed to read response body")
-	}
-	if len(b) > 0 {
-		err = json.Unmarshal(b, result)
-		if err != nil {
-			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
-		}
-	}
-	return result, nil
+	err = autorest.Respond(future.Response(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusCreated))
+	return
 }
 
-// Delete deletes a container registry. This method may poll for completion. Polling can be canceled by passing the
-// cancel channel argument. The channel will be used to cancel polling and any outstanding HTTP requests.
+// CreateResponder handles the response to the Create request. The method always
+// closes the http.Response Body.
+func (client RegistriesClient) CreateResponder(resp *http.Response) (result Registry, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusCreated),
+		autorest.ByUnmarshallingJSON(&result),
+		autorest.ByClosing())
+	result.Response = autorest.Response{Response: resp}
+	return
+}
+
+// Delete deletes a container registry.
 //
 // resourceGroupName is the name of the resource group to which the container registry belongs. registryName is the
 // name of the container registry.
-func (client RegistriesClient) Delete(ctx context.Context, resourceGroupName string, registryName string) (*http.Response, error) {
-	if err := validate([]validation{
-		{targetValue: registryName,
-			constraints: []constraint{{target: "registryName", name: maxLength, rule: 50, chain: nil},
-				{target: "registryName", name: minLength, rule: 5, chain: nil},
-				{target: "registryName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}}}); err != nil {
-		return nil, err
+func (client RegistriesClient) Delete(ctx context.Context, resourceGroupName string, registryName string) (result RegistriesDeleteFuture, err error) {
+	if err := validation.Validate([]validation.Validation{
+		{TargetValue: registryName,
+			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
+				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
+				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "Delete")
 	}
-	req, err := client.deletePreparer(resourceGroupName, registryName)
+
+	req, err := client.DeletePreparer(ctx, resourceGroupName, registryName)
 	if err != nil {
-		return nil, err
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "Delete", nil, "Failure preparing request")
+		return
 	}
-	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.deleteResponder}, req)
+
+	result, err = client.DeleteSender(req)
 	if err != nil {
-		return nil, err
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "Delete", result.Response(), "Failure sending request")
+		return
 	}
-	return resp.Response(), err
+
+	return
 }
 
-// deletePreparer prepares the Delete request.
-func (client RegistriesClient) deletePreparer(resourceGroupName string, registryName string) (pipeline.Request, error) {
-	u := client.url
-	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}"
-	req, err := pipeline.NewRequest("DELETE", u, nil)
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to create request")
+// DeletePreparer prepares the Delete request.
+func (client RegistriesClient) DeletePreparer(ctx context.Context, resourceGroupName string, registryName string) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"registryName":      autorest.Encode("path", registryName),
+		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
-	params := req.URL.Query()
-	params.Set("api-version", APIVersion)
-	req.URL.RawQuery = params.Encode()
-	return req, nil
+
+	const APIVersion = "2017-10-01"
+	queryParameters := map[string]interface{}{
+		"api-version": APIVersion,
+	}
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsDelete(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}", pathParameters),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
 
-// deleteResponder handles the response to the Delete request.
-func (client RegistriesClient) deleteResponder(resp pipeline.Response) (pipeline.Response, error) {
-	err := validateResponse(resp, http.StatusOK, http.StatusAccepted, http.StatusNoContent)
-	if resp == nil {
-		return nil, err
+// DeleteSender sends the Delete request. The method will close the
+// http.Response Body if it receives an error.
+func (client RegistriesClient) DeleteSender(req *http.Request) (future RegistriesDeleteFuture, err error) {
+	sender := autorest.DecorateSender(client, azure.DoRetryWithRegistration(client.Client))
+	future.Future = azure.NewFuture(req)
+	future.req = req
+	_, err = future.Done(sender)
+	if err != nil {
+		return
 	}
-	return resp, err
+	err = autorest.Respond(future.Response(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusAccepted, http.StatusNoContent))
+	return
+}
+
+// DeleteResponder handles the response to the Delete request. The method always
+// closes the http.Response Body.
+func (client RegistriesClient) DeleteResponder(resp *http.Response) (result autorest.Response, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusAccepted, http.StatusNoContent),
+		autorest.ByClosing())
+	result.Response = resp
+	return
 }
 
 // Get gets the properties of the specified container registry.
 //
 // resourceGroupName is the name of the resource group to which the container registry belongs. registryName is the
 // name of the container registry.
-func (client RegistriesClient) Get(ctx context.Context, resourceGroupName string, registryName string) (*Registry, error) {
-	if err := validate([]validation{
-		{targetValue: registryName,
-			constraints: []constraint{{target: "registryName", name: maxLength, rule: 50, chain: nil},
-				{target: "registryName", name: minLength, rule: 5, chain: nil},
-				{target: "registryName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}}}); err != nil {
-		return nil, err
+func (client RegistriesClient) Get(ctx context.Context, resourceGroupName string, registryName string) (result Registry, err error) {
+	if err := validation.Validate([]validation.Validation{
+		{TargetValue: registryName,
+			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
+				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
+				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "Get")
 	}
-	req, err := client.getPreparer(resourceGroupName, registryName)
+
+	req, err := client.GetPreparer(ctx, resourceGroupName, registryName)
 	if err != nil {
-		return nil, err
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "Get", nil, "Failure preparing request")
+		return
 	}
-	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.getResponder}, req)
+
+	resp, err := client.GetSender(req)
 	if err != nil {
-		return nil, err
+		result.Response = autorest.Response{Response: resp}
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "Get", resp, "Failure sending request")
+		return
 	}
-	return resp.(*Registry), err
+
+	result, err = client.GetResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "Get", resp, "Failure responding to request")
+	}
+
+	return
 }
 
-// getPreparer prepares the Get request.
-func (client RegistriesClient) getPreparer(resourceGroupName string, registryName string) (pipeline.Request, error) {
-	u := client.url
-	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}"
-	req, err := pipeline.NewRequest("GET", u, nil)
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to create request")
+// GetPreparer prepares the Get request.
+func (client RegistriesClient) GetPreparer(ctx context.Context, resourceGroupName string, registryName string) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"registryName":      autorest.Encode("path", registryName),
+		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
-	params := req.URL.Query()
-	params.Set("api-version", APIVersion)
-	req.URL.RawQuery = params.Encode()
-	return req, nil
+
+	const APIVersion = "2017-10-01"
+	queryParameters := map[string]interface{}{
+		"api-version": APIVersion,
+	}
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsGet(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}", pathParameters),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
 
-// getResponder handles the response to the Get request.
-func (client RegistriesClient) getResponder(resp pipeline.Response) (pipeline.Response, error) {
-	err := validateResponse(resp, http.StatusOK)
-	if resp == nil {
-		return nil, err
-	}
-	result := &Registry{rawResponse: resp.Response()}
-	if err != nil {
-		return result, err
-	}
-	defer resp.Response().Body.Close()
-	b, err := ioutil.ReadAll(resp.Response().Body)
-	if err != nil {
-		return result, NewResponseError(err, resp.Response(), "failed to read response body")
-	}
-	if len(b) > 0 {
-		err = json.Unmarshal(b, result)
-		if err != nil {
-			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
-		}
-	}
-	return result, nil
+// GetSender sends the Get request. The method will close the
+// http.Response Body if it receives an error.
+func (client RegistriesClient) GetSender(req *http.Request) (*http.Response, error) {
+	return autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
+}
+
+// GetResponder handles the response to the Get request. The method always
+// closes the http.Response Body.
+func (client RegistriesClient) GetResponder(resp *http.Response) (result Registry, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK),
+		autorest.ByUnmarshallingJSON(&result),
+		autorest.ByClosing())
+	result.Response = autorest.Response{Response: resp}
+	return
 }
 
 // List lists all the container registries under the specified subscription.
-func (client RegistriesClient) List(ctx context.Context) (*RegistryListResult, error) {
-	req, err := client.listPreparer()
+func (client RegistriesClient) List(ctx context.Context) (result RegistryListResultPage, err error) {
+	result.fn = client.listNextResults
+	req, err := client.ListPreparer(ctx)
 	if err != nil {
-		return nil, err
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "List", nil, "Failure preparing request")
+		return
 	}
-	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.listResponder}, req)
+
+	resp, err := client.ListSender(req)
 	if err != nil {
-		return nil, err
+		result.rlr.Response = autorest.Response{Response: resp}
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "List", resp, "Failure sending request")
+		return
 	}
-	return resp.(*RegistryListResult), err
+
+	result.rlr, err = client.ListResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "List", resp, "Failure responding to request")
+	}
+
+	return
 }
 
-// listPreparer prepares the List request.
-func (client RegistriesClient) listPreparer() (pipeline.Request, error) {
-	u := client.url
-	u.Path = "/subscriptions/{subscriptionId}/providers/Microsoft.ContainerRegistry/registries"
-	req, err := pipeline.NewRequest("GET", u, nil)
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to create request")
+// ListPreparer prepares the List request.
+func (client RegistriesClient) ListPreparer(ctx context.Context) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
-	params := req.URL.Query()
-	params.Set("api-version", APIVersion)
-	req.URL.RawQuery = params.Encode()
-	return req, nil
+
+	const APIVersion = "2017-10-01"
+	queryParameters := map[string]interface{}{
+		"api-version": APIVersion,
+	}
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsGet(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/providers/Microsoft.ContainerRegistry/registries", pathParameters),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
 
-// listResponder handles the response to the List request.
-func (client RegistriesClient) listResponder(resp pipeline.Response) (pipeline.Response, error) {
-	err := validateResponse(resp, http.StatusOK)
-	if resp == nil {
-		return nil, err
-	}
-	result := &RegistryListResult{rawResponse: resp.Response()}
+// ListSender sends the List request. The method will close the
+// http.Response Body if it receives an error.
+func (client RegistriesClient) ListSender(req *http.Request) (*http.Response, error) {
+	return autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
+}
+
+// ListResponder handles the response to the List request. The method always
+// closes the http.Response Body.
+func (client RegistriesClient) ListResponder(resp *http.Response) (result RegistryListResult, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK),
+		autorest.ByUnmarshallingJSON(&result),
+		autorest.ByClosing())
+	result.Response = autorest.Response{Response: resp}
+	return
+}
+
+// listNextResults retrieves the next set of results, if any.
+func (client RegistriesClient) listNextResults(lastResults RegistryListResult) (result RegistryListResult, err error) {
+	req, err := lastResults.registryListResultPreparer()
 	if err != nil {
-		return result, err
+		return result, autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "listNextResults", nil, "Failure preparing next results request")
 	}
-	defer resp.Response().Body.Close()
-	b, err := ioutil.ReadAll(resp.Response().Body)
+	if req == nil {
+		return
+	}
+	resp, err := client.ListSender(req)
 	if err != nil {
-		return result, NewResponseError(err, resp.Response(), "failed to read response body")
+		result.Response = autorest.Response{Response: resp}
+		return result, autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "listNextResults", resp, "Failure sending next results request")
 	}
-	if len(b) > 0 {
-		err = json.Unmarshal(b, result)
-		if err != nil {
-			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
-		}
+	result, err = client.ListResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "listNextResults", resp, "Failure responding to next results request")
 	}
-	return result, nil
+	return
+}
+
+// ListComplete enumerates all values, automatically crossing page boundaries as required.
+func (client RegistriesClient) ListComplete(ctx context.Context) (result RegistryListResultIterator, err error) {
+	result.page, err = client.List(ctx)
+	return
 }
 
 // ListByResourceGroup lists all the container registries under the specified resource group.
 //
 // resourceGroupName is the name of the resource group to which the container registry belongs.
-func (client RegistriesClient) ListByResourceGroup(ctx context.Context, resourceGroupName string) (*RegistryListResult, error) {
-	req, err := client.listByResourceGroupPreparer(resourceGroupName)
+func (client RegistriesClient) ListByResourceGroup(ctx context.Context, resourceGroupName string) (result RegistryListResultPage, err error) {
+	result.fn = client.listByResourceGroupNextResults
+	req, err := client.ListByResourceGroupPreparer(ctx, resourceGroupName)
 	if err != nil {
-		return nil, err
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "ListByResourceGroup", nil, "Failure preparing request")
+		return
 	}
-	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.listByResourceGroupResponder}, req)
+
+	resp, err := client.ListByResourceGroupSender(req)
 	if err != nil {
-		return nil, err
+		result.rlr.Response = autorest.Response{Response: resp}
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "ListByResourceGroup", resp, "Failure sending request")
+		return
 	}
-	return resp.(*RegistryListResult), err
+
+	result.rlr, err = client.ListByResourceGroupResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "ListByResourceGroup", resp, "Failure responding to request")
+	}
+
+	return
 }
 
-// listByResourceGroupPreparer prepares the ListByResourceGroup request.
-func (client RegistriesClient) listByResourceGroupPreparer(resourceGroupName string) (pipeline.Request, error) {
-	u := client.url
-	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries"
-	req, err := pipeline.NewRequest("GET", u, nil)
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to create request")
+// ListByResourceGroupPreparer prepares the ListByResourceGroup request.
+func (client RegistriesClient) ListByResourceGroupPreparer(ctx context.Context, resourceGroupName string) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
-	params := req.URL.Query()
-	params.Set("api-version", APIVersion)
-	req.URL.RawQuery = params.Encode()
-	return req, nil
+
+	const APIVersion = "2017-10-01"
+	queryParameters := map[string]interface{}{
+		"api-version": APIVersion,
+	}
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsGet(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries", pathParameters),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
 
-// listByResourceGroupResponder handles the response to the ListByResourceGroup request.
-func (client RegistriesClient) listByResourceGroupResponder(resp pipeline.Response) (pipeline.Response, error) {
-	err := validateResponse(resp, http.StatusOK)
-	if resp == nil {
-		return nil, err
-	}
-	result := &RegistryListResult{rawResponse: resp.Response()}
+// ListByResourceGroupSender sends the ListByResourceGroup request. The method will close the
+// http.Response Body if it receives an error.
+func (client RegistriesClient) ListByResourceGroupSender(req *http.Request) (*http.Response, error) {
+	return autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
+}
+
+// ListByResourceGroupResponder handles the response to the ListByResourceGroup request. The method always
+// closes the http.Response Body.
+func (client RegistriesClient) ListByResourceGroupResponder(resp *http.Response) (result RegistryListResult, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK),
+		autorest.ByUnmarshallingJSON(&result),
+		autorest.ByClosing())
+	result.Response = autorest.Response{Response: resp}
+	return
+}
+
+// listByResourceGroupNextResults retrieves the next set of results, if any.
+func (client RegistriesClient) listByResourceGroupNextResults(lastResults RegistryListResult) (result RegistryListResult, err error) {
+	req, err := lastResults.registryListResultPreparer()
 	if err != nil {
-		return result, err
+		return result, autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "listByResourceGroupNextResults", nil, "Failure preparing next results request")
 	}
-	defer resp.Response().Body.Close()
-	b, err := ioutil.ReadAll(resp.Response().Body)
+	if req == nil {
+		return
+	}
+	resp, err := client.ListByResourceGroupSender(req)
 	if err != nil {
-		return result, NewResponseError(err, resp.Response(), "failed to read response body")
+		result.Response = autorest.Response{Response: resp}
+		return result, autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "listByResourceGroupNextResults", resp, "Failure sending next results request")
 	}
-	if len(b) > 0 {
-		err = json.Unmarshal(b, result)
-		if err != nil {
-			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
-		}
+	result, err = client.ListByResourceGroupResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "listByResourceGroupNextResults", resp, "Failure responding to next results request")
 	}
-	return result, nil
+	return
+}
+
+// ListByResourceGroupComplete enumerates all values, automatically crossing page boundaries as required.
+func (client RegistriesClient) ListByResourceGroupComplete(ctx context.Context, resourceGroupName string) (result RegistryListResultIterator, err error) {
+	result.page, err = client.ListByResourceGroup(ctx, resourceGroupName)
+	return
 }
 
 // ListCredentials lists the login credentials for the specified container registry.
 //
 // resourceGroupName is the name of the resource group to which the container registry belongs. registryName is the
 // name of the container registry.
-func (client RegistriesClient) ListCredentials(ctx context.Context, resourceGroupName string, registryName string) (*RegistryListCredentialsResult, error) {
-	if err := validate([]validation{
-		{targetValue: registryName,
-			constraints: []constraint{{target: "registryName", name: maxLength, rule: 50, chain: nil},
-				{target: "registryName", name: minLength, rule: 5, chain: nil},
-				{target: "registryName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}}}); err != nil {
-		return nil, err
+func (client RegistriesClient) ListCredentials(ctx context.Context, resourceGroupName string, registryName string) (result RegistryListCredentialsResult, err error) {
+	if err := validation.Validate([]validation.Validation{
+		{TargetValue: registryName,
+			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
+				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
+				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "ListCredentials")
 	}
-	req, err := client.listCredentialsPreparer(resourceGroupName, registryName)
+
+	req, err := client.ListCredentialsPreparer(ctx, resourceGroupName, registryName)
 	if err != nil {
-		return nil, err
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "ListCredentials", nil, "Failure preparing request")
+		return
 	}
-	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.listCredentialsResponder}, req)
+
+	resp, err := client.ListCredentialsSender(req)
 	if err != nil {
-		return nil, err
+		result.Response = autorest.Response{Response: resp}
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "ListCredentials", resp, "Failure sending request")
+		return
 	}
-	return resp.(*RegistryListCredentialsResult), err
+
+	result, err = client.ListCredentialsResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "ListCredentials", resp, "Failure responding to request")
+	}
+
+	return
 }
 
-// listCredentialsPreparer prepares the ListCredentials request.
-func (client RegistriesClient) listCredentialsPreparer(resourceGroupName string, registryName string) (pipeline.Request, error) {
-	u := client.url
-	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/listCredentials"
-	req, err := pipeline.NewRequest("POST", u, nil)
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to create request")
+// ListCredentialsPreparer prepares the ListCredentials request.
+func (client RegistriesClient) ListCredentialsPreparer(ctx context.Context, resourceGroupName string, registryName string) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"registryName":      autorest.Encode("path", registryName),
+		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
-	params := req.URL.Query()
-	params.Set("api-version", APIVersion)
-	req.URL.RawQuery = params.Encode()
-	return req, nil
+
+	const APIVersion = "2017-10-01"
+	queryParameters := map[string]interface{}{
+		"api-version": APIVersion,
+	}
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsPost(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/listCredentials", pathParameters),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
 
-// listCredentialsResponder handles the response to the ListCredentials request.
-func (client RegistriesClient) listCredentialsResponder(resp pipeline.Response) (pipeline.Response, error) {
-	err := validateResponse(resp, http.StatusOK)
-	if resp == nil {
-		return nil, err
-	}
-	result := &RegistryListCredentialsResult{rawResponse: resp.Response()}
-	if err != nil {
-		return result, err
-	}
-	defer resp.Response().Body.Close()
-	b, err := ioutil.ReadAll(resp.Response().Body)
-	if err != nil {
-		return result, NewResponseError(err, resp.Response(), "failed to read response body")
-	}
-	if len(b) > 0 {
-		err = json.Unmarshal(b, result)
-		if err != nil {
-			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
-		}
-	}
-	return result, nil
+// ListCredentialsSender sends the ListCredentials request. The method will close the
+// http.Response Body if it receives an error.
+func (client RegistriesClient) ListCredentialsSender(req *http.Request) (*http.Response, error) {
+	return autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
+}
+
+// ListCredentialsResponder handles the response to the ListCredentials request. The method always
+// closes the http.Response Body.
+func (client RegistriesClient) ListCredentialsResponder(resp *http.Response) (result RegistryListCredentialsResult, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK),
+		autorest.ByUnmarshallingJSON(&result),
+		autorest.ByClosing())
+	result.Response = autorest.Response{Response: resp}
+	return
 }
 
 // ListUsages gets the quota usages for the specified container registry.
 //
 // resourceGroupName is the name of the resource group to which the container registry belongs. registryName is the
 // name of the container registry.
-func (client RegistriesClient) ListUsages(ctx context.Context, resourceGroupName string, registryName string) (*RegistryUsageListResult, error) {
-	if err := validate([]validation{
-		{targetValue: registryName,
-			constraints: []constraint{{target: "registryName", name: maxLength, rule: 50, chain: nil},
-				{target: "registryName", name: minLength, rule: 5, chain: nil},
-				{target: "registryName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}}}); err != nil {
-		return nil, err
+func (client RegistriesClient) ListUsages(ctx context.Context, resourceGroupName string, registryName string) (result RegistryUsageListResult, err error) {
+	if err := validation.Validate([]validation.Validation{
+		{TargetValue: registryName,
+			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
+				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
+				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "ListUsages")
 	}
-	req, err := client.listUsagesPreparer(resourceGroupName, registryName)
+
+	req, err := client.ListUsagesPreparer(ctx, resourceGroupName, registryName)
 	if err != nil {
-		return nil, err
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "ListUsages", nil, "Failure preparing request")
+		return
 	}
-	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.listUsagesResponder}, req)
+
+	resp, err := client.ListUsagesSender(req)
 	if err != nil {
-		return nil, err
+		result.Response = autorest.Response{Response: resp}
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "ListUsages", resp, "Failure sending request")
+		return
 	}
-	return resp.(*RegistryUsageListResult), err
+
+	result, err = client.ListUsagesResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "ListUsages", resp, "Failure responding to request")
+	}
+
+	return
 }
 
-// listUsagesPreparer prepares the ListUsages request.
-func (client RegistriesClient) listUsagesPreparer(resourceGroupName string, registryName string) (pipeline.Request, error) {
-	u := client.url
-	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/listUsages"
-	req, err := pipeline.NewRequest("GET", u, nil)
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to create request")
+// ListUsagesPreparer prepares the ListUsages request.
+func (client RegistriesClient) ListUsagesPreparer(ctx context.Context, resourceGroupName string, registryName string) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"registryName":      autorest.Encode("path", registryName),
+		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
-	params := req.URL.Query()
-	params.Set("api-version", APIVersion)
-	req.URL.RawQuery = params.Encode()
-	return req, nil
+
+	const APIVersion = "2017-10-01"
+	queryParameters := map[string]interface{}{
+		"api-version": APIVersion,
+	}
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsGet(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/listUsages", pathParameters),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
 
-// listUsagesResponder handles the response to the ListUsages request.
-func (client RegistriesClient) listUsagesResponder(resp pipeline.Response) (pipeline.Response, error) {
-	err := validateResponse(resp, http.StatusOK)
-	if resp == nil {
-		return nil, err
-	}
-	result := &RegistryUsageListResult{rawResponse: resp.Response()}
-	if err != nil {
-		return result, err
-	}
-	defer resp.Response().Body.Close()
-	b, err := ioutil.ReadAll(resp.Response().Body)
-	if err != nil {
-		return result, NewResponseError(err, resp.Response(), "failed to read response body")
-	}
-	if len(b) > 0 {
-		err = json.Unmarshal(b, result)
-		if err != nil {
-			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
-		}
-	}
-	return result, nil
+// ListUsagesSender sends the ListUsages request. The method will close the
+// http.Response Body if it receives an error.
+func (client RegistriesClient) ListUsagesSender(req *http.Request) (*http.Response, error) {
+	return autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
+}
+
+// ListUsagesResponder handles the response to the ListUsages request. The method always
+// closes the http.Response Body.
+func (client RegistriesClient) ListUsagesResponder(resp *http.Response) (result RegistryUsageListResult, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK),
+		autorest.ByUnmarshallingJSON(&result),
+		autorest.ByClosing())
+	result.Response = autorest.Response{Response: resp}
+	return
 }
 
 // RegenerateCredential regenerates one of the login credentials for the specified container registry.
@@ -526,140 +692,154 @@ func (client RegistriesClient) listUsagesResponder(resp pipeline.Response) (pipe
 // resourceGroupName is the name of the resource group to which the container registry belongs. registryName is the
 // name of the container registry. regenerateCredentialParameters is specifies name of the password which should be
 // regenerated -- password or password2.
-func (client RegistriesClient) RegenerateCredential(ctx context.Context, resourceGroupName string, registryName string, regenerateCredentialParameters RegenerateCredentialParameters) (*RegistryListCredentialsResult, error) {
-	if err := validate([]validation{
-		{targetValue: registryName,
-			constraints: []constraint{{target: "registryName", name: maxLength, rule: 50, chain: nil},
-				{target: "registryName", name: minLength, rule: 5, chain: nil},
-				{target: "registryName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}}}); err != nil {
-		return nil, err
+func (client RegistriesClient) RegenerateCredential(ctx context.Context, resourceGroupName string, registryName string, regenerateCredentialParameters RegenerateCredentialParameters) (result RegistryListCredentialsResult, err error) {
+	if err := validation.Validate([]validation.Validation{
+		{TargetValue: registryName,
+			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
+				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
+				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "RegenerateCredential")
 	}
-	req, err := client.regenerateCredentialPreparer(resourceGroupName, registryName, regenerateCredentialParameters)
+
+	req, err := client.RegenerateCredentialPreparer(ctx, resourceGroupName, registryName, regenerateCredentialParameters)
 	if err != nil {
-		return nil, err
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "RegenerateCredential", nil, "Failure preparing request")
+		return
 	}
-	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.regenerateCredentialResponder}, req)
+
+	resp, err := client.RegenerateCredentialSender(req)
 	if err != nil {
-		return nil, err
+		result.Response = autorest.Response{Response: resp}
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "RegenerateCredential", resp, "Failure sending request")
+		return
 	}
-	return resp.(*RegistryListCredentialsResult), err
+
+	result, err = client.RegenerateCredentialResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "RegenerateCredential", resp, "Failure responding to request")
+	}
+
+	return
 }
 
-// regenerateCredentialPreparer prepares the RegenerateCredential request.
-func (client RegistriesClient) regenerateCredentialPreparer(resourceGroupName string, registryName string, regenerateCredentialParameters RegenerateCredentialParameters) (pipeline.Request, error) {
-	u := client.url
-	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/regenerateCredential"
-	req, err := pipeline.NewRequest("POST", u, nil)
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to create request")
+// RegenerateCredentialPreparer prepares the RegenerateCredential request.
+func (client RegistriesClient) RegenerateCredentialPreparer(ctx context.Context, resourceGroupName string, registryName string, regenerateCredentialParameters RegenerateCredentialParameters) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"registryName":      autorest.Encode("path", registryName),
+		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
-	params := req.URL.Query()
-	params.Set("api-version", APIVersion)
-	req.URL.RawQuery = params.Encode()
-	b, err := json.Marshal(regenerateCredentialParameters)
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to marshal request body")
+
+	const APIVersion = "2017-10-01"
+	queryParameters := map[string]interface{}{
+		"api-version": APIVersion,
 	}
-	req.Header.Set("Content-Type", "application/json")
-	err = req.SetBody(bytes.NewReader(b))
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to set request body")
-	}
-	return req, nil
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsJSON(),
+		autorest.AsPost(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}/regenerateCredential", pathParameters),
+		autorest.WithJSON(regenerateCredentialParameters),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
 
-// regenerateCredentialResponder handles the response to the RegenerateCredential request.
-func (client RegistriesClient) regenerateCredentialResponder(resp pipeline.Response) (pipeline.Response, error) {
-	err := validateResponse(resp, http.StatusOK)
-	if resp == nil {
-		return nil, err
-	}
-	result := &RegistryListCredentialsResult{rawResponse: resp.Response()}
-	if err != nil {
-		return result, err
-	}
-	defer resp.Response().Body.Close()
-	b, err := ioutil.ReadAll(resp.Response().Body)
-	if err != nil {
-		return result, NewResponseError(err, resp.Response(), "failed to read response body")
-	}
-	if len(b) > 0 {
-		err = json.Unmarshal(b, result)
-		if err != nil {
-			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
-		}
-	}
-	return result, nil
+// RegenerateCredentialSender sends the RegenerateCredential request. The method will close the
+// http.Response Body if it receives an error.
+func (client RegistriesClient) RegenerateCredentialSender(req *http.Request) (*http.Response, error) {
+	return autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
 }
 
-// Update updates a container registry with the specified parameters. This method may poll for completion. Polling can
-// be canceled by passing the cancel channel argument. The channel will be used to cancel polling and any outstanding
-// HTTP requests.
+// RegenerateCredentialResponder handles the response to the RegenerateCredential request. The method always
+// closes the http.Response Body.
+func (client RegistriesClient) RegenerateCredentialResponder(resp *http.Response) (result RegistryListCredentialsResult, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK),
+		autorest.ByUnmarshallingJSON(&result),
+		autorest.ByClosing())
+	result.Response = autorest.Response{Response: resp}
+	return
+}
+
+// Update updates a container registry with the specified parameters.
 //
 // resourceGroupName is the name of the resource group to which the container registry belongs. registryName is the
 // name of the container registry. registryUpdateParameters is the parameters for updating a container registry.
-func (client RegistriesClient) Update(ctx context.Context, resourceGroupName string, registryName string, registryUpdateParameters RegistryUpdateParameters) (*Registry, error) {
-	if err := validate([]validation{
-		{targetValue: registryName,
-			constraints: []constraint{{target: "registryName", name: maxLength, rule: 50, chain: nil},
-				{target: "registryName", name: minLength, rule: 5, chain: nil},
-				{target: "registryName", name: pattern, rule: `^[a-zA-Z0-9]*$`, chain: nil}}}}); err != nil {
-		return nil, err
+func (client RegistriesClient) Update(ctx context.Context, resourceGroupName string, registryName string, registryUpdateParameters RegistryUpdateParameters) (result RegistriesUpdateFuture, err error) {
+	if err := validation.Validate([]validation.Validation{
+		{TargetValue: registryName,
+			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
+				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
+				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "Update")
 	}
-	req, err := client.updatePreparer(resourceGroupName, registryName, registryUpdateParameters)
+
+	req, err := client.UpdatePreparer(ctx, resourceGroupName, registryName, registryUpdateParameters)
 	if err != nil {
-		return nil, err
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "Update", nil, "Failure preparing request")
+		return
 	}
-	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.updateResponder}, req)
+
+	result, err = client.UpdateSender(req)
 	if err != nil {
-		return nil, err
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesClient", "Update", result.Response(), "Failure sending request")
+		return
 	}
-	return resp.(*Registry), err
+
+	return
 }
 
-// updatePreparer prepares the Update request.
-func (client RegistriesClient) updatePreparer(resourceGroupName string, registryName string, registryUpdateParameters RegistryUpdateParameters) (pipeline.Request, error) {
-	u := client.url
-	u.Path = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}"
-	req, err := pipeline.NewRequest("PATCH", u, nil)
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to create request")
+// UpdatePreparer prepares the Update request.
+func (client RegistriesClient) UpdatePreparer(ctx context.Context, resourceGroupName string, registryName string, registryUpdateParameters RegistryUpdateParameters) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"registryName":      autorest.Encode("path", registryName),
+		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
-	params := req.URL.Query()
-	params.Set("api-version", APIVersion)
-	req.URL.RawQuery = params.Encode()
-	b, err := json.Marshal(registryUpdateParameters)
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to marshal request body")
+
+	const APIVersion = "2017-10-01"
+	queryParameters := map[string]interface{}{
+		"api-version": APIVersion,
 	}
-	req.Header.Set("Content-Type", "application/json")
-	err = req.SetBody(bytes.NewReader(b))
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to set request body")
-	}
-	return req, nil
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsJSON(),
+		autorest.AsPatch(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ContainerRegistry/registries/{registryName}", pathParameters),
+		autorest.WithJSON(registryUpdateParameters),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
 
-// updateResponder handles the response to the Update request.
-func (client RegistriesClient) updateResponder(resp pipeline.Response) (pipeline.Response, error) {
-	err := validateResponse(resp, http.StatusOK, http.StatusCreated)
-	if resp == nil {
-		return nil, err
-	}
-	result := &Registry{rawResponse: resp.Response()}
+// UpdateSender sends the Update request. The method will close the
+// http.Response Body if it receives an error.
+func (client RegistriesClient) UpdateSender(req *http.Request) (future RegistriesUpdateFuture, err error) {
+	sender := autorest.DecorateSender(client, azure.DoRetryWithRegistration(client.Client))
+	future.Future = azure.NewFuture(req)
+	future.req = req
+	_, err = future.Done(sender)
 	if err != nil {
-		return result, err
+		return
 	}
-	defer resp.Response().Body.Close()
-	b, err := ioutil.ReadAll(resp.Response().Body)
-	if err != nil {
-		return result, NewResponseError(err, resp.Response(), "failed to read response body")
-	}
-	if len(b) > 0 {
-		err = json.Unmarshal(b, result)
-		if err != nil {
-			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
-		}
-	}
-	return result, nil
+	err = autorest.Respond(future.Response(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusCreated))
+	return
+}
+
+// UpdateResponder handles the response to the Update request. The method always
+// closes the http.Response Body.
+func (client RegistriesClient) UpdateResponder(resp *http.Response) (result Registry, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusCreated),
+		autorest.ByUnmarshallingJSON(&result),
+		autorest.ByClosing())
+	result.Response = autorest.Response{Response: resp}
+	return
 }

@@ -19,69 +19,108 @@ package containerregistry
 
 import (
 	"context"
-	"encoding/json"
-	"github.com/Azure/azure-pipeline-go/pipeline"
-	"io/ioutil"
+	"github.com/Azure/go-autorest/autorest"
+	"github.com/Azure/go-autorest/autorest/azure"
 	"net/http"
 )
 
 // OperationsClient is the client for the Operations methods of the Containerregistry service.
 type OperationsClient struct {
-	ManagementClient
+	BaseClient
 }
 
 // NewOperationsClient creates an instance of the OperationsClient client.
-func NewOperationsClient(p pipeline.Pipeline) OperationsClient {
-	return OperationsClient{NewManagementClient(p)}
+func NewOperationsClient(subscriptionID string) OperationsClient {
+	return NewOperationsClientWithBaseURI(DefaultBaseURI, subscriptionID)
+}
+
+// NewOperationsClientWithBaseURI creates an instance of the OperationsClient client.
+func NewOperationsClientWithBaseURI(baseURI string, subscriptionID string) OperationsClient {
+	return OperationsClient{NewWithBaseURI(baseURI, subscriptionID)}
 }
 
 // List lists all of the available Azure Container Registry REST API operations.
-func (client OperationsClient) List(ctx context.Context) (*OperationListResult, error) {
-	req, err := client.listPreparer()
+func (client OperationsClient) List(ctx context.Context) (result OperationListResultPage, err error) {
+	result.fn = client.listNextResults
+	req, err := client.ListPreparer(ctx)
 	if err != nil {
-		return nil, err
+		err = autorest.NewErrorWithError(err, "containerregistry.OperationsClient", "List", nil, "Failure preparing request")
+		return
 	}
-	resp, err := client.Pipeline().Do(ctx, responderPolicyFactory{responder: client.listResponder}, req)
+
+	resp, err := client.ListSender(req)
 	if err != nil {
-		return nil, err
+		result.olr.Response = autorest.Response{Response: resp}
+		err = autorest.NewErrorWithError(err, "containerregistry.OperationsClient", "List", resp, "Failure sending request")
+		return
 	}
-	return resp.(*OperationListResult), err
+
+	result.olr, err = client.ListResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.OperationsClient", "List", resp, "Failure responding to request")
+	}
+
+	return
 }
 
-// listPreparer prepares the List request.
-func (client OperationsClient) listPreparer() (pipeline.Request, error) {
-	u := client.url
-	u.Path = "/providers/Microsoft.ContainerRegistry/operations"
-	req, err := pipeline.NewRequest("GET", u, nil)
-	if err != nil {
-		return req, pipeline.NewError(err, "failed to create request")
+// ListPreparer prepares the List request.
+func (client OperationsClient) ListPreparer(ctx context.Context) (*http.Request, error) {
+	const APIVersion = "2017-03-01"
+	queryParameters := map[string]interface{}{
+		"api-version": APIVersion,
 	}
-	params := req.URL.Query()
-	params.Set("api-version", APIVersion)
-	req.URL.RawQuery = params.Encode()
-	return req, nil
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsGet(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPath("/providers/Microsoft.ContainerRegistry/operations"),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
 
-// listResponder handles the response to the List request.
-func (client OperationsClient) listResponder(resp pipeline.Response) (pipeline.Response, error) {
-	err := validateResponse(resp, http.StatusOK)
-	if resp == nil {
-		return nil, err
-	}
-	result := &OperationListResult{rawResponse: resp.Response()}
+// ListSender sends the List request. The method will close the
+// http.Response Body if it receives an error.
+func (client OperationsClient) ListSender(req *http.Request) (*http.Response, error) {
+	return autorest.SendWithSender(client, req,
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+}
+
+// ListResponder handles the response to the List request. The method always
+// closes the http.Response Body.
+func (client OperationsClient) ListResponder(resp *http.Response) (result OperationListResult, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK),
+		autorest.ByUnmarshallingJSON(&result),
+		autorest.ByClosing())
+	result.Response = autorest.Response{Response: resp}
+	return
+}
+
+// listNextResults retrieves the next set of results, if any.
+func (client OperationsClient) listNextResults(lastResults OperationListResult) (result OperationListResult, err error) {
+	req, err := lastResults.operationListResultPreparer()
 	if err != nil {
-		return result, err
+		return result, autorest.NewErrorWithError(err, "containerregistry.OperationsClient", "listNextResults", nil, "Failure preparing next results request")
 	}
-	defer resp.Response().Body.Close()
-	b, err := ioutil.ReadAll(resp.Response().Body)
+	if req == nil {
+		return
+	}
+	resp, err := client.ListSender(req)
 	if err != nil {
-		return result, NewResponseError(err, resp.Response(), "failed to read response body")
+		result.Response = autorest.Response{Response: resp}
+		return result, autorest.NewErrorWithError(err, "containerregistry.OperationsClient", "listNextResults", resp, "Failure sending next results request")
 	}
-	if len(b) > 0 {
-		err = json.Unmarshal(b, result)
-		if err != nil {
-			return result, NewResponseError(err, resp.Response(), "failed to unmarshal response body")
-		}
+	result, err = client.ListResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.OperationsClient", "listNextResults", resp, "Failure responding to next results request")
 	}
-	return result, nil
+	return
+}
+
+// ListComplete enumerates all values, automatically crossing page boundaries as required.
+func (client OperationsClient) ListComplete(ctx context.Context) (result OperationListResultIterator, err error) {
+	result.page, err = client.List(ctx)
+	return
 }

@@ -18,163 +18,117 @@ package containerregistry
 // Changes may cause incorrect behavior and will be lost if the code is regenerated.
 
 import (
+	"encoding/json"
+	"github.com/Azure/go-autorest/autorest"
+	"github.com/Azure/go-autorest/autorest/azure"
+	"github.com/Azure/go-autorest/autorest/date"
+	"github.com/Azure/go-autorest/autorest/to"
 	"net/http"
-	"time"
 )
 
-// Marker represents an opaque value used in paged responses.
-type Marker struct {
-	val *string
-}
-
-// NotDone returns true if the list enumeration should be started or is not yet complete. Specifically, NotDone returns true
-// for a just-initialized (zero value) Marker indicating that you should make an initial request to get a result portion from
-// the service. NotDone also returns true whenever the service returns an interim result portion. NotDone returns false only
-// after the service has returned the final result portion.
-func (m Marker) NotDone() bool {
-	return m.val == nil || *m.val != ""
-}
-
-// UnmarshalXML implements the xml.Unmarshaler interface for Marker.
-func (m *Marker) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	var out string
-	err := d.DecodeElement(&out, &start)
-	m.val = &out
-	return err
-}
-
-// PasswordNameType enumerates the values for password name.
-type PasswordNameType string
+// PasswordName enumerates the values for password name.
+type PasswordName string
 
 const (
-	// PasswordNameNone represents an empty PasswordNameType.
-	PasswordNameNone PasswordNameType = ""
-	// PasswordNamePassword ...
-	PasswordNamePassword PasswordNameType = "password"
-	// PasswordNamePassword2 ...
-	PasswordNamePassword2 PasswordNameType = "password2"
+	// Password ...
+	Password PasswordName = "password"
+	// Password2 ...
+	Password2 PasswordName = "password2"
 )
 
-// ProvisioningStateType enumerates the values for provisioning state.
-type ProvisioningStateType string
+// ProvisioningState enumerates the values for provisioning state.
+type ProvisioningState string
 
 const (
-	// ProvisioningStateCanceled ...
-	ProvisioningStateCanceled ProvisioningStateType = "Canceled"
-	// ProvisioningStateCreating ...
-	ProvisioningStateCreating ProvisioningStateType = "Creating"
-	// ProvisioningStateDeleting ...
-	ProvisioningStateDeleting ProvisioningStateType = "Deleting"
-	// ProvisioningStateFailed ...
-	ProvisioningStateFailed ProvisioningStateType = "Failed"
-	// ProvisioningStateNone represents an empty ProvisioningStateType.
-	ProvisioningStateNone ProvisioningStateType = ""
-	// ProvisioningStateSucceeded ...
-	ProvisioningStateSucceeded ProvisioningStateType = "Succeeded"
-	// ProvisioningStateUpdating ...
-	ProvisioningStateUpdating ProvisioningStateType = "Updating"
+	// Canceled ...
+	Canceled ProvisioningState = "Canceled"
+	// Creating ...
+	Creating ProvisioningState = "Creating"
+	// Deleting ...
+	Deleting ProvisioningState = "Deleting"
+	// Failed ...
+	Failed ProvisioningState = "Failed"
+	// Succeeded ...
+	Succeeded ProvisioningState = "Succeeded"
+	// Updating ...
+	Updating ProvisioningState = "Updating"
 )
 
-// RegistryUsageUnitType enumerates the values for registry usage unit.
-type RegistryUsageUnitType string
+// RegistryUsageUnit enumerates the values for registry usage unit.
+type RegistryUsageUnit string
 
 const (
-	// RegistryUsageUnitBytes ...
-	RegistryUsageUnitBytes RegistryUsageUnitType = "Bytes"
-	// RegistryUsageUnitCount ...
-	RegistryUsageUnitCount RegistryUsageUnitType = "Count"
-	// RegistryUsageUnitNone represents an empty RegistryUsageUnitType.
-	RegistryUsageUnitNone RegistryUsageUnitType = ""
+	// Bytes ...
+	Bytes RegistryUsageUnit = "Bytes"
+	// Count ...
+	Count RegistryUsageUnit = "Count"
 )
 
-// SkuNameType enumerates the values for sku name.
-type SkuNameType string
+// SkuName enumerates the values for sku name.
+type SkuName string
 
 const (
-	// SkuNameBasic ...
-	SkuNameBasic SkuNameType = "Basic"
-	// SkuNameClassic ...
-	SkuNameClassic SkuNameType = "Classic"
-	// SkuNameNone represents an empty SkuNameType.
-	SkuNameNone SkuNameType = ""
-	// SkuNamePremium ...
-	SkuNamePremium SkuNameType = "Premium"
-	// SkuNameStandard ...
-	SkuNameStandard SkuNameType = "Standard"
+	// Basic ...
+	Basic SkuName = "Basic"
+	// Classic ...
+	Classic SkuName = "Classic"
+	// Premium ...
+	Premium SkuName = "Premium"
+	// Standard ...
+	Standard SkuName = "Standard"
 )
 
-// SkuTierType enumerates the values for sku tier.
-type SkuTierType string
+// SkuTier enumerates the values for sku tier.
+type SkuTier string
 
 const (
 	// SkuTierBasic ...
-	SkuTierBasic SkuTierType = "Basic"
+	SkuTierBasic SkuTier = "Basic"
 	// SkuTierClassic ...
-	SkuTierClassic SkuTierType = "Classic"
-	// SkuTierNone represents an empty SkuTierType.
-	SkuTierNone SkuTierType = ""
+	SkuTierClassic SkuTier = "Classic"
 	// SkuTierPremium ...
-	SkuTierPremium SkuTierType = "Premium"
+	SkuTierPremium SkuTier = "Premium"
 	// SkuTierStandard ...
-	SkuTierStandard SkuTierType = "Standard"
+	SkuTierStandard SkuTier = "Standard"
 )
 
-// WebhookActionType enumerates the values for webhook action.
-type WebhookActionType string
+// WebhookAction enumerates the values for webhook action.
+type WebhookAction string
 
 const (
-	// WebhookActionDelete ...
-	WebhookActionDelete WebhookActionType = "delete"
-	// WebhookActionNone represents an empty WebhookActionType.
-	WebhookActionNone WebhookActionType = ""
-	// WebhookActionPush ...
-	WebhookActionPush WebhookActionType = "push"
+	// Delete ...
+	Delete WebhookAction = "delete"
+	// Push ...
+	Push WebhookAction = "push"
 )
 
-// WebhookStatusType enumerates the values for webhook status.
-type WebhookStatusType string
+// WebhookStatus enumerates the values for webhook status.
+type WebhookStatus string
 
 const (
-	// WebhookStatusDisabled ...
-	WebhookStatusDisabled WebhookStatusType = "disabled"
-	// WebhookStatusEnabled ...
-	WebhookStatusEnabled WebhookStatusType = "enabled"
-	// WebhookStatusNone represents an empty WebhookStatusType.
-	WebhookStatusNone WebhookStatusType = ""
+	// Disabled ...
+	Disabled WebhookStatus = "disabled"
+	// Enabled ...
+	Enabled WebhookStatus = "enabled"
 )
 
-// Actor - The agent that initiated the event. For most situations, this could be from the authorization context of the
+// Actor the agent that initiated the event. For most situations, this could be from the authorization context of the
 // request.
 type Actor struct {
 	// Name - The subject or username associated with the request context that generated the event.
 	Name *string `json:"name,omitempty"`
 }
 
-// CallbackConfig - The configuration of service URI and custom headers for the webhook.
+// CallbackConfig the configuration of service URI and custom headers for the webhook.
 type CallbackConfig struct {
-	rawResponse *http.Response
+	autorest.Response `json:"-"`
 	// ServiceURI - The service URI for the webhook to post notifications.
-	ServiceURI string `json:"serviceUri,omitempty"`
+	ServiceURI *string `json:"serviceUri,omitempty"`
 	// CustomHeaders - Custom headers that will be added to the webhook notifications.
-	CustomHeaders map[string]string `json:"customHeaders,omitempty"`
+	CustomHeaders *map[string]*string `json:"customHeaders,omitempty"`
 }
 
-// Response returns the raw HTTP response object.
-func (cc CallbackConfig) Response() *http.Response {
-	return cc.rawResponse
-}
-
-// StatusCode returns the HTTP status code of the response, e.g. 200.
-func (cc CallbackConfig) StatusCode() int {
-	return cc.rawResponse.StatusCode
-}
-
-// Status returns the HTTP status message of the response, e.g. "200 OK".
-func (cc CallbackConfig) Status() string {
-	return cc.rawResponse.Status
-}
-
-// Event - The event for a webhook.
+// Event the event for a webhook.
 type Event struct {
 	// ID - The event ID.
 	ID *string `json:"id,omitempty"`
@@ -184,12 +138,12 @@ type Event struct {
 	EventResponseMessage *EventResponseMessage `json:"eventResponseMessage,omitempty"`
 }
 
-// EventContent - The content of the event request message.
+// EventContent the content of the event request message.
 type EventContent struct {
 	// ID - The event ID.
 	ID *string `json:"id,omitempty"`
 	// Timestamp - The time at which the event occurred.
-	Timestamp *time.Time `json:"timestamp,omitempty"`
+	Timestamp *date.Time `json:"timestamp,omitempty"`
 	// Action - The action that encompasses the provided event.
 	Action *string `json:"action,omitempty"`
 	// Target - The target of the event.
@@ -202,58 +156,121 @@ type EventContent struct {
 	Source *Source `json:"source,omitempty"`
 }
 
-// EventInfo - The basic information of an event.
+// EventInfo the basic information of an event.
 type EventInfo struct {
-	rawResponse *http.Response
+	autorest.Response `json:"-"`
 	// ID - The event ID.
 	ID *string `json:"id,omitempty"`
 }
 
-// Response returns the raw HTTP response object.
-func (ei EventInfo) Response() *http.Response {
-	return ei.rawResponse
-}
-
-// StatusCode returns the HTTP status code of the response, e.g. 200.
-func (ei EventInfo) StatusCode() int {
-	return ei.rawResponse.StatusCode
-}
-
-// Status returns the HTTP status message of the response, e.g. "200 OK".
-func (ei EventInfo) Status() string {
-	return ei.rawResponse.Status
-}
-
-// EventListResult - The result of a request to list events for a webhook.
+// EventListResult the result of a request to list events for a webhook.
 type EventListResult struct {
-	rawResponse *http.Response
+	autorest.Response `json:"-"`
 	// Value - The list of events. Since this list may be incomplete, the nextLink field should be used to request the next list of events.
-	Value []Event `json:"value,omitempty"`
+	Value *[]Event `json:"value,omitempty"`
 	// NextLink - The URI that can be used to request the next list of events.
-	NextLink Marker `json:"NextLink"`
+	NextLink *string `json:"nextLink,omitempty"`
 }
 
-// Response returns the raw HTTP response object.
-func (elr EventListResult) Response() *http.Response {
-	return elr.rawResponse
+// EventListResultIterator provides access to a complete listing of Event values.
+type EventListResultIterator struct {
+	i    int
+	page EventListResultPage
 }
 
-// StatusCode returns the HTTP status code of the response, e.g. 200.
-func (elr EventListResult) StatusCode() int {
-	return elr.rawResponse.StatusCode
+// Next advances to the next value.  If there was an error making
+// the request the iterator does not advance and the error is returned.
+func (iter *EventListResultIterator) Next() error {
+	iter.i++
+	if iter.i < len(iter.page.Values()) {
+		return nil
+	}
+	err := iter.page.Next()
+	if err != nil {
+		iter.i--
+		return err
+	}
+	iter.i = 0
+	return nil
 }
 
-// Status returns the HTTP status message of the response, e.g. "200 OK".
-func (elr EventListResult) Status() string {
-	return elr.rawResponse.Status
+// NotDone returns true if the enumeration should be started or is not yet complete.
+func (iter EventListResultIterator) NotDone() bool {
+	return iter.page.NotDone() && iter.i < len(iter.page.Values())
 }
 
-// EventRequestMessage - The event request message sent to the service URI.
+// Response returns the raw server response from the last page request.
+func (iter EventListResultIterator) Response() EventListResult {
+	return iter.page.Response()
+}
+
+// Value returns the current value or a zero-initialized value if the
+// iterator has advanced beyond the end of the collection.
+func (iter EventListResultIterator) Value() Event {
+	if !iter.page.NotDone() {
+		return Event{}
+	}
+	return iter.page.Values()[iter.i]
+}
+
+// IsEmpty returns true if the ListResult contains no values.
+func (elr EventListResult) IsEmpty() bool {
+	return elr.Value == nil || len(*elr.Value) == 0
+}
+
+// eventListResultPreparer prepares a request to retrieve the next set of results.
+// It returns nil if no more results exist.
+func (elr EventListResult) eventListResultPreparer() (*http.Request, error) {
+	if elr.NextLink == nil || len(to.String(elr.NextLink)) < 1 {
+		return nil, nil
+	}
+	return autorest.Prepare(&http.Request{},
+		autorest.AsJSON(),
+		autorest.AsGet(),
+		autorest.WithBaseURL(to.String(elr.NextLink)))
+}
+
+// EventListResultPage contains a page of Event values.
+type EventListResultPage struct {
+	fn  func(EventListResult) (EventListResult, error)
+	elr EventListResult
+}
+
+// Next advances to the next page of values.  If there was an error making
+// the request the page does not advance and the error is returned.
+func (page *EventListResultPage) Next() error {
+	next, err := page.fn(page.elr)
+	if err != nil {
+		return err
+	}
+	page.elr = next
+	return nil
+}
+
+// NotDone returns true if the page enumeration should be started or is not yet complete.
+func (page EventListResultPage) NotDone() bool {
+	return !page.elr.IsEmpty()
+}
+
+// Response returns the raw server response from the last page request.
+func (page EventListResultPage) Response() EventListResult {
+	return page.elr
+}
+
+// Values returns the slice of values for the current page or nil if there are no values.
+func (page EventListResultPage) Values() []Event {
+	if page.elr.IsEmpty() {
+		return nil
+	}
+	return *page.elr.Value
+}
+
+// EventRequestMessage the event request message sent to the service URI.
 type EventRequestMessage struct {
 	// Content - The content of the event request message.
 	Content *EventContent `json:"content,omitempty"`
 	// Headers - The headers of the event request message.
-	Headers map[string]string `json:"headers,omitempty"`
+	Headers *map[string]*string `json:"headers,omitempty"`
 	// Method - The HTTP method used to send the event request message.
 	Method *string `json:"method,omitempty"`
 	// RequestURI - The URI used to send the event request message.
@@ -262,12 +279,12 @@ type EventRequestMessage struct {
 	Version *string `json:"version,omitempty"`
 }
 
-// EventResponseMessage - The event response message received from the service URI.
+// EventResponseMessage the event response message received from the service URI.
 type EventResponseMessage struct {
 	// Content - The content of the event response message.
 	Content *string `json:"content,omitempty"`
 	// Headers - The headers of the event response message.
-	Headers map[string]string `json:"headers,omitempty"`
+	Headers *map[string]*string `json:"headers,omitempty"`
 	// ReasonPhrase - The reason phrase of the event response message.
 	ReasonPhrase *string `json:"reasonPhrase,omitempty"`
 	// StatusCode - The status code of the event response message.
@@ -276,7 +293,7 @@ type EventResponseMessage struct {
 	Version *string `json:"version,omitempty"`
 }
 
-// OperationDefinition - The definition of a container registry operation.
+// OperationDefinition the definition of a container registry operation.
 type OperationDefinition struct {
 	// Name - Operation name: {provider}/{resource}/{operation}.
 	Name *string `json:"name,omitempty"`
@@ -284,7 +301,7 @@ type OperationDefinition struct {
 	Display *OperationDisplayDefinition `json:"display,omitempty"`
 }
 
-// OperationDisplayDefinition - The display information for a container registry operation.
+// OperationDisplayDefinition the display information for a container registry operation.
 type OperationDisplayDefinition struct {
 	// Provider - The resource provider name: Microsoft.ContainerRegistry.
 	Provider *string `json:"provider,omitempty"`
@@ -296,39 +313,234 @@ type OperationDisplayDefinition struct {
 	Description *string `json:"description,omitempty"`
 }
 
-// OperationListResult - The result of a request to list container registry operations.
+// OperationListResult the result of a request to list container registry operations.
 type OperationListResult struct {
-	rawResponse *http.Response
+	autorest.Response `json:"-"`
 	// Value - The list of container registry operations. Since this list may be incomplete, the nextLink field should be used to request the next list of operations.
-	Value []OperationDefinition `json:"value,omitempty"`
+	Value *[]OperationDefinition `json:"value,omitempty"`
 	// NextLink - The URI that can be used to request the next list of container registry operations.
-	NextLink Marker `json:"NextLink"`
+	NextLink *string `json:"nextLink,omitempty"`
 }
 
-// Response returns the raw HTTP response object.
-func (olr OperationListResult) Response() *http.Response {
-	return olr.rawResponse
+// OperationListResultIterator provides access to a complete listing of OperationDefinition values.
+type OperationListResultIterator struct {
+	i    int
+	page OperationListResultPage
 }
 
-// StatusCode returns the HTTP status code of the response, e.g. 200.
-func (olr OperationListResult) StatusCode() int {
-	return olr.rawResponse.StatusCode
+// Next advances to the next value.  If there was an error making
+// the request the iterator does not advance and the error is returned.
+func (iter *OperationListResultIterator) Next() error {
+	iter.i++
+	if iter.i < len(iter.page.Values()) {
+		return nil
+	}
+	err := iter.page.Next()
+	if err != nil {
+		iter.i--
+		return err
+	}
+	iter.i = 0
+	return nil
 }
 
-// Status returns the HTTP status message of the response, e.g. "200 OK".
-func (olr OperationListResult) Status() string {
-	return olr.rawResponse.Status
+// NotDone returns true if the enumeration should be started or is not yet complete.
+func (iter OperationListResultIterator) NotDone() bool {
+	return iter.page.NotDone() && iter.i < len(iter.page.Values())
 }
 
-// RegenerateCredentialParameters - The parameters used to regenerate the login credential.
+// Response returns the raw server response from the last page request.
+func (iter OperationListResultIterator) Response() OperationListResult {
+	return iter.page.Response()
+}
+
+// Value returns the current value or a zero-initialized value if the
+// iterator has advanced beyond the end of the collection.
+func (iter OperationListResultIterator) Value() OperationDefinition {
+	if !iter.page.NotDone() {
+		return OperationDefinition{}
+	}
+	return iter.page.Values()[iter.i]
+}
+
+// IsEmpty returns true if the ListResult contains no values.
+func (olr OperationListResult) IsEmpty() bool {
+	return olr.Value == nil || len(*olr.Value) == 0
+}
+
+// operationListResultPreparer prepares a request to retrieve the next set of results.
+// It returns nil if no more results exist.
+func (olr OperationListResult) operationListResultPreparer() (*http.Request, error) {
+	if olr.NextLink == nil || len(to.String(olr.NextLink)) < 1 {
+		return nil, nil
+	}
+	return autorest.Prepare(&http.Request{},
+		autorest.AsJSON(),
+		autorest.AsGet(),
+		autorest.WithBaseURL(to.String(olr.NextLink)))
+}
+
+// OperationListResultPage contains a page of OperationDefinition values.
+type OperationListResultPage struct {
+	fn  func(OperationListResult) (OperationListResult, error)
+	olr OperationListResult
+}
+
+// Next advances to the next page of values.  If there was an error making
+// the request the page does not advance and the error is returned.
+func (page *OperationListResultPage) Next() error {
+	next, err := page.fn(page.olr)
+	if err != nil {
+		return err
+	}
+	page.olr = next
+	return nil
+}
+
+// NotDone returns true if the page enumeration should be started or is not yet complete.
+func (page OperationListResultPage) NotDone() bool {
+	return !page.olr.IsEmpty()
+}
+
+// Response returns the raw server response from the last page request.
+func (page OperationListResultPage) Response() OperationListResult {
+	return page.olr
+}
+
+// Values returns the slice of values for the current page or nil if there are no values.
+func (page OperationListResultPage) Values() []OperationDefinition {
+	if page.olr.IsEmpty() {
+		return nil
+	}
+	return *page.olr.Value
+}
+
+// RegenerateCredentialParameters the parameters used to regenerate the login credential.
 type RegenerateCredentialParameters struct {
-	// Name - Specifies name of the password which should be regenerated -- password or password2. Possible values include: 'Password', 'Password2', 'None'
-	Name PasswordNameType `json:"name,omitempty"`
+	// Name - Specifies name of the password which should be regenerated -- password or password2. Possible values include: 'Password', 'Password2'
+	Name PasswordName `json:"name,omitempty"`
 }
 
-// Registry - An object that represents a container registry.
+// RegistriesCreateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type RegistriesCreateFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future RegistriesCreateFuture) Result(client RegistriesClient) (r Registry, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return r, azure.NewAsyncOpIncompleteError("containerregistry.RegistriesCreateFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		r, err = client.CreateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	r, err = client.CreateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesCreateFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// RegistriesDeleteFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type RegistriesDeleteFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future RegistriesDeleteFuture) Result(client RegistriesClient) (ar autorest.Response, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesDeleteFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return ar, azure.NewAsyncOpIncompleteError("containerregistry.RegistriesDeleteFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		ar, err = client.DeleteResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.RegistriesDeleteFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesDeleteFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	ar, err = client.DeleteResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesDeleteFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// RegistriesUpdateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type RegistriesUpdateFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future RegistriesUpdateFuture) Result(client RegistriesClient) (r Registry, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesUpdateFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return r, azure.NewAsyncOpIncompleteError("containerregistry.RegistriesUpdateFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		r, err = client.UpdateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.RegistriesUpdateFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesUpdateFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	r, err = client.UpdateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.RegistriesUpdateFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// Registry an object that represents a container registry.
 type Registry struct {
-	rawResponse *http.Response
+	autorest.Response `json:"-"`
 	// ID - The resource ID.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -336,89 +548,219 @@ type Registry struct {
 	// Type - The type of the resource.
 	Type *string `json:"type,omitempty"`
 	// Location - The location of the resource. This cannot be changed after the resource is created.
-	Location string `json:"location,omitempty"`
+	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]string `json:"tags,omitempty"`
+	Tags *map[string]*string `json:"tags,omitempty"`
 	// Sku - The SKU of the container registry.
-	Sku Sku `json:"sku,omitempty"`
-	// Properties - The properties of the container registry.
+	Sku *Sku `json:"sku,omitempty"`
+	// RegistryProperties - The properties of the container registry.
 	*RegistryProperties `json:"properties,omitempty"`
 }
 
-// Response returns the raw HTTP response object.
-func (r Registry) Response() *http.Response {
-	return r.rawResponse
+// UnmarshalJSON is the custom unmarshaler for Registry struct.
+func (r *Registry) UnmarshalJSON(body []byte) error {
+	var m map[string]*json.RawMessage
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return err
+	}
+	var v *json.RawMessage
+
+	v = m["sku"]
+	if v != nil {
+		var sku Sku
+		err = json.Unmarshal(*m["sku"], &sku)
+		if err != nil {
+			return err
+		}
+		r.Sku = &sku
+	}
+
+	v = m["properties"]
+	if v != nil {
+		var properties RegistryProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
+		}
+		r.RegistryProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		r.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		r.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		r.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		r.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		r.Tags = &tags
+	}
+
+	return nil
 }
 
-// StatusCode returns the HTTP status code of the response, e.g. 200.
-func (r Registry) StatusCode() int {
-	return r.rawResponse.StatusCode
-}
-
-// Status returns the HTTP status message of the response, e.g. "200 OK".
-func (r Registry) Status() string {
-	return r.rawResponse.Status
-}
-
-// RegistryListCredentialsResult - The response from the ListCredentials operation.
+// RegistryListCredentialsResult the response from the ListCredentials operation.
 type RegistryListCredentialsResult struct {
-	rawResponse *http.Response
+	autorest.Response `json:"-"`
 	// Username - The username for a container registry.
 	Username *string `json:"username,omitempty"`
 	// Passwords - The list of passwords for a container registry.
-	Passwords []RegistryPassword `json:"passwords,omitempty"`
+	Passwords *[]RegistryPassword `json:"passwords,omitempty"`
 }
 
-// Response returns the raw HTTP response object.
-func (rlcr RegistryListCredentialsResult) Response() *http.Response {
-	return rlcr.rawResponse
-}
-
-// StatusCode returns the HTTP status code of the response, e.g. 200.
-func (rlcr RegistryListCredentialsResult) StatusCode() int {
-	return rlcr.rawResponse.StatusCode
-}
-
-// Status returns the HTTP status message of the response, e.g. "200 OK".
-func (rlcr RegistryListCredentialsResult) Status() string {
-	return rlcr.rawResponse.Status
-}
-
-// RegistryListResult - The result of a request to list container registries.
+// RegistryListResult the result of a request to list container registries.
 type RegistryListResult struct {
-	rawResponse *http.Response
+	autorest.Response `json:"-"`
 	// Value - The list of container registries. Since this list may be incomplete, the nextLink field should be used to request the next list of container registries.
-	Value []Registry `json:"value,omitempty"`
+	Value *[]Registry `json:"value,omitempty"`
 	// NextLink - The URI that can be used to request the next list of container registries.
-	NextLink Marker `json:"NextLink"`
+	NextLink *string `json:"nextLink,omitempty"`
 }
 
-// Response returns the raw HTTP response object.
-func (rlr RegistryListResult) Response() *http.Response {
-	return rlr.rawResponse
+// RegistryListResultIterator provides access to a complete listing of Registry values.
+type RegistryListResultIterator struct {
+	i    int
+	page RegistryListResultPage
 }
 
-// StatusCode returns the HTTP status code of the response, e.g. 200.
-func (rlr RegistryListResult) StatusCode() int {
-	return rlr.rawResponse.StatusCode
+// Next advances to the next value.  If there was an error making
+// the request the iterator does not advance and the error is returned.
+func (iter *RegistryListResultIterator) Next() error {
+	iter.i++
+	if iter.i < len(iter.page.Values()) {
+		return nil
+	}
+	err := iter.page.Next()
+	if err != nil {
+		iter.i--
+		return err
+	}
+	iter.i = 0
+	return nil
 }
 
-// Status returns the HTTP status message of the response, e.g. "200 OK".
-func (rlr RegistryListResult) Status() string {
-	return rlr.rawResponse.Status
+// NotDone returns true if the enumeration should be started or is not yet complete.
+func (iter RegistryListResultIterator) NotDone() bool {
+	return iter.page.NotDone() && iter.i < len(iter.page.Values())
 }
 
-// RegistryNameCheckRequest - A request to check whether a container registry name is available.
+// Response returns the raw server response from the last page request.
+func (iter RegistryListResultIterator) Response() RegistryListResult {
+	return iter.page.Response()
+}
+
+// Value returns the current value or a zero-initialized value if the
+// iterator has advanced beyond the end of the collection.
+func (iter RegistryListResultIterator) Value() Registry {
+	if !iter.page.NotDone() {
+		return Registry{}
+	}
+	return iter.page.Values()[iter.i]
+}
+
+// IsEmpty returns true if the ListResult contains no values.
+func (rlr RegistryListResult) IsEmpty() bool {
+	return rlr.Value == nil || len(*rlr.Value) == 0
+}
+
+// registryListResultPreparer prepares a request to retrieve the next set of results.
+// It returns nil if no more results exist.
+func (rlr RegistryListResult) registryListResultPreparer() (*http.Request, error) {
+	if rlr.NextLink == nil || len(to.String(rlr.NextLink)) < 1 {
+		return nil, nil
+	}
+	return autorest.Prepare(&http.Request{},
+		autorest.AsJSON(),
+		autorest.AsGet(),
+		autorest.WithBaseURL(to.String(rlr.NextLink)))
+}
+
+// RegistryListResultPage contains a page of Registry values.
+type RegistryListResultPage struct {
+	fn  func(RegistryListResult) (RegistryListResult, error)
+	rlr RegistryListResult
+}
+
+// Next advances to the next page of values.  If there was an error making
+// the request the page does not advance and the error is returned.
+func (page *RegistryListResultPage) Next() error {
+	next, err := page.fn(page.rlr)
+	if err != nil {
+		return err
+	}
+	page.rlr = next
+	return nil
+}
+
+// NotDone returns true if the page enumeration should be started or is not yet complete.
+func (page RegistryListResultPage) NotDone() bool {
+	return !page.rlr.IsEmpty()
+}
+
+// Response returns the raw server response from the last page request.
+func (page RegistryListResultPage) Response() RegistryListResult {
+	return page.rlr
+}
+
+// Values returns the slice of values for the current page or nil if there are no values.
+func (page RegistryListResultPage) Values() []Registry {
+	if page.rlr.IsEmpty() {
+		return nil
+	}
+	return *page.rlr.Value
+}
+
+// RegistryNameCheckRequest a request to check whether a container registry name is available.
 type RegistryNameCheckRequest struct {
 	// Name - The name of the container registry.
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 	// Type - The resource type of the container registry. This field must be set to 'Microsoft.ContainerRegistry/registries'.
-	Type string `json:"type,omitempty"`
+	Type *string `json:"type,omitempty"`
 }
 
-// RegistryNameStatus - The result of a request to check the availability of a container registry name.
+// RegistryNameStatus the result of a request to check the availability of a container registry name.
 type RegistryNameStatus struct {
-	rawResponse *http.Response
+	autorest.Response `json:"-"`
 	// NameAvailable - The value that indicates whether the name is available.
 	NameAvailable *bool `json:"nameAvailable,omitempty"`
 	// Reason - If any, the reason that the name is not available.
@@ -427,37 +769,22 @@ type RegistryNameStatus struct {
 	Message *string `json:"message,omitempty"`
 }
 
-// Response returns the raw HTTP response object.
-func (rns RegistryNameStatus) Response() *http.Response {
-	return rns.rawResponse
-}
-
-// StatusCode returns the HTTP status code of the response, e.g. 200.
-func (rns RegistryNameStatus) StatusCode() int {
-	return rns.rawResponse.StatusCode
-}
-
-// Status returns the HTTP status message of the response, e.g. "200 OK".
-func (rns RegistryNameStatus) Status() string {
-	return rns.rawResponse.Status
-}
-
-// RegistryPassword - The login password for the container registry.
+// RegistryPassword the login password for the container registry.
 type RegistryPassword struct {
-	// Name - The password name. Possible values include: 'Password', 'Password2', 'None'
-	Name PasswordNameType `json:"name,omitempty"`
+	// Name - The password name. Possible values include: 'Password', 'Password2'
+	Name PasswordName `json:"name,omitempty"`
 	// Value - The password value.
 	Value *string `json:"value,omitempty"`
 }
 
-// RegistryProperties - The properties of a container registry.
+// RegistryProperties the properties of a container registry.
 type RegistryProperties struct {
 	// LoginServer - The URL that can be used to log into the container registry.
 	LoginServer *string `json:"loginServer,omitempty"`
 	// CreationDate - The creation date of the container registry in ISO8601 format.
-	CreationDate *time.Time `json:"creationDate,omitempty"`
-	// ProvisioningState - The provisioning state of the container registry at the time the operation was called. Possible values include: 'Creating', 'Updating', 'Deleting', 'Succeeded', 'Failed', 'Canceled', 'None'
-	ProvisioningState ProvisioningStateType `json:"provisioningState,omitempty"`
+	CreationDate *date.Time `json:"creationDate,omitempty"`
+	// ProvisioningState - The provisioning state of the container registry at the time the operation was called. Possible values include: 'Creating', 'Updating', 'Deleting', 'Succeeded', 'Failed', 'Canceled'
+	ProvisioningState ProvisioningState `json:"provisioningState,omitempty"`
 	// Status - The status of the container registry at the time the operation was called.
 	Status *Status `json:"status,omitempty"`
 	// AdminUserEnabled - The value that indicates whether the admin user is enabled.
@@ -466,7 +793,7 @@ type RegistryProperties struct {
 	StorageAccount *StorageAccountProperties `json:"storageAccount,omitempty"`
 }
 
-// RegistryPropertiesUpdateParameters - The parameters for updating the properties of a container registry.
+// RegistryPropertiesUpdateParameters the parameters for updating the properties of a container registry.
 type RegistryPropertiesUpdateParameters struct {
 	// AdminUserEnabled - The value that indicates whether the admin user is enabled.
 	AdminUserEnabled *bool `json:"adminUserEnabled,omitempty"`
@@ -474,17 +801,59 @@ type RegistryPropertiesUpdateParameters struct {
 	StorageAccount *StorageAccountProperties `json:"storageAccount,omitempty"`
 }
 
-// RegistryUpdateParameters - The parameters for updating a container registry.
+// RegistryUpdateParameters the parameters for updating a container registry.
 type RegistryUpdateParameters struct {
 	// Tags - The tags for the container registry.
-	Tags map[string]string `json:"tags,omitempty"`
+	Tags *map[string]*string `json:"tags,omitempty"`
 	// Sku - The SKU of the container registry.
 	Sku *Sku `json:"sku,omitempty"`
-	// Properties - The properties that the container registry will be updated with.
+	// RegistryPropertiesUpdateParameters - The properties that the container registry will be updated with.
 	*RegistryPropertiesUpdateParameters `json:"properties,omitempty"`
 }
 
-// RegistryUsage - The quota usage for a container registry.
+// UnmarshalJSON is the custom unmarshaler for RegistryUpdateParameters struct.
+func (rup *RegistryUpdateParameters) UnmarshalJSON(body []byte) error {
+	var m map[string]*json.RawMessage
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return err
+	}
+	var v *json.RawMessage
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		rup.Tags = &tags
+	}
+
+	v = m["sku"]
+	if v != nil {
+		var sku Sku
+		err = json.Unmarshal(*m["sku"], &sku)
+		if err != nil {
+			return err
+		}
+		rup.Sku = &sku
+	}
+
+	v = m["properties"]
+	if v != nil {
+		var properties RegistryPropertiesUpdateParameters
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
+		}
+		rup.RegistryPropertiesUpdateParameters = &properties
+	}
+
+	return nil
+}
+
+// RegistryUsage the quota usage for a container registry.
 type RegistryUsage struct {
 	// Name - The name of the usage.
 	Name *string `json:"name,omitempty"`
@@ -492,35 +861,20 @@ type RegistryUsage struct {
 	Limit *int64 `json:"limit,omitempty"`
 	// CurrentValue - The current value of the usage.
 	CurrentValue *int64 `json:"currentValue,omitempty"`
-	// Unit - The unit of measurement. Possible values include: 'Count', 'Bytes', 'None'
-	Unit RegistryUsageUnitType `json:"unit,omitempty"`
+	// Unit - The unit of measurement. Possible values include: 'Count', 'Bytes'
+	Unit RegistryUsageUnit `json:"unit,omitempty"`
 }
 
-// RegistryUsageListResult - The result of a request to get container registry quota usages.
+// RegistryUsageListResult the result of a request to get container registry quota usages.
 type RegistryUsageListResult struct {
-	rawResponse *http.Response
+	autorest.Response `json:"-"`
 	// Value - The list of container registry quota usages.
-	Value []RegistryUsage `json:"value,omitempty"`
+	Value *[]RegistryUsage `json:"value,omitempty"`
 }
 
-// Response returns the raw HTTP response object.
-func (rulr RegistryUsageListResult) Response() *http.Response {
-	return rulr.rawResponse
-}
-
-// StatusCode returns the HTTP status code of the response, e.g. 200.
-func (rulr RegistryUsageListResult) StatusCode() int {
-	return rulr.rawResponse.StatusCode
-}
-
-// Status returns the HTTP status message of the response, e.g. "200 OK".
-func (rulr RegistryUsageListResult) Status() string {
-	return rulr.rawResponse.Status
-}
-
-// Replication - An object that represents a replication for a container registry.
+// Replication an object that represents a replication for a container registry.
 type Replication struct {
-	rawResponse *http.Response
+	autorest.Response `json:"-"`
 	// ID - The resource ID.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -528,67 +882,319 @@ type Replication struct {
 	// Type - The type of the resource.
 	Type *string `json:"type,omitempty"`
 	// Location - The location of the resource. This cannot be changed after the resource is created.
-	Location string `json:"location,omitempty"`
+	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]string `json:"tags,omitempty"`
-	// Properties - The properties of the replication.
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// ReplicationProperties - The properties of the replication.
 	*ReplicationProperties `json:"properties,omitempty"`
 }
 
-// Response returns the raw HTTP response object.
-func (r Replication) Response() *http.Response {
-	return r.rawResponse
+// UnmarshalJSON is the custom unmarshaler for Replication struct.
+func (r *Replication) UnmarshalJSON(body []byte) error {
+	var m map[string]*json.RawMessage
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return err
+	}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties ReplicationProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
+		}
+		r.ReplicationProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		r.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		r.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		r.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		r.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		r.Tags = &tags
+	}
+
+	return nil
 }
 
-// StatusCode returns the HTTP status code of the response, e.g. 200.
-func (r Replication) StatusCode() int {
-	return r.rawResponse.StatusCode
-}
-
-// Status returns the HTTP status message of the response, e.g. "200 OK".
-func (r Replication) Status() string {
-	return r.rawResponse.Status
-}
-
-// ReplicationListResult - The result of a request to list replications for a container registry.
+// ReplicationListResult the result of a request to list replications for a container registry.
 type ReplicationListResult struct {
-	rawResponse *http.Response
+	autorest.Response `json:"-"`
 	// Value - The list of replications. Since this list may be incomplete, the nextLink field should be used to request the next list of replications.
-	Value []Replication `json:"value,omitempty"`
+	Value *[]Replication `json:"value,omitempty"`
 	// NextLink - The URI that can be used to request the next list of replications.
-	NextLink Marker `json:"NextLink"`
+	NextLink *string `json:"nextLink,omitempty"`
 }
 
-// Response returns the raw HTTP response object.
-func (rlr ReplicationListResult) Response() *http.Response {
-	return rlr.rawResponse
+// ReplicationListResultIterator provides access to a complete listing of Replication values.
+type ReplicationListResultIterator struct {
+	i    int
+	page ReplicationListResultPage
 }
 
-// StatusCode returns the HTTP status code of the response, e.g. 200.
-func (rlr ReplicationListResult) StatusCode() int {
-	return rlr.rawResponse.StatusCode
+// Next advances to the next value.  If there was an error making
+// the request the iterator does not advance and the error is returned.
+func (iter *ReplicationListResultIterator) Next() error {
+	iter.i++
+	if iter.i < len(iter.page.Values()) {
+		return nil
+	}
+	err := iter.page.Next()
+	if err != nil {
+		iter.i--
+		return err
+	}
+	iter.i = 0
+	return nil
 }
 
-// Status returns the HTTP status message of the response, e.g. "200 OK".
-func (rlr ReplicationListResult) Status() string {
-	return rlr.rawResponse.Status
+// NotDone returns true if the enumeration should be started or is not yet complete.
+func (iter ReplicationListResultIterator) NotDone() bool {
+	return iter.page.NotDone() && iter.i < len(iter.page.Values())
 }
 
-// ReplicationProperties - The properties of a replication.
+// Response returns the raw server response from the last page request.
+func (iter ReplicationListResultIterator) Response() ReplicationListResult {
+	return iter.page.Response()
+}
+
+// Value returns the current value or a zero-initialized value if the
+// iterator has advanced beyond the end of the collection.
+func (iter ReplicationListResultIterator) Value() Replication {
+	if !iter.page.NotDone() {
+		return Replication{}
+	}
+	return iter.page.Values()[iter.i]
+}
+
+// IsEmpty returns true if the ListResult contains no values.
+func (rlr ReplicationListResult) IsEmpty() bool {
+	return rlr.Value == nil || len(*rlr.Value) == 0
+}
+
+// replicationListResultPreparer prepares a request to retrieve the next set of results.
+// It returns nil if no more results exist.
+func (rlr ReplicationListResult) replicationListResultPreparer() (*http.Request, error) {
+	if rlr.NextLink == nil || len(to.String(rlr.NextLink)) < 1 {
+		return nil, nil
+	}
+	return autorest.Prepare(&http.Request{},
+		autorest.AsJSON(),
+		autorest.AsGet(),
+		autorest.WithBaseURL(to.String(rlr.NextLink)))
+}
+
+// ReplicationListResultPage contains a page of Replication values.
+type ReplicationListResultPage struct {
+	fn  func(ReplicationListResult) (ReplicationListResult, error)
+	rlr ReplicationListResult
+}
+
+// Next advances to the next page of values.  If there was an error making
+// the request the page does not advance and the error is returned.
+func (page *ReplicationListResultPage) Next() error {
+	next, err := page.fn(page.rlr)
+	if err != nil {
+		return err
+	}
+	page.rlr = next
+	return nil
+}
+
+// NotDone returns true if the page enumeration should be started or is not yet complete.
+func (page ReplicationListResultPage) NotDone() bool {
+	return !page.rlr.IsEmpty()
+}
+
+// Response returns the raw server response from the last page request.
+func (page ReplicationListResultPage) Response() ReplicationListResult {
+	return page.rlr
+}
+
+// Values returns the slice of values for the current page or nil if there are no values.
+func (page ReplicationListResultPage) Values() []Replication {
+	if page.rlr.IsEmpty() {
+		return nil
+	}
+	return *page.rlr.Value
+}
+
+// ReplicationProperties the properties of a replication.
 type ReplicationProperties struct {
-	// ProvisioningState - The provisioning state of the replication at the time the operation was called. Possible values include: 'Creating', 'Updating', 'Deleting', 'Succeeded', 'Failed', 'Canceled', 'None'
-	ProvisioningState ProvisioningStateType `json:"provisioningState,omitempty"`
+	// ProvisioningState - The provisioning state of the replication at the time the operation was called. Possible values include: 'Creating', 'Updating', 'Deleting', 'Succeeded', 'Failed', 'Canceled'
+	ProvisioningState ProvisioningState `json:"provisioningState,omitempty"`
 	// Status - The status of the replication at the time the operation was called.
 	Status *Status `json:"status,omitempty"`
 }
 
-// ReplicationUpdateParameters - The parameters for updating a replication.
-type ReplicationUpdateParameters struct {
-	// Tags - The tags for the replication.
-	Tags map[string]string `json:"tags,omitempty"`
+// ReplicationsCreateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type ReplicationsCreateFuture struct {
+	azure.Future
+	req *http.Request
 }
 
-// Request - The request that generated the event.
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future ReplicationsCreateFuture) Result(client ReplicationsClient) (r Replication, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsCreateFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return r, azure.NewAsyncOpIncompleteError("containerregistry.ReplicationsCreateFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		r, err = client.CreateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsCreateFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsCreateFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	r, err = client.CreateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsCreateFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// ReplicationsDeleteFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type ReplicationsDeleteFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future ReplicationsDeleteFuture) Result(client ReplicationsClient) (ar autorest.Response, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsDeleteFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return ar, azure.NewAsyncOpIncompleteError("containerregistry.ReplicationsDeleteFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		ar, err = client.DeleteResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsDeleteFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsDeleteFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	ar, err = client.DeleteResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsDeleteFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// ReplicationsUpdateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type ReplicationsUpdateFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future ReplicationsUpdateFuture) Result(client ReplicationsClient) (r Replication, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsUpdateFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return r, azure.NewAsyncOpIncompleteError("containerregistry.ReplicationsUpdateFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		r, err = client.UpdateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsUpdateFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsUpdateFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	r, err = client.UpdateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.ReplicationsUpdateFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// ReplicationUpdateParameters the parameters for updating a replication.
+type ReplicationUpdateParameters struct {
+	// Tags - The tags for the replication.
+	Tags *map[string]*string `json:"tags,omitempty"`
+}
+
+// Request the request that generated the event.
 type Request struct {
 	// ID - The ID of the request that initiated the event.
 	ID *string `json:"id,omitempty"`
@@ -602,7 +1208,7 @@ type Request struct {
 	Useragent *string `json:"useragent,omitempty"`
 }
 
-// Resource - An Azure resource.
+// Resource an Azure resource.
 type Resource struct {
 	// ID - The resource ID.
 	ID *string `json:"id,omitempty"`
@@ -611,21 +1217,21 @@ type Resource struct {
 	// Type - The type of the resource.
 	Type *string `json:"type,omitempty"`
 	// Location - The location of the resource. This cannot be changed after the resource is created.
-	Location string `json:"location,omitempty"`
+	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]string `json:"tags,omitempty"`
+	Tags *map[string]*string `json:"tags,omitempty"`
 }
 
-// Sku - The SKU of a container registry.
+// Sku the SKU of a container registry.
 type Sku struct {
-	// Name - The SKU name of the container registry. Required for registry creation. Possible values include: 'Classic', 'Basic', 'Standard', 'Premium', 'None'
-	Name SkuNameType `json:"name,omitempty"`
-	// Tier - The SKU tier based on the SKU name. Possible values include: 'Classic', 'Basic', 'Standard', 'Premium', 'None'
-	Tier SkuTierType `json:"tier,omitempty"`
+	// Name - The SKU name of the container registry. Required for registry creation. Possible values include: 'Classic', 'Basic', 'Standard', 'Premium'
+	Name SkuName `json:"name,omitempty"`
+	// Tier - The SKU tier based on the SKU name. Possible values include: 'SkuTierClassic', 'SkuTierBasic', 'SkuTierStandard', 'SkuTierPremium'
+	Tier SkuTier `json:"tier,omitempty"`
 }
 
-// Source - The registry node that generated the event. Put differently, while the actor initiates the event, the
-// source generates it.
+// Source the registry node that generated the event. Put differently, while the actor initiates the event, the source
+// generates it.
 type Source struct {
 	// Addr - The IP or hostname and the port of the registry node that generated the event. Generally, this will be resolved by os.Hostname() along with the running port.
 	Addr *string `json:"addr,omitempty"`
@@ -633,24 +1239,24 @@ type Source struct {
 	InstanceID *string `json:"instanceID,omitempty"`
 }
 
-// Status - The status of an Azure resource at the time the operation was called.
+// Status the status of an Azure resource at the time the operation was called.
 type Status struct {
 	// DisplayStatus - The short label for the status.
 	DisplayStatus *string `json:"displayStatus,omitempty"`
 	// Message - The detailed message for the status, including alerts and error messages.
 	Message *string `json:"message,omitempty"`
 	// Timestamp - The timestamp when the status was changed to the current value.
-	Timestamp *time.Time `json:"timestamp,omitempty"`
+	Timestamp *date.Time `json:"timestamp,omitempty"`
 }
 
-// StorageAccountProperties - The properties of a storage account for a container registry. Only applicable to Classic
+// StorageAccountProperties the properties of a storage account for a container registry. Only applicable to Classic
 // SKU.
 type StorageAccountProperties struct {
 	// ID - The resource ID of the storage account.
-	ID string `json:"id,omitempty"`
+	ID *string `json:"id,omitempty"`
 }
 
-// Target - The target of the event.
+// Target the target of the event.
 type Target struct {
 	// MediaType - The MIME type of the referenced object.
 	MediaType *string `json:"mediaType,omitempty"`
@@ -668,9 +1274,9 @@ type Target struct {
 	Tag *string `json:"tag,omitempty"`
 }
 
-// Webhook - An object that represents a webhook for a container registry.
+// Webhook an object that represents a webhook for a container registry.
 type Webhook struct {
-	rawResponse *http.Response
+	autorest.Response `json:"-"`
 	// ID - The resource ID.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -678,106 +1284,432 @@ type Webhook struct {
 	// Type - The type of the resource.
 	Type *string `json:"type,omitempty"`
 	// Location - The location of the resource. This cannot be changed after the resource is created.
-	Location string `json:"location,omitempty"`
+	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]string `json:"tags,omitempty"`
-	// Properties - The properties of the webhook.
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// WebhookProperties - The properties of the webhook.
 	*WebhookProperties `json:"properties,omitempty"`
 }
 
-// Response returns the raw HTTP response object.
-func (w Webhook) Response() *http.Response {
-	return w.rawResponse
+// UnmarshalJSON is the custom unmarshaler for Webhook struct.
+func (w *Webhook) UnmarshalJSON(body []byte) error {
+	var m map[string]*json.RawMessage
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return err
+	}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties WebhookProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
+		}
+		w.WebhookProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		w.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		w.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		w.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		w.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		w.Tags = &tags
+	}
+
+	return nil
 }
 
-// StatusCode returns the HTTP status code of the response, e.g. 200.
-func (w Webhook) StatusCode() int {
-	return w.rawResponse.StatusCode
-}
-
-// Status returns the HTTP status message of the response, e.g. "200 OK".
-func (w Webhook) Status() string {
-	return w.rawResponse.Status
-}
-
-// WebhookCreateParameters - The parameters for creating a webhook.
+// WebhookCreateParameters the parameters for creating a webhook.
 type WebhookCreateParameters struct {
 	// Tags - The tags for the webhook.
-	Tags map[string]string `json:"tags,omitempty"`
+	Tags *map[string]*string `json:"tags,omitempty"`
 	// Location - The location of the webhook. This cannot be changed after the resource is created.
-	Location string `json:"location,omitempty"`
-	// Properties - The properties that the webhook will be created with.
+	Location *string `json:"location,omitempty"`
+	// WebhookPropertiesCreateParameters - The properties that the webhook will be created with.
 	*WebhookPropertiesCreateParameters `json:"properties,omitempty"`
 }
 
-// WebhookListResult - The result of a request to list webhooks for a container registry.
+// UnmarshalJSON is the custom unmarshaler for WebhookCreateParameters struct.
+func (wcp *WebhookCreateParameters) UnmarshalJSON(body []byte) error {
+	var m map[string]*json.RawMessage
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return err
+	}
+	var v *json.RawMessage
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		wcp.Tags = &tags
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		wcp.Location = &location
+	}
+
+	v = m["properties"]
+	if v != nil {
+		var properties WebhookPropertiesCreateParameters
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
+		}
+		wcp.WebhookPropertiesCreateParameters = &properties
+	}
+
+	return nil
+}
+
+// WebhookListResult the result of a request to list webhooks for a container registry.
 type WebhookListResult struct {
-	rawResponse *http.Response
+	autorest.Response `json:"-"`
 	// Value - The list of webhooks. Since this list may be incomplete, the nextLink field should be used to request the next list of webhooks.
-	Value []Webhook `json:"value,omitempty"`
+	Value *[]Webhook `json:"value,omitempty"`
 	// NextLink - The URI that can be used to request the next list of webhooks.
-	NextLink Marker `json:"NextLink"`
+	NextLink *string `json:"nextLink,omitempty"`
 }
 
-// Response returns the raw HTTP response object.
-func (wlr WebhookListResult) Response() *http.Response {
-	return wlr.rawResponse
+// WebhookListResultIterator provides access to a complete listing of Webhook values.
+type WebhookListResultIterator struct {
+	i    int
+	page WebhookListResultPage
 }
 
-// StatusCode returns the HTTP status code of the response, e.g. 200.
-func (wlr WebhookListResult) StatusCode() int {
-	return wlr.rawResponse.StatusCode
+// Next advances to the next value.  If there was an error making
+// the request the iterator does not advance and the error is returned.
+func (iter *WebhookListResultIterator) Next() error {
+	iter.i++
+	if iter.i < len(iter.page.Values()) {
+		return nil
+	}
+	err := iter.page.Next()
+	if err != nil {
+		iter.i--
+		return err
+	}
+	iter.i = 0
+	return nil
 }
 
-// Status returns the HTTP status message of the response, e.g. "200 OK".
-func (wlr WebhookListResult) Status() string {
-	return wlr.rawResponse.Status
+// NotDone returns true if the enumeration should be started or is not yet complete.
+func (iter WebhookListResultIterator) NotDone() bool {
+	return iter.page.NotDone() && iter.i < len(iter.page.Values())
 }
 
-// WebhookProperties - The properties of a webhook.
+// Response returns the raw server response from the last page request.
+func (iter WebhookListResultIterator) Response() WebhookListResult {
+	return iter.page.Response()
+}
+
+// Value returns the current value or a zero-initialized value if the
+// iterator has advanced beyond the end of the collection.
+func (iter WebhookListResultIterator) Value() Webhook {
+	if !iter.page.NotDone() {
+		return Webhook{}
+	}
+	return iter.page.Values()[iter.i]
+}
+
+// IsEmpty returns true if the ListResult contains no values.
+func (wlr WebhookListResult) IsEmpty() bool {
+	return wlr.Value == nil || len(*wlr.Value) == 0
+}
+
+// webhookListResultPreparer prepares a request to retrieve the next set of results.
+// It returns nil if no more results exist.
+func (wlr WebhookListResult) webhookListResultPreparer() (*http.Request, error) {
+	if wlr.NextLink == nil || len(to.String(wlr.NextLink)) < 1 {
+		return nil, nil
+	}
+	return autorest.Prepare(&http.Request{},
+		autorest.AsJSON(),
+		autorest.AsGet(),
+		autorest.WithBaseURL(to.String(wlr.NextLink)))
+}
+
+// WebhookListResultPage contains a page of Webhook values.
+type WebhookListResultPage struct {
+	fn  func(WebhookListResult) (WebhookListResult, error)
+	wlr WebhookListResult
+}
+
+// Next advances to the next page of values.  If there was an error making
+// the request the page does not advance and the error is returned.
+func (page *WebhookListResultPage) Next() error {
+	next, err := page.fn(page.wlr)
+	if err != nil {
+		return err
+	}
+	page.wlr = next
+	return nil
+}
+
+// NotDone returns true if the page enumeration should be started or is not yet complete.
+func (page WebhookListResultPage) NotDone() bool {
+	return !page.wlr.IsEmpty()
+}
+
+// Response returns the raw server response from the last page request.
+func (page WebhookListResultPage) Response() WebhookListResult {
+	return page.wlr
+}
+
+// Values returns the slice of values for the current page or nil if there are no values.
+func (page WebhookListResultPage) Values() []Webhook {
+	if page.wlr.IsEmpty() {
+		return nil
+	}
+	return *page.wlr.Value
+}
+
+// WebhookProperties the properties of a webhook.
 type WebhookProperties struct {
-	// Status - The status of the webhook at the time the operation was called. Possible values include: 'Enabled', 'Disabled', 'None'
-	Status WebhookStatusType `json:"status,omitempty"`
+	// Status - The status of the webhook at the time the operation was called. Possible values include: 'Enabled', 'Disabled'
+	Status WebhookStatus `json:"status,omitempty"`
 	// Scope - The scope of repositories where the event can be triggered. For example, 'foo:*' means events for all tags under repository 'foo'. 'foo:bar' means events for 'foo:bar' only. 'foo' is equivalent to 'foo:latest'. Empty means all events.
 	Scope *string `json:"scope,omitempty"`
 	// Actions - The list of actions that trigger the webhook to post notifications.
-	Actions []WebhookActionType `json:"actions,omitempty"`
-	// ProvisioningState - The provisioning state of the webhook at the time the operation was called. Possible values include: 'Creating', 'Updating', 'Deleting', 'Succeeded', 'Failed', 'Canceled', 'None'
-	ProvisioningState ProvisioningStateType `json:"provisioningState,omitempty"`
+	Actions *[]WebhookAction `json:"actions,omitempty"`
+	// ProvisioningState - The provisioning state of the webhook at the time the operation was called. Possible values include: 'Creating', 'Updating', 'Deleting', 'Succeeded', 'Failed', 'Canceled'
+	ProvisioningState ProvisioningState `json:"provisioningState,omitempty"`
 }
 
-// WebhookPropertiesCreateParameters - The parameters for creating the properties of a webhook.
+// WebhookPropertiesCreateParameters the parameters for creating the properties of a webhook.
 type WebhookPropertiesCreateParameters struct {
 	// ServiceURI - The service URI for the webhook to post notifications.
-	ServiceURI string `json:"serviceUri,omitempty"`
+	ServiceURI *string `json:"serviceUri,omitempty"`
 	// CustomHeaders - Custom headers that will be added to the webhook notifications.
-	CustomHeaders map[string]string `json:"customHeaders,omitempty"`
-	// Status - The status of the webhook at the time the operation was called. Possible values include: 'Enabled', 'Disabled', 'None'
-	Status WebhookStatusType `json:"status,omitempty"`
+	CustomHeaders *map[string]*string `json:"customHeaders,omitempty"`
+	// Status - The status of the webhook at the time the operation was called. Possible values include: 'Enabled', 'Disabled'
+	Status WebhookStatus `json:"status,omitempty"`
 	// Scope - The scope of repositories where the event can be triggered. For example, 'foo:*' means events for all tags under repository 'foo'. 'foo:bar' means events for 'foo:bar' only. 'foo' is equivalent to 'foo:latest'. Empty means all events.
 	Scope *string `json:"scope,omitempty"`
 	// Actions - The list of actions that trigger the webhook to post notifications.
-	Actions []WebhookActionType `json:"actions,omitempty"`
+	Actions *[]WebhookAction `json:"actions,omitempty"`
 }
 
-// WebhookPropertiesUpdateParameters - The parameters for updating the properties of a webhook.
+// WebhookPropertiesUpdateParameters the parameters for updating the properties of a webhook.
 type WebhookPropertiesUpdateParameters struct {
 	// ServiceURI - The service URI for the webhook to post notifications.
 	ServiceURI *string `json:"serviceUri,omitempty"`
 	// CustomHeaders - Custom headers that will be added to the webhook notifications.
-	CustomHeaders map[string]string `json:"customHeaders,omitempty"`
-	// Status - The status of the webhook at the time the operation was called. Possible values include: 'Enabled', 'Disabled', 'None'
-	Status WebhookStatusType `json:"status,omitempty"`
+	CustomHeaders *map[string]*string `json:"customHeaders,omitempty"`
+	// Status - The status of the webhook at the time the operation was called. Possible values include: 'Enabled', 'Disabled'
+	Status WebhookStatus `json:"status,omitempty"`
 	// Scope - The scope of repositories where the event can be triggered. For example, 'foo:*' means events for all tags under repository 'foo'. 'foo:bar' means events for 'foo:bar' only. 'foo' is equivalent to 'foo:latest'. Empty means all events.
 	Scope *string `json:"scope,omitempty"`
 	// Actions - The list of actions that trigger the webhook to post notifications.
-	Actions []WebhookActionType `json:"actions,omitempty"`
+	Actions *[]WebhookAction `json:"actions,omitempty"`
 }
 
-// WebhookUpdateParameters - The parameters for updating a webhook.
+// WebhooksCreateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type WebhooksCreateFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future WebhooksCreateFuture) Result(client WebhooksClient) (w Webhook, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksCreateFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return w, azure.NewAsyncOpIncompleteError("containerregistry.WebhooksCreateFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		w, err = client.CreateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.WebhooksCreateFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksCreateFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	w, err = client.CreateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksCreateFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// WebhooksDeleteFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type WebhooksDeleteFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future WebhooksDeleteFuture) Result(client WebhooksClient) (ar autorest.Response, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksDeleteFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return ar, azure.NewAsyncOpIncompleteError("containerregistry.WebhooksDeleteFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		ar, err = client.DeleteResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.WebhooksDeleteFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksDeleteFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	ar, err = client.DeleteResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksDeleteFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// WebhooksUpdateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
+type WebhooksUpdateFuture struct {
+	azure.Future
+	req *http.Request
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future WebhooksUpdateFuture) Result(client WebhooksClient) (w Webhook, err error) {
+	var done bool
+	done, err = future.Done(client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksUpdateFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		return w, azure.NewAsyncOpIncompleteError("containerregistry.WebhooksUpdateFuture")
+	}
+	if future.PollingMethod() == azure.PollingLocation {
+		w, err = client.UpdateResponder(future.Response())
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "containerregistry.WebhooksUpdateFuture", "Result", future.Response(), "Failure responding to request")
+		}
+		return
+	}
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksUpdateFuture", "Result", resp, "Failure sending request")
+		return
+	}
+	w, err = client.UpdateResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "containerregistry.WebhooksUpdateFuture", "Result", resp, "Failure responding to request")
+	}
+	return
+}
+
+// WebhookUpdateParameters the parameters for updating a webhook.
 type WebhookUpdateParameters struct {
 	// Tags - The tags for the webhook.
-	Tags map[string]string `json:"tags,omitempty"`
-	// Properties - The properties that the webhook will be updated with.
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// WebhookPropertiesUpdateParameters - The properties that the webhook will be updated with.
 	*WebhookPropertiesUpdateParameters `json:"properties,omitempty"`
+}
+
+// UnmarshalJSON is the custom unmarshaler for WebhookUpdateParameters struct.
+func (wup *WebhookUpdateParameters) UnmarshalJSON(body []byte) error {
+	var m map[string]*json.RawMessage
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return err
+	}
+	var v *json.RawMessage
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		wup.Tags = &tags
+	}
+
+	v = m["properties"]
+	if v != nil {
+		var properties WebhookPropertiesUpdateParameters
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
+		}
+		wup.WebhookPropertiesUpdateParameters = &properties
+	}
+
+	return nil
 }
